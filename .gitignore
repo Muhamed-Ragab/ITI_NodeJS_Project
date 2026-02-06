@@ -1,0 +1,29 @@
+# Node.js
+node_modules/
+dist/
+.env
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.pnpm-store/
+
+# Bun
+*.bun
+
+# Logs
+*.log
+
+# Docker
+*.tar
+*.tmp
+
+# IDEs
+.vscode/
+.idea/
+.DS_Store
+
+# Misc
+.env.local
+.env.*.local
+.cache/
