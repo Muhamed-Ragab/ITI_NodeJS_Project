@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "nodemon src/server.js",
+    "lint": "eslint \"src/**/*.js\" \"test/**/*.js\" --max-warnings=0",
     "build": "tsup",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
