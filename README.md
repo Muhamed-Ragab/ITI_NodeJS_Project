@@ -60,6 +60,17 @@ src/
    npm run dev
    ```
 
+## Developer: Formatting & linting (Biome) 🧹
+
+We replaced ESLint with Biome. Recommended local developer commands:
+
+- Install editor plugin: Biome for your editor (VS Code, etc.)
+- Check code: `npm run lint`
+- Format code: `npm run format`
+- Verify formatting (CI): `npm run format:check`
+
+Pre-commit hooks (husky + lint-staged) will auto-format and run lightweight checks on staged files.
+
 ## 🤝 Contribution Rules
 - Always branch off `develop`.
 - Use `feature/feature-name` naming convention.

@@ -32,6 +32,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Check formatting
+        run: npm run format:check --if-present
+
       - name: Wait for MongoDB
         run: |
           for i in {1..30}; do
