@@ -1,14 +1,14 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    environment: 'node',
+    environment: "node",
     globals: true,
     coverage: {
-      provider: 'c8',
-      reporter: ['text', 'lcov'],
+      provider: "c8",
+      reporter: ["text", "lcov"],
       all: true,
-      exclude: ['**/node_modules/**']
-    }
-  }
+      exclude: ["**/node_modules/**"],
+    },
+  },
 });

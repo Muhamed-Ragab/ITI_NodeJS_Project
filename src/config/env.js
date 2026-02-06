@@ -1,13 +1,13 @@
-import dotenv from 'dotenv';
-import { z } from 'zod';
+import dotenv from "dotenv";
+import { z } from "zod";
 
 // Load .env early and merge into process.env
 dotenv.config();
 
 const envSchema = z.object({
   NODE_ENV: z
-    .enum(['development', 'production', 'test'])
-    .default('development'),
+    .enum(["development", "production", "test"])
+    .default("development"),
   PORT: z.coerce.number().default(3000),
   MONGODB_URI: z.string().url(),
   JWT_SECRET: z.string().min(32), // Minimum 32 chars for better security
@@ -30,4 +30,4 @@ try {
   throw new Error(`Environment validation failed: ${zerr.message}`);
 }
 
-export const env = envParsed; 
+export const env = envParsed;
