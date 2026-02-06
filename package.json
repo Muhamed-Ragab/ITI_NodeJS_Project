@@ -7,8 +7,11 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "node --watch src/server.js",
-    "lint": "eslint \"src/**/*.js\" --max-warnings=0",
-    "build": "tsup",
+    "lint": "biome check src --max-warnings=0",
+    "format": "biome format src --write",
+    "format:check": "biome format src --check",
+    "prepare": "husky install",
+    "build": "esbuild src/server.js --bundle --platform=node --format=esm --target=node20 --outfile=dist/server.js",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
     "test:watch": "vitest -w"
@@ -28,10 +31,21 @@
     "zod": "4.3.6"
   },
   "devDependencies": {
-    "eslint": "^8.52.0",
-    "eslint-plugin-node": "^11.1.0",
+    "biome": "^1.0.0",
+    "esbuild": "^0.19.4",
+    "husky": "^8.0.0",
+    "lint-staged": "^14.0.0",
     "prettier": "^3.0.3",
-    "tsup": "^8.5.1",
     "vitest": "^4.0.18"
+  },
+  "lint-staged": {
+    "*.{js,json,md}": [
+      "biome format --write",
+      "git add"
+    ],
+    "src/**/*.js": [
+      "biome check --quiet",
+      "git add"
+    ]
   }
 }
