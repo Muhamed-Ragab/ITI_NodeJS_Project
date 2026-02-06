@@ -7,7 +7,7 @@ This document splits the project into 6 Phases. Each task is designed to be inde
 
 - [ ] **Task 1.1: Repo Setup**
     - Initialize Git repo.
-    - Setup `express`, `eslint`, `prettier`.
+    - Setup `express`, `biome` (formatter + linter), `prettier`.
     - Create folder structure based on `ARCHITECTURE.md`.
 - [ ] **Task 1.2: Database Connection**
     - Setup MongoDB Atlas or Local instance.

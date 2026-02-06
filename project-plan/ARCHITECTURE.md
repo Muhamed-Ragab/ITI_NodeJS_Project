@@ -86,4 +86,4 @@ All API responses must follow a consistent format:
 **Rules:**
 1. Never push directly to `main`.
 2. Create a Pull Request (PR) for every task.
-3. Code must pass linting (ESLint) before merging.
+3. Code must pass linting (Biome) before merging.
