@@ -8,7 +8,7 @@ export default defineConfig({
       provider: 'c8',
       reporter: ['text', 'lcov'],
       all: true,
-      exclude: ['**/node_modules/**', 'test/**']
-    }
-  }
+      exclude: ['**/node_modules/**', 'test/**'],
+    },
+  },
 });
