@@ -31,7 +31,7 @@
     "zod": "4.3.6"
   },
   "devDependencies": {
-    "biome": "^1.0.0",
+    "biome": "^0.3.3",
     "esbuild": "^0.19.4",
     "husky": "^8.0.0",
     "lint-staged": "^14.0.0",
