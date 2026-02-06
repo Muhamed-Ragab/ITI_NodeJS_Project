@@ -17,6 +17,9 @@ const envSchema = z.object({
   GOOGLE_CLIENT_SECRET: z.string().optional(),
 });
 
+// Export schema for unit tests and external validation
+export { envSchema };
+
 // Parse and validate env — throws with readable error if something is missing/invalid
 let envParsed;
 try {
@@ -27,4 +30,4 @@ try {
   throw new Error(`Environment validation failed: ${zerr.message}`);
 }
 
-export const env = envParsed;
+export const env = envParsed; 
