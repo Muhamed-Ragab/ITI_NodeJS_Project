@@ -43,12 +43,10 @@
   },
   "lint-staged": {
     "*.{js,json,md}": [
-      "biome format --write",
-      "git add"
+      "biome format --staged --write"
     ],
     "src/**/*.js": [
-      "biome check --quiet",
-      "git add"
+      "biome check --staged --error-on-warnings"
     ]
   }
 }
