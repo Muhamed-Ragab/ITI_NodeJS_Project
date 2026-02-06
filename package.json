@@ -7,11 +7,16 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "node --watch src/server.js",
-    "lint": "eslint \"src/**/*.js\" --max-warnings=0",
-    "build": "tsup",
+    "lint": "biome check src --error-on-warnings",
+    "format": "biome format src --write",
+    "format:check": "biome check --reporter=summary",
+    "prepare": "husky",
+    "build": "esbuild src/server.js --bundle --platform=node --format=esm --target=node20 --outfile=dist/server.js",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
-    "test:watch": "vitest -w"
+    "test:watch": "vitest -w",
+    "check": "ultracite check",
+    "fix": "ultracite fix"
   },
   "keywords": [],
   "author": "",
@@ -28,10 +33,23 @@
     "zod": "4.3.6"
   },
   "devDependencies": {
-    "eslint": "^8.52.0",
-    "eslint-plugin-node": "^11.1.0",
+    "@biomejs/biome": "^2.3.13",
+    "esbuild": "^0.19.4",
+    "husky": "^8.0.3",
+    "lint-staged": "^14.0.1",
     "prettier": "^3.0.3",
-    "tsup": "^8.5.1",
+    "ultracite": "^7.1.4",
     "vitest": "^4.0.18"
+  },
+  "lint-staged": {
+    "*.{js,json,md}": [
+      "biome format --staged --write"
+    ],
+    "src/**/*.js": [
+      "biome check --staged --error-on-warnings"
+    ],
+    "*.{js,jsx,ts,tsx,json,jsonc,css,scss,md,mdx}": [
+      "npx ultracite fix"
+    ]
   }
 }
