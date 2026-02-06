@@ -1,19 +1,28 @@
+import dotenv from 'dotenv';
 import { z } from 'zod';
+
+// Load .env early and merge into process.env
+dotenv.config();
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().default(3000),
   MONGODB_URI: z.string().url(),
   JWT_SECRET: z.string().min(32), // Minimum 32 chars for better security
-  STRIPE_SECRET_KEY: z.string(),
-  CLOUDINARY_URL: z.string(),
-  GOOGLE_CLIENT_ID: z.string(),
-  GOOGLE_CLIENT_SECRET: z.string(),
+  STRIPE_SECRET_KEY: z.string().optional(),
+  CLOUDINARY_URL: z.string().optional(),
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
 });
 
-// Load environment variables from .env file
-// Ensure dotenv is configured in server.js or app.js before this is imported
-// Or configure it here directly if this is the main entry point for env loading
-// For now, assuming dotenv.config() is called elsewhere before this is used.
+// Parse and validate env — throws with readable error if something is missing/invalid
+let envParsed;
+try {
+  envParsed = envSchema.parse(process.env);
+} catch (err) {
+  // Re-throw with a clearer message for CI/developers
+  const zerr = err;
+  throw new Error(`Environment validation failed: ${zerr.message}`);
+}
 
-export const env = envSchema.parse(process.env);
+export const env = envParsed;
