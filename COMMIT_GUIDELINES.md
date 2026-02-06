@@ -20,3 +20,9 @@ To maintain a clean and readable history, all team members must follow the **Con
 2. Don't capitalize the first letter.
 3. No dot (.) at the end.
 4. Scope should be the module name (auth, user, product, etc.).
+
+## Branching (short)
+- Feature/fix branches must target `develop` (e.g. `feature/xxx`, `fix/yyy`).
+- `develop` is the integration branch for features; open PRs from feature branches to `develop`.
+- `main` only receives changes via a PR from `develop` (no direct feature -> main merges).
+- Branch names should use kebab or slash separators and be prefixed with their type (feature/, fix/, hotfix/, release/, chore/, docs/).
