@@ -6,7 +6,13 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["!!**/dist"]
+    "includes": [
+      "src/**/*.js",
+      "test/**/*.js",
+      "docs/**/*.md",
+      "README.md",
+      "package.json"
+    ]
   },
   "formatter": {
     "enabled": true,

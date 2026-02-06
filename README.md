@@ -22,6 +22,9 @@ src/
 └── server.js       # Server entry point
 ```
 
+## Documentation
+All global project documentation has moved to the `docs/` folder. See `docs/README.md` for developer onboarding, branching rules, commit guidelines and DX scripts (git helpers).
+
 ## 🛠️ Setup Instructions
 
 ### Prerequisites

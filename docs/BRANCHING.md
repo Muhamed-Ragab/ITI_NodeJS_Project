@@ -1,4 +1,4 @@
-Branching strategy
+Branching strategy (moved from repository root)
 
 Goal
 
@@ -20,7 +20,8 @@ Rules / naming
 
 Enforcement
 
-- CI contains a workflow (`.github/workflows/pr-target.yml`) that blocks PRs with incorrect source/target branches.
+- A local Husky `pre-push` hook prevents pushes from protected or incorrectly-named branches.
+- Use `npm run git:ensure-branch` to validate or auto-create a conforming branch.
 
 Why
 
