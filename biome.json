@@ -7,8 +7,11 @@
   },
   "files": {
     "includes": [
-      "**",
-      "!!**/dist"
+      "src/**/*.js",
+      "test/**/*.js",
+      "docs/**/*.md",
+      "README.md",
+      "package.json"
     ]
   },
   "formatter": {
@@ -34,7 +37,5 @@
       }
     }
   },
-  "extends": [
-    "ultracite/biome/core"
-  ]
+  "extends": ["ultracite/biome/core"]
 }
