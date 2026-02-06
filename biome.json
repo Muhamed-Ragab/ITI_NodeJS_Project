@@ -6,10 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": [
-      "**",
-      "!!**/dist"
-    ]
+    "includes": ["!!**/dist"]
   },
   "formatter": {
     "enabled": true,
@@ -34,7 +31,5 @@
       }
     }
   },
-  "extends": [
-    "ultracite/biome/core"
-  ]
+  "extends": ["ultracite/biome/core"]
 }
