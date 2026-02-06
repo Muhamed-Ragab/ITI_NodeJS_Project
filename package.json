@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "MEAN Stack E-Commerce Backend",
   "type": "module",
-  "main": "src/server.js",
+  "main": "dist/server.js",
   "scripts": {
-    "start": "node src/server.js",
+    "start": "node dist/server.js",
     "dev": "nodemon src/server.js",
+    "build": "tsup",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
     "test:watch": "vitest -w"
@@ -30,6 +31,7 @@
     "eslint": "^8.52.0",
     "nodemon": "^3.0.1",
     "prettier": "^3.0.3",
+    "tsup": "^8.5.1",
     "vitest": "^4.0.18"
   }
 }
