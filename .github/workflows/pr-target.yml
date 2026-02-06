@@ -1,0 +1,33 @@
+name: "PR target policy"
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+jobs:
+  validate-pr-target:
+    name: Validate PR base/branch
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Check PR target and source
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const base = context.payload.pull_request.base.ref;
+            const head = context.payload.pull_request.head.ref;
+
+            const allowedFeatureRegex = /^(feature|fix|hotfix|release|chore|docs)\/.+/;
+
+            if (base === 'main' && head !== 'develop') {
+              core.setFailed(`Pull requests to 'main' must come from 'develop'. Current head: '${head}'. Create a PR from 'develop' or merge 'develop' into your branch.`);
+            }
+
+            if (base === 'develop' && !(head === 'develop' || allowedFeatureRegex.test(head) || head.startsWith('dependabot/'))) {
+              core.setFailed(`Pull requests to 'develop' must come from feature/fix/hotfix/release branches (e.g. feature/...). Current head: '${head}'.`);
+            }
+
+            core.info(`PR validated: ${head} -> ${base}`);
