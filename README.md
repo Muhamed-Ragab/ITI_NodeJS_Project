@@ -72,7 +72,7 @@ We replaced ESLint with Biome. Recommended local developer commands:
 - Format code: `npm run format`
 - Verify formatting (CI): `npm run format:check`
 
-Pre-commit hooks (husky + lint-staged) will auto-format and run lightweight checks on staged files.
+Pre-commit hooks have been removed; run `npm run format` and `npm run lint` locally — CI enforces formatting and checks.
 
 ## 🤝 Contribution Rules
 - Always branch off `develop`.
