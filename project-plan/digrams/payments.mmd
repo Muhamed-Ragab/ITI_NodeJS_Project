@@ -1,0 +1,27 @@
+flowchart TD
+  subgraph Payments_Create_Payment_Intent
+    PP0(["Start"]) --> PP1["JWT Auth"]
+    PP1 -->|Fail| PP2["401 Unauthorized"]
+    PP1 -->|OK| PP3["Validate orderId"]
+    PP3 -->|Invalid| PP4["400 Validation Error"]
+    PP3 -->|Valid| PP5["Find order"]
+    PP5 -->|Not found| PP6["404 Not Found"]
+    PP5 -->|Found| PP7["Check order owner"]
+    PP7 -->|Not allowed| PP8["403 Forbidden"]
+    PP7 -->|Allowed| PP9["Create Stripe payment intent"]
+    PP9 -->|Stripe error| PP10["502 Bad Gateway"]
+    PP9 -->|Success| PP11["Return client secret"]
+    PP11 --> PP12(["End"])
+  end
+  subgraph Payments_Stripe_Webhook
+    PW0(["Start"]) --> PW1["Verify Stripe signature"]
+    PW1 -->|Invalid| PW2["400 Bad Request"]
+    PW1 -->|Valid| PW3["Parse event type"]
+    PW3 -->|payment_intent.succeeded| PW4["Mark order as Paid"]
+    PW3 -->|payment_intent.payment_failed| PW5["Mark order as Payment Failed"]
+    PW3 -->|Other| PW6["Ignore or log event"]
+    PW4 --> PW7["200 OK"]
+    PW5 --> PW7
+    PW6 --> PW7
+    PW7 --> PW8(["End"])
+  end

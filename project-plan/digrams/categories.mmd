@@ -1,0 +1,48 @@
+flowchart TD
+  subgraph Categories_Create
+    CC0(["Start"]) --> CC1["JWT Auth"]
+    CC1 -->|Fail| CC2["401 Unauthorized"]
+    CC1 -->|OK| CC3["Check Admin role"]
+    CC3 -->|Not admin| CC4["403 Forbidden"]
+    CC3 -->|Admin| CC5["Validate category payload"]
+    CC5 -->|Invalid| CC6["400 Validation Error"]
+    CC5 -->|Valid| CC7["Create category"]
+    CC7 --> CC8["201 Created + category"]
+    CC8 --> CC9(["End"])
+  end
+  subgraph Categories_Get_By_ID
+    CG0(["Start"]) --> CG1["Validate categoryId"]
+    CG1 -->|Invalid| CG2["400 Validation Error"]
+    CG1 -->|Valid| CG3["Find category"]
+    CG3 -->|Not found| CG4["404 Not Found"]
+    CG3 -->|Found| CG5["200 OK + category"]
+    CG5 --> CG6(["End"])
+  end
+  subgraph Categories_Update
+    CU0(["Start"]) --> CU1["JWT Auth"]
+    CU1 -->|Fail| CU2["401 Unauthorized"]
+    CU1 -->|OK| CU3["Check Admin role"]
+    CU3 -->|Not admin| CU4["403 Forbidden"]
+    CU3 -->|Admin| CU5["Validate category payload"]
+    CU5 -->|Invalid| CU6["400 Validation Error"]
+    CU5 -->|Valid| CU7["Update category"]
+    CU7 -->|Not found| CU8["404 Not Found"]
+    CU7 -->|Updated| CU9["200 OK + category"]
+    CU9 --> CU10(["End"])
+  end
+  subgraph Categories_Delete
+    CD0(["Start"]) --> CD1["JWT Auth"]
+    CD1 -->|Fail| CD2["401 Unauthorized"]
+    CD1 -->|OK| CD3["Check Admin role"]
+    CD3 -->|Not admin| CD4["403 Forbidden"]
+    CD3 -->|Admin| CD5["Delete category"]
+    CD5 -->|Not found| CD6["404 Not Found"]
+    CD5 -->|Deleted| CD7["200 OK + deleted id"]
+    CD7 --> CD8(["End"])
+  end
+  subgraph Categories_List
+    CL0(["Start"]) --> CL1["Parse pagination/filter"]
+    CL1 --> CL2["Fetch categories"]
+    CL2 --> CL3["200 OK + list"]
+    CL3 --> CL4(["End"])
+  end
