@@ -17,6 +17,7 @@ export const validate = (schemaMap) => async (req, _res, next) => {
 	} catch (error) {
 		if (error instanceof ZodError) {
 			error.statusCode = 400;
+			error.code = "VALIDATION_ERROR";
 		}
 		next(error);
 	}

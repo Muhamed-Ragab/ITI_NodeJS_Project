@@ -17,6 +17,7 @@ export const requireAuth = (req, _res, next) => {
 		if (!token) {
 			return next({
 				statusCode: 401,
+				code: "UNAUTHORIZED",
 				message: "Missing or invalid authorization token",
 			});
 		}
@@ -27,6 +28,7 @@ export const requireAuth = (req, _res, next) => {
 	} catch {
 		return next({
 			statusCode: 401,
+			code: "UNAUTHORIZED",
 			message: "Unauthorized",
 		});
 	}
