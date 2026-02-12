@@ -74,4 +74,63 @@ describe("error middleware", () => {
 			message: "boom",
 		});
 	});
+
+	it("normalizes invalid statusCode and empty code", () => {
+		const res = createRes();
+
+		errorHandler(
+			{ statusCode: 700, code: "   ", message: "Unknown failure" },
+			{},
+			res,
+			() => {}
+		);
+
+		expect(res.statusCode).toBe(500);
+		expect(res.body).toEqual({
+			success: false,
+			error: { code: "INTERNAL_SERVER_ERROR" },
+			message: "Unknown failure",
+		});
+	});
+
+	it("hides 500 internal message in production mode", () => {
+		const res = createRes();
+		const previousNodeEnv = process.env.NODE_ENV;
+		process.env.NODE_ENV = "production";
+
+		try {
+			errorHandler(new Error("database credentials leaked"), {}, res, () => {});
+		} finally {
+			process.env.NODE_ENV = previousNodeEnv;
+		}
+
+		expect(res.statusCode).toBe(500);
+		expect(res.body).toEqual({
+			success: false,
+			error: { code: "INTERNAL_SERVER_ERROR" },
+			message: "Internal server error",
+		});
+	});
+
+	it("omits details for 500-level errors", () => {
+		const res = createRes();
+
+		errorHandler(
+			{
+				statusCode: 500,
+				code: "INTERNAL_FAILURE",
+				message: "failure",
+				details: { stack: "..." },
+			},
+			{},
+			res,
+			() => {}
+		);
+
+		expect(res.body).toEqual({
+			success: false,
+			error: { code: "INTERNAL_FAILURE" },
+			message: "failure",
+		});
+	});
 });
