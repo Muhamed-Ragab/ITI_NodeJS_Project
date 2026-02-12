@@ -1,5 +1,6 @@
 import { once } from "node:events";
 import express from "express";
+import { StatusCodes } from "http-status-codes";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { z } from "zod";
 import { errorHandler } from "../../src/middlewares/error.middleware.js";
@@ -19,7 +20,7 @@ app.post(
 	}),
 	(req, res) => {
 		return sendSuccess(res, {
-			statusCode: 201,
+			statusCode: StatusCodes.CREATED,
 			data: req.body,
 			message: "User validated",
 		});
@@ -27,7 +28,11 @@ app.post(
 );
 
 app.get("/boom", (_req, _res, next) => {
-	next({ statusCode: 418, code: "TEAPOT", message: "Teapot" });
+	next({
+		statusCode: StatusCodes.IM_A_TEAPOT,
+		code: "TEAPOT",
+		message: "Teapot",
+	});
 });
 
 app.use(errorHandler);
@@ -63,7 +68,7 @@ describe("middleware integration", () => {
 		});
 		const body = await response.json();
 
-		expect(response.status).toBe(400);
+		expect(response.status).toBe(StatusCodes.BAD_REQUEST);
 		expect(body.success).toBe(false);
 		expect(body.error.code).toBe("VALIDATION_ERROR");
 		expect(Array.isArray(body.error.details)).toBe(true);
@@ -77,7 +82,7 @@ describe("middleware integration", () => {
 		});
 		const body = await response.json();
 
-		expect(response.status).toBe(201);
+		expect(response.status).toBe(StatusCodes.CREATED);
 		expect(body).toEqual({
 			success: true,
 			data: { email: "user@example.com", age: 21 },
@@ -89,7 +94,7 @@ describe("middleware integration", () => {
 		const response = await fetch(`${baseUrl}/boom`);
 		const body = await response.json();
 
-		expect(response.status).toBe(418);
+		expect(response.status).toBe(StatusCodes.IM_A_TEAPOT);
 		expect(body).toEqual({
 			success: false,
 			error: { code: "TEAPOT" },

@@ -1,6 +1,8 @@
+import { StatusCodes } from "http-status-codes";
+
 export const sendSuccess = (
 	res,
-	{ statusCode = 200, data = null, message } = {}
+	{ statusCode = StatusCodes.OK, data = null, message } = {}
 ) =>
 	res.status(statusCode).json({
 		success: true,
@@ -10,7 +12,12 @@ export const sendSuccess = (
 
 export const sendError = (
 	res,
-	{ statusCode = 500, code = "INTERNAL_SERVER_ERROR", details, message } = {}
+	{
+		statusCode = StatusCodes.INTERNAL_SERVER_ERROR,
+		code = "INTERNAL_SERVER_ERROR",
+		details,
+		message,
+	} = {}
 ) =>
 	res.status(statusCode).json({
 		success: false,
