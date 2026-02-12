@@ -20,8 +20,8 @@ Rules / naming
 
 Enforcement
 
-- A local Husky `pre-push` hook prevents pushes from protected or incorrectly-named branches.
-- Use `npm run git:ensure-branch` to validate or auto-create a conforming branch.
+- Local git hooks were removed; CI enforces branch naming and protection rules.
+- Use `npm run git:ensure-branch` to validate or auto-create a conforming branch locally.
 
 Why
 
