@@ -1,5 +1,5 @@
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { once } from "node:events";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import app from "../../src/app.js";
 
 let server;

@@ -1,5 +1,5 @@
-import express from "express";
 import { once } from "node:events";
+import express from "express";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { z } from "zod";
 import { errorHandler } from "../../src/middlewares/error.middleware.js";

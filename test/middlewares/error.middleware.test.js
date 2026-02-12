@@ -18,6 +18,9 @@ const createRes = () => {
 
 	return res;
 };
+const noop = () => {
+	// noop
+};
 
 describe("error middleware", () => {
 	it("returns 400 envelope for zod errors", () => {
@@ -32,7 +35,7 @@ describe("error middleware", () => {
 			},
 		]);
 
-		errorHandler(zodError, {}, res, () => {});
+		errorHandler(zodError, {}, res, noop);
 
 		expect(res.statusCode).toBe(400);
 		expect(res.body.success).toBe(false);
@@ -51,7 +54,7 @@ describe("error middleware", () => {
 			{ statusCode: 404, code: "NOT_FOUND", message: "Route not found" },
 			{},
 			res,
-			() => {}
+			noop
 		);
 
 		expect(res.statusCode).toBe(404);
@@ -65,7 +68,7 @@ describe("error middleware", () => {
 	it("falls back to internal server error code", () => {
 		const res = createRes();
 
-		errorHandler(new Error("boom"), {}, res, () => {});
+		errorHandler(new Error("boom"), {}, res, noop);
 
 		expect(res.statusCode).toBe(500);
 		expect(res.body).toEqual({
@@ -82,7 +85,7 @@ describe("error middleware", () => {
 			{ statusCode: 700, code: "   ", message: "Unknown failure" },
 			{},
 			res,
-			() => {}
+			noop
 		);
 
 		expect(res.statusCode).toBe(500);
@@ -99,7 +102,7 @@ describe("error middleware", () => {
 		process.env.NODE_ENV = "production";
 
 		try {
-			errorHandler(new Error("database credentials leaked"), {}, res, () => {});
+			errorHandler(new Error("database credentials leaked"), {}, res, noop);
 		} finally {
 			process.env.NODE_ENV = previousNodeEnv;
 		}
@@ -124,7 +127,7 @@ describe("error middleware", () => {
 			},
 			{},
 			res,
-			() => {}
+			noop
 		);
 
 		expect(res.body).toEqual({
