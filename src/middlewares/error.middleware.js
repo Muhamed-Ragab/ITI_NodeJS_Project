@@ -20,14 +20,9 @@ export const errorHandler = (error, _req, res, _next) => {
 		});
 	}
 
-	const statusCode =
-		typeof error?.statusCode === "number" ? error.statusCode : 500;
-	const code =
-		typeof error?.code === "string" ? error.code : "INTERNAL_SERVER_ERROR";
-	const message =
-		typeof error?.message === "string" && error.message.trim().length > 0
-			? error.message
-			: "Internal server error";
+	const statusCode = normalizeStatusCode(error?.statusCode);
+	const code = normalizeErrorCode(error?.code);
+	const message = normalizeMessage(error?.message, statusCode);
 	const details =
 		isObject(error?.details) || Array.isArray(error?.details)
 			? error.details
@@ -37,6 +32,6 @@ export const errorHandler = (error, _req, res, _next) => {
 		statusCode,
 		code,
 		message,
-		details,
+		details: statusCode < 500 ? details : undefined,
 	});
 };
