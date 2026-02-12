@@ -10,7 +10,6 @@
     "lint": "biome check src --error-on-warnings",
     "format": "biome format src --write",
     "format:check": "biome check --reporter=summary",
-    "prepare": "husky",
     "build": "esbuild src/server.js --bundle --platform=node --format=esm --target=node20 --outfile=dist/server.js",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
@@ -36,21 +35,8 @@
     "@biomejs/biome": "^2.3.13",
     "@vitest/coverage-v8": "^4.0.18",
     "esbuild": "^0.19.4",
-    "husky": "^8.0.3",
-    "lint-staged": "^14.0.1",
     "prettier": "^3.0.3",
     "ultracite": "^7.1.4",
     "vitest": "^4.0.18"
-  },
-  "lint-staged": {
-    "*.{js,json,md}": [
-      "biome format --staged --write"
-    ],
-    "src/**/*.js": [
-      "biome check --staged --error-on-warnings"
-    ],
-    "*.{js,jsx,ts,tsx,json,jsonc,css,scss,md,mdx}": [
-      "npx ultracite fix"
-    ]
   }
-}
+} 

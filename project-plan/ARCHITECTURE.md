@@ -72,8 +72,14 @@ export const registerSchema = z.object({
 All API responses must follow a consistent format:
 ```json
 {
-  "status": "success",
+  "success": true,
   "data": { ... },
+  "message": "..."
+}
+
+{
+  "success": false,
+  "error": { ... },
   "message": "..."
 }
 ```
