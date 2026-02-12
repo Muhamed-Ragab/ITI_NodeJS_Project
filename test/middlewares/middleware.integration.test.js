@@ -1,0 +1,92 @@
+import express from "express";
+import { once } from "node:events";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { z } from "zod";
+import { errorHandler } from "../../src/middlewares/error.middleware.js";
+import { validate } from "../../src/middlewares/validate.middleware.js";
+
+const app = express();
+app.use(express.json());
+
+app.post(
+	"/users",
+	validate({
+		body: z.object({
+			email: z.string().email(),
+			age: z.coerce.number().int().positive(),
+		}),
+	}),
+	(req, res) => {
+		res.status(201).json({ success: true, data: req.body });
+	}
+);
+
+app.get("/boom", (_req, _res, next) => {
+	next({ statusCode: 418, message: "Teapot" });
+});
+
+app.use(errorHandler);
+
+let server;
+let baseUrl;
+
+beforeAll(async () => {
+	server = app.listen(0);
+	await once(server, "listening");
+	const { port } = server.address();
+	baseUrl = `http://127.0.0.1:${port}`;
+});
+
+afterAll(async () => {
+	await new Promise((resolve, reject) => {
+		server.close((error) => {
+			if (error) {
+				reject(error);
+				return;
+			}
+			resolve();
+		});
+	});
+});
+
+describe("middleware integration", () => {
+	it("returns validation error envelope for invalid request payload", async () => {
+		const response = await fetch(`${baseUrl}/users`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ email: "invalid-email", age: -5 }),
+		});
+		const body = await response.json();
+
+		expect(response.status).toBe(400);
+		expect(body.success).toBe(false);
+		expect(body.message).toBe("Validation failed");
+		expect(Array.isArray(body.details)).toBe(true);
+	});
+
+	it("accepts valid payload and returns normalized data", async () => {
+		const response = await fetch(`${baseUrl}/users`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ email: "user@example.com", age: "21" }),
+		});
+		const body = await response.json();
+
+		expect(response.status).toBe(201);
+		expect(body).toEqual({
+			success: true,
+			data: { email: "user@example.com", age: 21 },
+		});
+	});
+
+	it("maps non-validation thrown errors through global error middleware", async () => {
+		const response = await fetch(`${baseUrl}/boom`);
+		const body = await response.json();
+
+		expect(response.status).toBe(418);
+		expect(body).toEqual({
+			success: false,
+			message: "Teapot",
+		});
+	});
+});
