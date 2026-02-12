@@ -18,7 +18,7 @@ jobs:
           - 27017:27017
 
     env:
-      MONGODB_URI: "mongodb://127.0.0.1:27017/grc_platform"
+      MONGODB_URI: 'mongodb://127.0.0.1:27017/grc_platform'
 
     steps:
       - uses: actions/checkout@v4
@@ -32,9 +32,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Verify lint devDependencies installed
-        run: |
-          node -e "try{require.resolve('eslint-plugin-node');console.log('eslint-plugin-node present')}catch(e){console.error('ERROR: eslint-plugin-node is missing — ensure devDependencies are installed (npm ci)');process.exit(1)}"
       - name: Check formatting
         run: npm run format:check --if-present
 

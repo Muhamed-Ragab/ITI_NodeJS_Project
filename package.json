@@ -33,6 +33,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.13",
+    "@vitest/coverage-v8": "^4.0.18",
     "esbuild": "^0.19.4",
     "prettier": "^3.0.3",
     "ultracite": "^7.1.4",

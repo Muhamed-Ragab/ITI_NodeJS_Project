@@ -10,6 +10,10 @@
       "src/**/*.js",
       "test/**/*.js",
       "docs/**/*.md",
+      "project-plan/**/*.md",
+      ".github/**/*.yml",
+      "scripts/**/*.js",
+      ".husky/**/*",
       "README.md",
       "package.json"
     ]
