@@ -8,5 +8,6 @@ High-level API expectations, endpoint flows, validation and response shapes.
 - Response envelope standard:
   - Success: `{ success: true, data, message? }`
   - Error: `{ success: false, error: { code, details? }, message? }`
+- Example implementation route: `POST /examples/response`
 
 (Full API guidelines remain in this file — previously at the repository root.)
