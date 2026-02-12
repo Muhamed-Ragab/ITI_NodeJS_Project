@@ -25,6 +25,11 @@ src/
 ## Documentation
 All global project documentation has moved to the `docs/` folder. See `docs/README.md` for developer onboarding, branching rules, commit guidelines and DX scripts (git helpers).
 
+Additional implementation guides:
+- `docs/MIDDLEWARE_GUIDE.md` — global middleware behavior and usage patterns.
+- `docs/TESTING_GUIDE.md` — middleware unit/integration test strategy.
+- `docs/QUALITY_CHECKS.md` — required local quality-gate command order.
+
 ## 🛠️ Setup Instructions
 
 ### Prerequisites
