@@ -4,6 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { z } from "zod";
 import { errorHandler } from "../../src/middlewares/error.middleware.js";
 import { validate } from "../../src/middlewares/validate.middleware.js";
+import { sendSuccess } from "../../src/utils/response.js";
 
 const app = express();
 app.use(express.json());
@@ -17,12 +18,16 @@ app.post(
 		}),
 	}),
 	(req, res) => {
-		res.status(201).json({ success: true, data: req.body });
+		return sendSuccess(res, {
+			statusCode: 201,
+			data: req.body,
+			message: "User validated",
+		});
 	}
 );
 
 app.get("/boom", (_req, _res, next) => {
-	next({ statusCode: 418, message: "Teapot" });
+	next({ statusCode: 418, code: "TEAPOT", message: "Teapot" });
 });
 
 app.use(errorHandler);
@@ -50,7 +55,7 @@ afterAll(async () => {
 });
 
 describe("middleware integration", () => {
-	it("returns validation error envelope for invalid request payload", async () => {
+	it("returns standardized validation error envelope", async () => {
 		const response = await fetch(`${baseUrl}/users`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
@@ -60,11 +65,11 @@ describe("middleware integration", () => {
 
 		expect(response.status).toBe(400);
 		expect(body.success).toBe(false);
-		expect(body.message).toBe("Validation failed");
-		expect(Array.isArray(body.details)).toBe(true);
+		expect(body.error.code).toBe("VALIDATION_ERROR");
+		expect(Array.isArray(body.error.details)).toBe(true);
 	});
 
-	it("accepts valid payload and returns normalized data", async () => {
+	it("returns standardized success envelope", async () => {
 		const response = await fetch(`${baseUrl}/users`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
@@ -76,16 +81,18 @@ describe("middleware integration", () => {
 		expect(body).toEqual({
 			success: true,
 			data: { email: "user@example.com", age: 21 },
+			message: "User validated",
 		});
 	});
 
-	it("maps non-validation thrown errors through global error middleware", async () => {
+	it("maps non-validation errors through standardized error envelope", async () => {
 		const response = await fetch(`${baseUrl}/boom`);
 		const body = await response.json();
 
 		expect(response.status).toBe(418);
 		expect(body).toEqual({
 			success: false,
+			error: { code: "TEAPOT" },
 			message: "Teapot",
 		});
 	});

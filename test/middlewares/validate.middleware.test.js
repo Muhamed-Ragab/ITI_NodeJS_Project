@@ -18,7 +18,7 @@ describe("validate middleware", () => {
 		expect(next).toHaveBeenCalledWith();
 	});
 
-	it("forwards zod errors with 400 statusCode", async () => {
+	it("forwards zod errors with 400 statusCode and validation code", async () => {
 		const middleware = validate({
 			body: z.object({ email: z.string().email() }),
 		});
@@ -31,5 +31,6 @@ describe("validate middleware", () => {
 		const [error] = next.mock.calls[0];
 		expect(error).toBeDefined();
 		expect(error.statusCode).toBe(400);
+		expect(error.code).toBe("VALIDATION_ERROR");
 	});
 });
