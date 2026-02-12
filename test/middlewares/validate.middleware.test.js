@@ -1,3 +1,4 @@
+import { StatusCodes } from "http-status-codes";
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { validate } from "../../src/middlewares/validate.middleware.js";
@@ -30,7 +31,7 @@ describe("validate middleware", () => {
 		expect(next).toHaveBeenCalledTimes(1);
 		const [error] = next.mock.calls[0];
 		expect(error).toBeDefined();
-		expect(error.statusCode).toBe(400);
+		expect(error.statusCode).toBe(StatusCodes.BAD_REQUEST);
 		expect(error.code).toBe("VALIDATION_ERROR");
 	});
 });

@@ -1,3 +1,4 @@
+import { StatusCodes } from "http-status-codes";
 import { ZodError } from "zod";
 
 const VALIDATION_SOURCES = ["body", "params", "query"];
@@ -16,7 +17,7 @@ export const validate = (schemaMap) => async (req, _res, next) => {
 		next();
 	} catch (error) {
 		if (error instanceof ZodError) {
-			error.statusCode = 400;
+			error.statusCode = StatusCodes.BAD_REQUEST;
 			error.code = "VALIDATION_ERROR";
 		}
 		next(error);

@@ -1,10 +1,11 @@
+import { StatusCodes } from "http-status-codes";
 import { describe, expect, it } from "vitest";
 import { ZodError } from "zod";
 import { errorHandler } from "../../src/middlewares/error.middleware.js";
 
 const createRes = () => {
 	const res = {
-		statusCode: 200,
+		statusCode: StatusCodes.OK,
 		body: undefined,
 		status(code) {
 			this.statusCode = code;
@@ -37,7 +38,7 @@ describe("error middleware", () => {
 
 		errorHandler(zodError, {}, res, noop);
 
-		expect(res.statusCode).toBe(400);
+		expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST);
 		expect(res.body.success).toBe(false);
 		expect(res.body.message).toBe("Validation failed");
 		expect(res.body.error.code).toBe("VALIDATION_ERROR");
@@ -51,13 +52,17 @@ describe("error middleware", () => {
 		const res = createRes();
 
 		errorHandler(
-			{ statusCode: 404, code: "NOT_FOUND", message: "Route not found" },
+			{
+				statusCode: StatusCodes.NOT_FOUND,
+				code: "NOT_FOUND",
+				message: "Route not found",
+			},
 			{},
 			res,
 			noop
 		);
 
-		expect(res.statusCode).toBe(404);
+		expect(res.statusCode).toBe(StatusCodes.NOT_FOUND);
 		expect(res.body).toEqual({
 			success: false,
 			error: { code: "NOT_FOUND" },
@@ -70,7 +75,7 @@ describe("error middleware", () => {
 
 		errorHandler(new Error("boom"), {}, res, noop);
 
-		expect(res.statusCode).toBe(500);
+		expect(res.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
 		expect(res.body).toEqual({
 			success: false,
 			error: { code: "INTERNAL_SERVER_ERROR" },
@@ -88,7 +93,7 @@ describe("error middleware", () => {
 			noop
 		);
 
-		expect(res.statusCode).toBe(500);
+		expect(res.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
 		expect(res.body).toEqual({
 			success: false,
 			error: { code: "INTERNAL_SERVER_ERROR" },
@@ -107,7 +112,7 @@ describe("error middleware", () => {
 			process.env.NODE_ENV = previousNodeEnv;
 		}
 
-		expect(res.statusCode).toBe(500);
+		expect(res.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
 		expect(res.body).toEqual({
 			success: false,
 			error: { code: "INTERNAL_SERVER_ERROR" },
@@ -120,7 +125,7 @@ describe("error middleware", () => {
 
 		errorHandler(
 			{
-				statusCode: 500,
+				statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
 				code: "INTERNAL_FAILURE",
 				message: "failure",
 				details: { stack: "..." },

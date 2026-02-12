@@ -1,3 +1,4 @@
+import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env.js";
 
@@ -16,7 +17,7 @@ export const requireAuth = (req, _res, next) => {
 
 		if (!token) {
 			return next({
-				statusCode: 401,
+				statusCode: StatusCodes.UNAUTHORIZED,
 				code: "UNAUTHORIZED",
 				message: "Missing or invalid authorization token",
 			});
@@ -27,7 +28,7 @@ export const requireAuth = (req, _res, next) => {
 		return next();
 	} catch {
 		return next({
-			statusCode: 401,
+			statusCode: StatusCodes.UNAUTHORIZED,
 			code: "UNAUTHORIZED",
 			message: "Unauthorized",
 		});
