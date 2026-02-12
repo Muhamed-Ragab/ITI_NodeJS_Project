@@ -2,6 +2,7 @@ import cors from "cors";
 import express from "express";
 import morgan from "morgan";
 import { env } from "./config/env.js"; // Import validated env
+import { errorHandler } from "./middlewares/error.middleware.js";
 
 const app = express();
 
@@ -25,8 +26,6 @@ app.get("/", (_req, res) => {
 	});
 });
 
-// Import and use global error handler (will be created in middlewares/error.middleware.js)
-// import { errorHandler } from './middlewares/error.middleware.js';
-// app.use(errorHandler);
+app.use(errorHandler);
 
 export default app;
