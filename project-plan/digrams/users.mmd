@@ -1,0 +1,95 @@
+flowchart TD
+  subgraph Users_Get_Profile
+    UP0(["Start"]) --> UP1["JWT Auth"]
+    UP1 -->|Fail| UP2["401 Unauthorized"]
+    UP1 -->|OK| UP3["Find user by ID"]
+    UP3 -->|Not found| UP4["404 Not Found"]
+    UP3 -->|Found| UP5["200 OK + user profile"]
+    UP5 --> UP6(["End"])
+  end
+  subgraph Users_Update_Profile
+    UU0(["Start"]) --> UU1["JWT Auth"]
+    UU1 -->|Fail| UU2["401 Unauthorized"]
+    UU1 -->|OK| UU3["Validate body (name, etc.)"]
+    UU3 -->|Invalid| UU4["400 Validation Error"]
+    UU3 -->|Valid| UU5["Update user profile"]
+    UU5 -->|Not found| UU6["404 Not Found"]
+    UU5 -->|Updated| UU7["200 OK + updated profile"]
+    UU7 --> UU8(["End"])
+  end
+  subgraph Users_Update_Address
+    UA0(["Start"]) --> UA1["JWT Auth"]
+    UA1 -->|Fail| UA2["401 Unauthorized"]
+    UA1 -->|OK| UA3["Validate profile payload (address optional)"]
+    UA3 -->|Invalid| UA4["400 Validation Error"]
+    UA3 -->|Valid| UA5["Update user profile with address"]
+    UA5 -->|Not found| UA6["404 Not Found"]
+    UA5 -->|Updated| UA7["200 OK + profile"]
+    UA7 --> UA8(["End"])
+  end
+  subgraph Users_Get_Wishlist
+    UW0(["Start"]) --> UW1["JWT Auth"]
+    UW1 -->|Fail| UW2["401 Unauthorized"]
+    UW1 -->|OK| UW3["Load wishlist"]
+    UW3 --> UW4["200 OK + wishlist"]
+    UW4 --> UW5(["End"])
+  end
+  subgraph Users_Add_To_Wishlist
+    UWA0(["Start"]) --> UWA1["JWT Auth"]
+    UWA1 -->|Fail| UWA2["401 Unauthorized"]
+    UWA1 -->|OK| UWA3["Validate productId"]
+    UWA3 -->|Invalid| UWA4["400 Validation Error"]
+    UWA3 -->|Valid| UWA5["Check product exists"]
+    UWA5 -->|Not found| UWA6["404 Product Not Found"]
+    UWA5 -->|Found| UWA7["Add product to wishlist"]
+    UWA7 --> UWA8["200 OK + wishlist"]
+    UWA8 --> UWA9(["End"])
+  end
+  subgraph Users_Remove_From_Wishlist
+    UWR0(["Start"]) --> UWR1["JWT Auth"]
+    UWR1 -->|Fail| UWR2["401 Unauthorized"]
+    UWR1 -->|OK| UWR3["Validate productId"]
+    UWR3 -->|Invalid| UWR4["400 Validation Error"]
+    UWR3 -->|Valid| UWR5["Remove product from wishlist"]
+    UWR5 --> UWR6["200 OK + wishlist"]
+    UWR6 --> UWR7(["End"])
+  end
+  subgraph Users_Get_Cart
+    UC0(["Start"]) --> UC1["JWT Auth"]
+    UC1 -->|Fail| UC2["401 Unauthorized"]
+    UC1 -->|OK| UC3["Load user cart"]
+    UC3 --> UC4["200 OK + cart"]
+    UC4 --> UC5(["End"])
+  end
+  subgraph Users_Add_Update_Cart_Item
+    UCA0(["Start"]) --> UCA1["JWT Auth"]
+    UCA1 -->|Fail| UCA2["401 Unauthorized"]
+    UCA1 -->|OK| UCA3["Validate productId + quantity"]
+    UCA3 -->|Invalid| UCA4["400 Validation Error"]
+    UCA3 -->|Valid| UCA5["Check product exists"]
+    UCA5 -->|Not found| UCA6["404 Product Not Found"]
+    UCA5 -->|Found| UCA7["Add item or update quantity"]
+    UCA7 --> UCA8["200 OK + cart"]
+    UCA8 --> UCA9(["End"])
+  end
+  subgraph Users_Remove_Cart_Item
+    UCR0(["Start"]) --> UCR1["JWT Auth"]
+    UCR1 -->|Fail| UCR2["401 Unauthorized"]
+    UCR1 -->|OK| UCR3["Validate productId"]
+    UCR3 -->|Invalid| UCR4["400 Validation Error"]
+    UCR3 -->|Valid| UCR5["Remove item from cart"]
+    UCR5 --> UCR6["200 OK + cart"]
+    UCR6 --> UCR7(["End"])
+  end
+  subgraph Users_Admin_Update_Role
+    UR0(["Start"]) --> UR1["JWT Auth"]
+    UR1 -->|Fail| UR2["401 Unauthorized"]
+    UR1 -->|OK| UR3["Check Admin role"]
+    UR3 -->|Not admin| UR4["403 Forbidden"]
+    UR3 -->|Admin| UR5["Validate userId + role"]
+    UR5 -->|Invalid| UR6["400 Validation Error"]
+    UR5 -->|Valid| UR7["Update user role"]
+    UR7 -->|Not found| UR8["404 Not Found"]
+    UR7 -->|Updated| UR9["200 OK + updated user"]
+    UR9 --> UR10(["End"])
+  end

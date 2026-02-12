@@ -1,0 +1,68 @@
+flowchart TD
+  subgraph Products_Create
+    PC0(["Start"]) --> PC1["JWT Auth"]
+    PC1 -->|Fail| PC2["401 Unauthorized"]
+    PC1 -->|OK| PC3["Check Seller role"]
+    PC3 -->|Not seller| PC4["403 Forbidden"]
+    PC3 -->|Seller| PC5["Validate product payload"]
+    PC5 -->|Invalid| PC6["400 Validation Error"]
+    PC5 -->|Valid| PC7["Create product"]
+    PC7 --> PC8["201 Created + product"]
+    PC8 --> PC9(["End"])
+  end
+  subgraph Products_Get_By_ID
+    PG0(["Start"]) --> PG1["Validate productId"]
+    PG1 -->|Invalid| PG2["400 Validation Error"]
+    PG1 -->|Valid| PG3["Find product"]
+    PG3 -->|Not found| PG4["404 Not Found"]
+    PG3 -->|Found| PG5["200 OK + product"]
+    PG5 --> PG6(["End"])
+  end
+  subgraph Products_Update
+    PU0(["Start"]) --> PU1["JWT Auth"]
+    PU1 -->|Fail| PU2["401 Unauthorized"]
+    PU1 -->|OK| PU3["Check Seller role"]
+    PU3 -->|Not seller| PU4["403 Forbidden"]
+    PU3 -->|Seller| PU5["Validate product payload"]
+    PU5 -->|Invalid| PU6["400 Validation Error"]
+    PU5 -->|Valid| PU7["Find product"]
+    PU7 -->|Not found| PU8["404 Not Found"]
+    PU7 -->|Found| PU9["Verify ownership or admin"]
+    PU9 -->|Not allowed| PU10["403 Forbidden"]
+    PU9 -->|Allowed| PU11["Update product"]
+    PU11 --> PU12["200 OK + product"]
+    PU12 --> PU13(["End"])
+  end
+  subgraph Products_Delete
+    PD0(["Start"]) --> PD1["JWT Auth"]
+    PD1 -->|Fail| PD2["401 Unauthorized"]
+    PD1 -->|OK| PD3["Check Seller role"]
+    PD3 -->|Not seller| PD4["403 Forbidden"]
+    PD3 -->|Seller| PD5["Find product"]
+    PD5 -->|Not found| PD6["404 Not Found"]
+    PD5 -->|Found| PD7["Verify ownership or admin"]
+    PD7 -->|Not allowed| PD8["403 Forbidden"]
+    PD7 -->|Allowed| PD9["Delete product"]
+    PD9 --> PD10["200 OK + deleted id"]
+    PD10 --> PD11(["End"])
+  end
+  subgraph Products_List_Search_Filter
+    PL0(["Start"]) --> PL1["Parse query (q, category, price, pagination)"]
+    PL1 --> PL2["Build DB filters"]
+    PL2 --> PL3["Fetch products"]
+    PL3 --> PL4["200 OK + list"]
+    PL4 --> PL5(["End"])
+  end
+  subgraph Products_Upload_Images
+    PI0(["Start"]) --> PI1["JWT Auth"]
+    PI1 -->|Fail| PI2["401 Unauthorized"]
+    PI1 -->|OK| PI3["Check Seller role"]
+    PI3 -->|Not seller| PI4["403 Forbidden"]
+    PI3 -->|Seller| PI5["Validate productId + files"]
+    PI5 -->|Invalid| PI6["400 Validation Error"]
+    PI5 -->|Valid| PI7["Upload files to Cloudinary"]
+    PI7 -->|Upload error| PI8["502 Bad Gateway"]
+    PI7 -->|Success| PI9["Attach image URLs to product"]
+    PI9 --> PI10["200 OK + product images"]
+    PI10 --> PI11(["End"])
+  end

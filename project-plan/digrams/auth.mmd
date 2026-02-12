@@ -1,0 +1,50 @@
+flowchart TD
+  subgraph Auth_Register
+    AR0(["Start"]) --> AR1["Validate body (email, password, name)"]
+    AR1 -->|Invalid| AR2["400 Validation Error"]
+    AR1 -->|Valid| AR3["Check if user exists by email"]
+    AR3 -->|Exists| AR4["409 Conflict: Email already in use"]
+    AR3 -->|Not found| AR5["Hash password"]
+    AR5 --> AR6["Create user record"]
+    AR6 --> AR7["Generate JWT"]
+    AR7 --> AR8["201 Created + token + user"]
+    AR8 --> AR9(["End"])
+  end
+  subgraph Auth_Login
+    AL0(["Start"]) --> AL1["Validate body (email, password)"]
+    AL1 -->|Invalid| AL2["400 Validation Error"]
+    AL1 -->|Valid| AL3["Find user by email"]
+    AL3 -->|Not found| AL4["401 Invalid credentials"]
+    AL3 -->|Found| AL5["Verify password"]
+    AL5 -->|Mismatch| AL4
+    AL5 -->|Match| AL6["Generate JWT"]
+    AL6 --> AL7["200 OK + token + user"]
+    AL7 --> AL8(["End"])
+  end
+  subgraph Google_OAuth_Initiation
+    AG0(["Start"]) --> AG1["Build Google OAuth URL"]
+    AG1 --> AG2["Redirect user to Google"]
+    AG2 --> AG3(["End"])
+  end
+  subgraph Google_OAuth_Callback
+    AC0(["Start"]) --> AC1["Receive OAuth code"]
+    AC1 -->|Missing/invalid| AC2["400 Bad Request"]
+    AC1 -->|Valid| AC3["Exchange code for tokens"]
+    AC3 -->|Failure| AC4["401 OAuth failed"]
+    AC3 -->|Success| AC5["Fetch Google profile"]
+    AC5 -->|Failure| AC4
+    AC5 -->|Success| AC6["Find user by Google ID or email"]
+    AC6 -->|Found| AC7["Generate JWT"]
+    AC6 -->|Not found| AC8["Create user from profile"]
+    AC8 --> AC7
+    AC7 --> AC9["Redirect or respond with token"]
+    AC9 --> AC10(["End"])
+  end
+  subgraph JWT_Verification_Middleware
+    AJ0(["Start"]) --> AJ1["Read Authorization header"]
+    AJ1 -->|Missing| AJ2["401 Unauthorized"]
+    AJ1 -->|Present| AJ3["Verify JWT signature + expiry"]
+    AJ3 -->|Invalid/expired| AJ2
+    AJ3 -->|Valid| AJ4["Attach user to request"]
+    AJ4 --> AJ5(["Next handler"])
+  end

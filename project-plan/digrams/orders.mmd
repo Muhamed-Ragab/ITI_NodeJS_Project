@@ -1,0 +1,53 @@
+flowchart TD
+  subgraph Orders_Create_Checkout
+    OC0(["Start"]) --> OC1["JWT Auth"]
+    OC1 -->|Fail| OC2["401 Unauthorized"]
+    OC1 -->|OK| OC3["Load user cart"]
+    OC3 -->|Empty| OC4["400 Cart is empty"]
+    OC3 -->|Has items| OC5["Validate stock & prices"]
+    OC5 -->|Insufficient| OC6["409 Stock conflict"]
+    OC5 -->|OK| OC7["Calculate totals"]
+    OC7 --> OC8["Create order status: Pending Payment"]
+    OC8 --> OC9["Clear user cart"]
+    OC9 --> OC10["201 Created + order"]
+    OC10 --> OC11(["End"])
+  end
+  subgraph Orders_Get_By_ID
+    OI0(["Start"]) --> OI1["JWT Auth"]
+    OI1 -->|Fail| OI2["401 Unauthorized"]
+    OI1 -->|OK| OI3["Find order by ID"]
+    OI3 -->|Not found| OI4["404 Not Found"]
+    OI3 -->|Found| OI5["Check owner or admin"]
+    OI5 -->|Not allowed| OI6["403 Forbidden"]
+    OI5 -->|Allowed| OI7["200 OK + order"]
+    OI7 --> OI8(["End"])
+  end
+  subgraph Orders_Update_Status
+    OS0(["Start"]) --> OS1["JWT Auth"]
+    OS1 -->|Fail| OS2["401 Unauthorized"]
+    OS1 -->|OK| OS3["Check Admin/Seller role"]
+    OS3 -->|Not allowed| OS4["403 Forbidden"]
+    OS3 -->|Allowed| OS5["Validate status"]
+    OS5 -->|Invalid| OS6["400 Validation Error"]
+    OS5 -->|Valid| OS7["Update order status"]
+    OS7 -->|Not found| OS8["404 Not Found"]
+    OS7 -->|Updated| OS9["200 OK + order"]
+    OS9 --> OS10(["End"])
+  end
+  subgraph Orders_Get_My_Orders
+    OM0(["Start"]) --> OM1["JWT Auth"]
+    OM1 -->|Fail| OM2["401 Unauthorized"]
+    OM1 -->|OK| OM3["Find orders by user"]
+    OM3 --> OM4["200 OK + list"]
+    OM4 --> OM5(["End"])
+  end
+  subgraph Orders_List_All
+    OA0(["Start"]) --> OA1["JWT Auth"]
+    OA1 -->|Fail| OA2["401 Unauthorized"]
+    OA1 -->|OK| OA3["Check Admin role"]
+    OA3 -->|Not admin| OA4["403 Forbidden"]
+    OA3 -->|Admin| OA5["Parse pagination/filter"]
+    OA5 --> OA6["Fetch orders"]
+    OA6 --> OA7["200 OK + list"]
+    OA7 --> OA8(["End"])
+  end
