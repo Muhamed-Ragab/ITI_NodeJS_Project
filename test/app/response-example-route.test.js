@@ -1,4 +1,5 @@
 import { once } from "node:events";
+import { StatusCodes } from "http-status-codes";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import app from "../../src/app.js";
 
@@ -29,7 +30,7 @@ describe("app response envelope examples", () => {
 		const response = await fetch(`${baseUrl}/`);
 		const body = await response.json();
 
-		expect(response.status).toBe(200);
+		expect(response.status).toBe(StatusCodes.OK);
 		expect(body.success).toBe(true);
 		expect(body.data).toHaveProperty("version");
 		expect(body.message).toBe("API is running!");
@@ -43,7 +44,7 @@ describe("app response envelope examples", () => {
 		});
 		const body = await response.json();
 
-		expect(response.status).toBe(201);
+		expect(response.status).toBe(StatusCodes.CREATED);
 		expect(body).toEqual({
 			success: true,
 			data: { name: "Mohamed", role: "member" },
@@ -59,7 +60,7 @@ describe("app response envelope examples", () => {
 		});
 		const body = await response.json();
 
-		expect(response.status).toBe(400);
+		expect(response.status).toBe(StatusCodes.BAD_REQUEST);
 		expect(body).toEqual({
 			success: false,
 			error: {

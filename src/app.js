@@ -1,5 +1,6 @@
 import cors from "cors";
 import express from "express";
+import { StatusCodes } from "http-status-codes";
 import morgan from "morgan";
 import { z } from "zod";
 import { env } from "./config/env.js"; // Import validated env
@@ -44,7 +45,7 @@ app.post(
 	(req, res, next) => {
 		if (req.body.name.toLowerCase() === "error") {
 			return next({
-				statusCode: 400,
+				statusCode: StatusCodes.BAD_REQUEST,
 				code: "EXAMPLE_BUSINESS_ERROR",
 				message: "Example business rule failed",
 				details: {
@@ -54,7 +55,7 @@ app.post(
 		}
 
 		return sendSuccess(res, {
-			statusCode: 201,
+			statusCode: StatusCodes.CREATED,
 			data: req.body,
 			message: "Example response created successfully",
 		});
