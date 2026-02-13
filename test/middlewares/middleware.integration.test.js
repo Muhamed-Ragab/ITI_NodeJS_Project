@@ -4,6 +4,7 @@ import { StatusCodes } from "http-status-codes";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { z } from "zod";
 import { errorHandler } from "../../src/middlewares/error.middleware.js";
+import { requireRole } from "../../src/middlewares/role.middleware.js";
 import { validate } from "../../src/middlewares/validate.middleware.js";
 import { sendSuccess } from "../../src/utils/response.js";
 
@@ -34,6 +35,19 @@ app.get("/boom", (_req, _res, next) => {
 		message: "Teapot",
 	});
 });
+
+app.get(
+	"/admin-check",
+	(req, _res, next) => {
+		const role = req.headers["x-role"];
+		if (role) {
+			req.user = { role };
+		}
+		next();
+	},
+	requireRole("admin"),
+	(_req, res) => sendSuccess(res, { data: { allowed: true } })
+);
 
 app.use(errorHandler);
 
@@ -99,6 +113,45 @@ describe("middleware integration", () => {
 			success: false,
 			error: { code: "TEAPOT" },
 			message: "Teapot",
+		});
+	});
+
+	it("returns unauthorized when role check runs without authenticated user", async () => {
+		const response = await fetch(`${baseUrl}/admin-check`);
+		const body = await response.json();
+
+		expect(response.status).toBe(StatusCodes.UNAUTHORIZED);
+		expect(body).toEqual({
+			success: false,
+			error: { code: "UNAUTHORIZED" },
+			message: "Authentication required",
+		});
+	});
+
+	it("returns forbidden when role is not allowed", async () => {
+		const response = await fetch(`${baseUrl}/admin-check`, {
+			headers: { "x-role": "member" },
+		});
+		const body = await response.json();
+
+		expect(response.status).toBe(StatusCodes.FORBIDDEN);
+		expect(body).toEqual({
+			success: false,
+			error: { code: "FORBIDDEN" },
+			message: "You are not allowed to access this resource",
+		});
+	});
+
+	it("returns success when allowed role is provided", async () => {
+		const response = await fetch(`${baseUrl}/admin-check`, {
+			headers: { "x-role": "admin" },
+		});
+		const body = await response.json();
+
+		expect(response.status).toBe(StatusCodes.OK);
+		expect(body).toEqual({
+			success: true,
+			data: { allowed: true },
 		});
 	});
 });

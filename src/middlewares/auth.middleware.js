@@ -13,6 +13,15 @@ const extractToken = (authorizationHeader = "") => {
 
 export const requireAuth = (req, _res, next) => {
 	try {
+		const jwtSecret = process.env.JWT_SECRET ?? env?.JWT_SECRET;
+		if (!jwtSecret) {
+			return next({
+				statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+				code: "SERVER_MISCONFIG",
+				message: "JWT secret is not configured",
+			});
+		}
+
 		const token = extractToken(req.headers.authorization);
 
 		if (!token) {
@@ -23,7 +32,7 @@ export const requireAuth = (req, _res, next) => {
 			});
 		}
 
-		const payload = jwt.verify(token, env.JWT_SECRET);
+		const payload = jwt.verify(token, jwtSecret);
 		req.user = payload;
 		return next();
 	} catch {
