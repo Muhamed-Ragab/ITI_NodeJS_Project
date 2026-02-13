@@ -6,7 +6,8 @@ import { z } from "zod";
 import { env } from "./config/env.js"; // Import validated env
 import { errorHandler } from "./middlewares/error.middleware.js";
 import { validate } from "./middlewares/validate.middleware.js";
-import { sendError, sendSuccess } from "./utils/response.js";
+import { ApiError } from "./utils/errors/api-error.js";
+import { sendSuccess } from "./utils/response.js";
 
 const app = express();
 const appNodeEnv = env?.NODE_ENV ?? process.env.NODE_ENV ?? "development";
@@ -42,16 +43,17 @@ const responseExampleSchema = z.object({
 app.post(
 	"/examples/response",
 	validate({ body: responseExampleSchema }),
-	(req, res) => {
+	(req, res, next) => {
 		if (req.body.name.toLowerCase() === "error") {
-			return sendError(res, {
-				statusCode: StatusCodes.BAD_REQUEST,
-				code: "EXAMPLE_BUSINESS_ERROR",
-				message: "Example business rule failed",
-				details: {
-					name: "Please use any name except 'error'.",
-				},
-			});
+			return next(
+				ApiError.badRequest({
+					code: "EXAMPLE_BUSINESS_ERROR",
+					message: "Example business rule failed",
+					details: {
+						name: "Please use any name except 'error'.",
+					},
+				})
+			);
 		}
 
 		return sendSuccess(res, {

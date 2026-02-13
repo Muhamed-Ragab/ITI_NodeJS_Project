@@ -2,6 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { describe, expect, it } from "vitest";
 import { ZodError } from "zod";
 import { errorHandler } from "../../src/middlewares/error.middleware.js";
+import { ApiError } from "../../src/utils/errors/api-error.js";
 
 const createRes = () => {
 	const res = {
@@ -52,11 +53,10 @@ describe("error middleware", () => {
 		const res = createRes();
 
 		errorHandler(
-			{
-				statusCode: StatusCodes.NOT_FOUND,
+			ApiError.notFound({
 				code: "NOT_FOUND",
 				message: "Route not found",
-			},
+			}),
 			{},
 			res,
 			noop

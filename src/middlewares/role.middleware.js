@@ -1,22 +1,22 @@
-import { StatusCodes } from "http-status-codes";
+import { ApiError } from "../utils/errors/api-error.js";
 
 export const requireRole =
 	(...allowedRoles) =>
 	(req, _res, next) => {
 		if (!req.user) {
-			return next({
-				statusCode: StatusCodes.UNAUTHORIZED,
-				code: "UNAUTHORIZED",
-				message: "Authentication required",
-			});
+			return next(
+				ApiError.unauthorized({
+					message: "Authentication required",
+				})
+			);
 		}
 
 		if (!allowedRoles.includes(req.user.role)) {
-			return next({
-				statusCode: StatusCodes.FORBIDDEN,
-				code: "FORBIDDEN",
-				message: "You are not allowed to access this resource",
-			});
+			return next(
+				ApiError.forbidden({
+					message: "You are not allowed to access this resource",
+				})
+			);
 		}
 
 		return next();

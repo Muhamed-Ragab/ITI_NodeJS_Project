@@ -1,5 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import { ZodError } from "zod";
+import { ApiError } from "../utils/errors/api-error.js";
 import { sendError } from "../utils/response.js";
 
 const isObject = (value) => value !== null && typeof value === "object";
@@ -47,21 +48,41 @@ const normalizeValidationDetails = (error) =>
 	}));
 
 export const errorHandler = (error, _req, res, _next) => {
+	let normalizedError = error;
 	if (error instanceof ZodError) {
-		return sendError(res, {
-			statusCode: StatusCodes.BAD_REQUEST,
+		normalizedError = ApiError.badRequest({
 			code: "VALIDATION_ERROR",
 			message: "Validation failed",
 			details: normalizeValidationDetails(error),
 		});
 	}
 
-	const statusCode = normalizeStatusCode(error?.statusCode);
-	const code = normalizeErrorCode(error?.code);
-	const message = normalizeMessage(error?.message, statusCode);
+	if (normalizedError instanceof ApiError) {
+		const statusCode = normalizeStatusCode(normalizedError.statusCode);
+		const code = normalizeErrorCode(normalizedError.code);
+		const message = normalizeMessage(normalizedError.message, statusCode);
+		const details =
+			isObject(normalizedError.details) ||
+			Array.isArray(normalizedError.details)
+				? normalizedError.details
+				: undefined;
+
+		return sendError(res, {
+			statusCode,
+			code,
+			message,
+			details:
+				statusCode < StatusCodes.INTERNAL_SERVER_ERROR ? details : undefined,
+		});
+	}
+
+	const statusCode = normalizeStatusCode(normalizedError?.statusCode);
+	const code = normalizeErrorCode(normalizedError?.code);
+	const message = normalizeMessage(normalizedError?.message, statusCode);
 	const details =
-		isObject(error?.details) || Array.isArray(error?.details)
-			? error.details
+		isObject(normalizedError?.details) ||
+		Array.isArray(normalizedError?.details)
+			? normalizedError.details
 			: undefined;
 
 	return sendError(res, {

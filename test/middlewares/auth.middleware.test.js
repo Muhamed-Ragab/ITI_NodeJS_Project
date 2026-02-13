@@ -2,6 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { requireAuth } from "../../src/middlewares/auth.middleware.js";
+import { ApiError } from "../../src/utils/errors/api-error.js";
 
 const next = vi.fn();
 
@@ -11,31 +12,22 @@ beforeEach(() => {
 });
 
 describe("auth middleware", () => {
-	it("returns unauthorized when authorization header is missing", () => {
-		const req = { headers: {} };
-
-		requireAuth(req, {}, next);
+	it("returns ApiError unauthorized when authorization header is missing", () => {
+		requireAuth({ headers: {} }, {}, next);
 
 		expect(next).toHaveBeenCalledTimes(1);
-		expect(next).toHaveBeenCalledWith(
-			expect.objectContaining({
-				statusCode: StatusCodes.UNAUTHORIZED,
-				code: "UNAUTHORIZED",
-			})
-		);
+		const [error] = next.mock.calls[0];
+		expect(error).toBeInstanceOf(ApiError);
+		expect(error.statusCode).toBe(StatusCodes.UNAUTHORIZED);
+		expect(error.code).toBe("UNAUTHORIZED");
 	});
 
-	it("returns unauthorized when token is invalid", () => {
-		const req = { headers: { authorization: "Bearer invalid-token" } };
+	it("returns ApiError unauthorized when token is invalid", () => {
+		requireAuth({ headers: { authorization: "Bearer bad" } }, {}, next);
 
-		requireAuth(req, {}, next);
-
-		expect(next).toHaveBeenCalledWith(
-			expect.objectContaining({
-				statusCode: StatusCodes.UNAUTHORIZED,
-				code: "UNAUTHORIZED",
-			})
-		);
+		const [error] = next.mock.calls[0];
+		expect(error).toBeInstanceOf(ApiError);
+		expect(error.statusCode).toBe(StatusCodes.UNAUTHORIZED);
 	});
 
 	it("attaches decoded user and calls next with no args when token is valid", () => {

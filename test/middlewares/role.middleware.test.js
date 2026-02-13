@@ -1,6 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import { describe, expect, it, vi } from "vitest";
 import { requireRole } from "../../src/middlewares/role.middleware.js";
+import { ApiError } from "../../src/utils/errors/api-error.js";
 
 describe("role middleware", () => {
 	it("returns unauthorized when req.user is missing", () => {
@@ -9,35 +10,27 @@ describe("role middleware", () => {
 
 		middleware({}, {}, next);
 
-		expect(next).toHaveBeenCalledWith(
-			expect.objectContaining({
-				statusCode: StatusCodes.UNAUTHORIZED,
-				code: "UNAUTHORIZED",
-			})
-		);
+		const [error] = next.mock.calls[0];
+		expect(error).toBeInstanceOf(ApiError);
+		expect(error.statusCode).toBe(StatusCodes.UNAUTHORIZED);
 	});
 
-	it("returns forbidden when user role is not allowed", () => {
+	it("returns forbidden when role is not allowed", () => {
 		const middleware = requireRole("admin");
 		const next = vi.fn();
-		const req = { user: { role: "member" } };
 
-		middleware(req, {}, next);
+		middleware({ user: { role: "member" } }, {}, next);
 
-		expect(next).toHaveBeenCalledWith(
-			expect.objectContaining({
-				statusCode: StatusCodes.FORBIDDEN,
-				code: "FORBIDDEN",
-			})
-		);
+		const [error] = next.mock.calls[0];
+		expect(error).toBeInstanceOf(ApiError);
+		expect(error.statusCode).toBe(StatusCodes.FORBIDDEN);
 	});
 
-	it("calls next with no args when user role is allowed", () => {
+	it("allows request when role is allowed", () => {
 		const middleware = requireRole("admin", "seller");
 		const next = vi.fn();
-		const req = { user: { role: "admin" } };
 
-		middleware(req, {}, next);
+		middleware({ user: { role: "admin" } }, {}, next);
 
 		expect(next).toHaveBeenCalledWith();
 	});
