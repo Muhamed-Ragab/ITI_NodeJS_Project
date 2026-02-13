@@ -46,6 +46,7 @@ Purpose:
 Purpose:
 - Provide one global error response format.
 - Convert `ZodError` into a `400 Validation failed` response.
+- Serialize `ApiError` instances into the standard API error envelope.
 - Respect `error.statusCode` for known application errors.
 - Fall back to `500` for unknown failures.
 
@@ -54,8 +55,11 @@ Response shape:
 ```json
 {
 	"success": false,
-	"message": "Validation failed",
-	"details": []
+	"error": {
+		"code": "VALIDATION_ERROR",
+		"details": []
+	},
+	"message": "Validation failed"
 }
 ```
 
@@ -64,3 +68,8 @@ Register as last middleware in `src/app.js`:
 ```js
 app.use(errorHandler);
 ```
+
+## ApiError usage pattern
+
+- Throw/forward `ApiError` from middleware and route handlers for operational errors.
+- Keep `errorHandler` + `sendError` as the only response serialization path for errors.
