@@ -1,6 +1,6 @@
-import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env.js";
+import { ApiError } from "../utils/errors/api-error.js";
 
 const extractToken = (authorizationHeader = "") => {
 	const [scheme, token] = authorizationHeader.split(" ");
@@ -13,24 +13,30 @@ const extractToken = (authorizationHeader = "") => {
 
 export const requireAuth = (req, _res, next) => {
 	try {
+		const jwtSecret = process.env.JWT_SECRET ?? env?.JWT_SECRET;
+		if (!jwtSecret) {
+			return next(
+				ApiError.internal({
+					code: "SERVER_MISCONFIG",
+					message: "JWT secret is not configured",
+				})
+			);
+		}
+
 		const token = extractToken(req.headers.authorization);
 
 		if (!token) {
-			return next({
-				statusCode: StatusCodes.UNAUTHORIZED,
-				code: "UNAUTHORIZED",
-				message: "Missing or invalid authorization token",
-			});
+			return next(
+				ApiError.unauthorized({
+					message: "Missing or invalid authorization token",
+				})
+			);
 		}
 
-		const payload = jwt.verify(token, env.JWT_SECRET);
+		const payload = jwt.verify(token, jwtSecret);
 		req.user = payload;
 		return next();
 	} catch {
-		return next({
-			statusCode: StatusCodes.UNAUTHORIZED,
-			code: "UNAUTHORIZED",
-			message: "Unauthorized",
-		});
+		return next(ApiError.unauthorized());
 	}
 };
