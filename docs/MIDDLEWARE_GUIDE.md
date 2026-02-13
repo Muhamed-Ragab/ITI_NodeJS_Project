@@ -39,6 +39,24 @@ Purpose:
 - Attach decoded payload to `req.user`.
 - Forward unauthorized access errors with status `401`.
 
+## `requireRole` middleware
+
+**File:** `src/middlewares/role.middleware.js`
+
+Purpose:
+- Enforce role-based authorization after `requireAuth`.
+- Return `401` when user context is missing.
+- Return `403` when user role is not in allowed roles.
+
+Usage example:
+
+```js
+import { requireAuth } from "../middlewares/auth.middleware.js";
+import { requireRole } from "../middlewares/role.middleware.js";
+
+router.put("/admin/users/:id/role", requireAuth, requireRole("admin"), handler);
+```
+
 ## `errorHandler` middleware
 
 **File:** `src/middlewares/error.middleware.js`
@@ -54,8 +72,11 @@ Response shape:
 ```json
 {
 	"success": false,
-	"message": "Validation failed",
-	"details": []
+	"error": {
+		"code": "VALIDATION_ERROR",
+		"details": []
+	},
+	"message": "Validation failed"
 }
 ```
 

@@ -9,6 +9,7 @@ This directory contains global Express middleware functions that are applied acr
 
 ## Files
 -   `auth.middleware.js`: Handles JWT verification for protected routes.
+-   `role.middleware.js`: Enforces role-based authorization after authentication.
 -   `error.middleware.js`: Global error handling middleware to catch and format errors.
 -   `validate.middleware.js`: Generic middleware for Zod schema validation of incoming request data.
 
@@ -24,5 +25,5 @@ All routes should return one of these two envelopes:
 Use `POST /examples/response` as a reference implementation for:
 
 - request validation via `validate(...)`
-- raising typed business errors with `next({ statusCode, code, ... })`
+- raising typed business errors with `sendError(...)` or `next({ statusCode, code, ... })`
 - returning success responses with `sendSuccess(...)`
