@@ -1,25 +1,33 @@
-import {Schema ,  model} from "mongoose";
+import { Schema, model } from "mongoose";
 
-const categorySchema=new Schema({
-    name:{
-        type:String,
-        required:[true, 'category name is required'],
-        unique:[true, 'category name must be unique'],
-        minlenth:[3, 'category name must be at least 3 characters'],
-        maxlenth:[32, 'category name must be less than 32 characters']
+const categorySchema = new Schema(
+    {
+        name: {
+            type: String,
+            required: [true, "Category name is required"],
+            unique: true,
+            minlength: [3, "Category name must be at least 3 characters"],
+            maxlength: [32, "Category name must be less than 32 characters"],
+            trim: true
+        },
+
+        slug: {
+            type: String,
+            lowercase: true,
+            unique: true
+        },
+
+        image: {
+            type: String,
+            default: null
+        }
     },
-    slug:{
-        type:String,
-        lowercase:true
-    },
-    image:{
-        type:String,
+    {
+        timestamps: true
     }
-    
-   }, 
-   {timestamps:true}
 );
 
-const CategoryModel=model("Category", categorySchema);
+
+const CategoryModel = model("Category", categorySchema);
 
 export default CategoryModel;
