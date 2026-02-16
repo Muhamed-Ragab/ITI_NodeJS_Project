@@ -9,15 +9,15 @@ const objectId = z
 	});
 
 export const categoryCreateSchema = z.object({
-	name: z.string().min(2).max(100),
+	name: z.string().min(3).max(32),
 
-	description: z.string().max(500).optional(),
+	description: z.string().max(250).optional(),
 });
 
 export const categoryUpdateSchema = z.object({
-	name: z.string().min(2).max(100).optional(),
+	name: z.string().min(3).max(32).optional(),
 
-	description: z.string().max(500).optional(),
+	description: z.string().max(250).optional(),
 });
 
 export const categoryIdSchema = z.object({

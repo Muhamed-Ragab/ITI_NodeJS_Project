@@ -10,6 +10,11 @@ const categorySchema = new Schema(
 			maxlength: [32, "Category name must be less than 32 characters"],
 			trim: true,
 		},
+		description: {
+			type: String,
+			maxlength: [250, "Category description must be less than 250 characters"],
+			trim: true,
+		},
 
 		slug: {
 			type: String,
