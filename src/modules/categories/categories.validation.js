@@ -1,39 +1,25 @@
-import Joi from "joi";
+import { z } from "zod";
 import mongoose from "mongoose";
 
+// Validate MongoDB ObjectId
+const objectId = z
+	.string()
+	.refine((value) => mongoose.Types.ObjectId.isValid(value), {
+		message: "Invalid category id",
+	});
 
-  //Validate MongoDB ObjectId
- 
-const objectId = (value, helpers) => {
-    if (!mongoose.Types.ObjectId.isValid(value)) {
-        return helpers.message("Invalid category id");
-    }
-    return value;
-};
+export const categoryCreateSchema = z.object({
+	name: z.string().min(2).max(100),
 
-export const categoryCreateSchema = Joi.object({
-    name: Joi.string()
-        .min(2)
-        .max(100)
-        .required(),
-
-    description: Joi.string()
-        .max(500)
-        .optional()
+	description: z.string().max(500).optional(),
 });
 
-export const categoryUpdateSchema = Joi.object({
-    name: Joi.string()
-        .min(2)
-        .max(100)
-        .optional(),
+export const categoryUpdateSchema = z.object({
+	name: z.string().min(2).max(100).optional(),
 
-    description: Joi.string()
-        .max(500)
-        .optional()
+	description: z.string().max(500).optional(),
 });
 
-export const categoryIdSchema = Joi.object({
-    id: Joi.string().custom(objectId).required()
+export const categoryIdSchema = z.object({
+	id: objectId,
 });
-

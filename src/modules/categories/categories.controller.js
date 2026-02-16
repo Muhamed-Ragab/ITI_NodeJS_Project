@@ -1,85 +1,133 @@
 import * as categoryService from "./categories.service.js";
+import { sendSuccess, sendError } from "../../utils/response.js";
+import { StatusCodes } from "http-status-codes";
 
-
- //Create Category
-
+// Create Category
 export const createCategory = async (req, res) => {
-    const category = await categoryService.createCategory(req.body);
+	try {
+		const category = await categoryService.createCategory(req.body);
 
-    res.status(201).json({
-        success: true,
-        data: category
-    });
+		return sendSuccess(res, {
+			statusCode: StatusCodes.CREATED,
+			data: category,
+			message: "Category created successfully",
+		});
+	} catch (error) {
+		return sendError(res, {
+			statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+			code: "CATEGORY.CREATE_FAILED",
+			details: { message: error.message },
+			message: "Failed to create category",
+		});
+	}
 };
 
-
-  //Get Category By ID
- 
+// Get Category By ID
 export const getCategoryById = async (req, res) => {
-    const category = await categoryService.getCategoryById(req.params.id);
+	try {
+		const category = await categoryService.getCategoryById(req.params.id);
 
-    if (!category) {
-        return res.status(404).json({
-            success: false,
-            message: "Category not found"
-        });
-    }
+		if (!category) {
+			return sendError(res, {
+				statusCode: StatusCodes.NOT_FOUND,
+				code: "CATEGORY.NOT_FOUND",
+				details: { id: req.params.id },
+				message: "Category not found",
+			});
+		}
 
-    res.json({
-        success: true,
-        data: category
-    });
+		return sendSuccess(res, {
+			statusCode: StatusCodes.OK,
+			data: category,
+			message: "Category retrieved successfully",
+		});
+	} catch (error) {
+		return sendError(res, {
+			statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+			code: "CATEGORY.RETRIEVE_FAILED",
+			details: { id: req.params.id, message: error.message },
+			message: "Failed to retrieve category",
+		});
+	}
 };
 
-
-  //Update Category
- 
+// Update Category
 export const updateCategory = async (req, res) => {
-    const category = await categoryService.updateCategory(
-        req.params.id,
-        req.body
-    );
+	try {
+		const category = await categoryService.updateCategory(
+			req.params.id,
+			req.body
+		);
 
-    if (!category) {
-        return res.status(404).json({
-            success: false,
-            message: "Category not found"
-        });
-    }
+		if (!category) {
+			return sendError(res, {
+				statusCode: StatusCodes.NOT_FOUND,
+				code: "CATEGORY.NOT_FOUND",
+				details: { id: req.params.id },
+				message: "Category not found",
+			});
+		}
 
-    res.json({
-        success: true,
-        data: category
-    });
+		return sendSuccess(res, {
+			statusCode: StatusCodes.OK,
+			data: category,
+			message: "Category updated successfully",
+		});
+	} catch (error) {
+		return sendError(res, {
+			statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+			code: "CATEGORY.UPDATE_FAILED",
+			details: { message: error.message },
+			message: "Failed to update category",
+		});
+	}
 };
 
-
-  //Delete Category
- 
+// Delete Category
 export const deleteCategory = async (req, res) => {
-    const category = await categoryService.deleteCategory(req.params.id);
+	try {
+		const category = await categoryService.deleteCategory(req.params.id);
 
-    if (!category) {
-        return res.status(404).json({
-            success: false,
-            message: "Category not found"
-        });
-    }
+		if (!category) {
+			return sendError(res, {
+				statusCode: StatusCodes.NOT_FOUND,
+				code: "CATEGORY.NOT_FOUND",
+				details: { id: req.params.id },
+				message: "Category not found",
+			});
+		}
 
-    res.json({
-        success: true,
-        message: "Category deleted successfully"
-    });
+		return sendSuccess(res, {
+			statusCode: StatusCodes.OK,
+			data: category,
+			message: "Category deleted successfully",
+		});
+	} catch (error) {
+		return sendError(res, {
+			statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+			code: "CATEGORY.DELETE_FAILED",
+			details: { message: error.message },
+			message: "Failed to delete category",
+		});
+	}
 };
 
-
- // List Categories
- 
+// List Categories
 export const listCategories = async (req, res) => {
-    const categories = await categoryService.listCategories();
+	try {
+		const categories = await categoryService.listCategories();
 
-    res.json({
-        success: true,
-        data: categories
-    });
+		return sendSuccess(res, {
+			statusCode: StatusCodes.OK,
+			data: categories,
+			message: "Categories retrieved successfully",
+		});
+	} catch (error) {
+		return sendError(res, {
+			statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+			code: "CATEGORY.LIST_FAILED",
+			details: { message: error.message },
+			message: "Failed to list categories",
+		});
+	}
 };

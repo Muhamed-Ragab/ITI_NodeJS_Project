@@ -1,13 +1,12 @@
 import { Router } from "express";
 import * as categoryController from "./categories.controller.js";
-import { asyncHandler } from "../../utils/asyncHandler.js";
-//import { isAdmin } from "../../middlewares/auth.middleware.js";
-//import { validate } from "../../middlewares/validate.middleware.js";
+// import { isAdmin } from "../../middlewares/auth.middleware.js";
+// import { validate } from "../../middlewares/validate.middleware.js";
 
 import {
-    categoryCreateSchema,
-    categoryUpdateSchema,
-    categoryIdSchema
+	categoryCreateSchema,
+	categoryUpdateSchema,
+	categoryIdSchema,
 } from "./categories.validation.js";
 
 const router = Router();
@@ -18,10 +17,10 @@ const router = Router();
  * Access: Admin
  */
 export const createCategoryRoute = router.post(
-    "/categories",
-    //isAdmin,
-    //validate(categoryCreateSchema),
-    asyncHandler(categoryController.createCategory)
+	"/categories",
+	// isAdmin,
+	// validate(categoryCreateSchema),
+	categoryController.createCategory
 );
 
 /**
@@ -30,9 +29,9 @@ export const createCategoryRoute = router.post(
  * Access: Public
  */
 export const getCategoryRoute = router.get(
-    "/categories/:id",
-   // validate(categoryIdSchema, "params"),
-    asyncHandler(categoryController.getCategoryById)
+	"/categories/:id",
+	// validate(categoryIdSchema, "params"),
+	categoryController.getCategoryById
 );
 
 /**
@@ -41,11 +40,11 @@ export const getCategoryRoute = router.get(
  * Access: Admin
  */
 export const updateCategoryRoute = router.put(
-    "/categories/:id",
-   // isAdmin,
-    //validate(categoryIdSchema, "params"),
-    //validate(categoryUpdateSchema),
-    asyncHandler(categoryController.updateCategory)
+	"/categories/:id",
+	// isAdmin,
+	// validate(categoryIdSchema, "params"),
+	// validate(categoryUpdateSchema),
+	categoryController.updateCategory
 );
 
 /**
@@ -54,10 +53,10 @@ export const updateCategoryRoute = router.put(
  * Access: Admin
  */
 export const deleteCategoryRoute = router.delete(
-    "/categories/:id",
-    //isAdmin,
-    //validate(categoryIdSchema, "params"),
-    asyncHandler(categoryController.deleteCategory)
+	"/categories/:id",
+	// isAdmin,
+	// validate(categoryIdSchema, "params"),
+	categoryController.deleteCategory
 );
 
 /**
@@ -66,10 +65,8 @@ export const deleteCategoryRoute = router.delete(
  * Access: Public
  */
 export const listCategoriesRoute = router.get(
-    "/categories",
-    asyncHandler(categoryController.listCategories)
+	"/categories",
+	categoryController.listCategories
 );
 
 export default router;
-
-    
