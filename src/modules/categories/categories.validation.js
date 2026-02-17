@@ -1,5 +1,5 @@
-import { z } from "zod";
 import mongoose from "mongoose";
+import { z } from "zod";
 
 // Validate MongoDB ObjectId
 const objectId = z
@@ -9,15 +9,15 @@ const objectId = z
 	});
 
 export const categoryCreateSchema = z.object({
-	name: z.string().min(3).max(32),
+	name: z.string().trim().min(3).max(32),
 
-	description: z.string().max(250).optional(),
+	description: z.string().trim().max(250).optional(),
 });
 
 export const categoryUpdateSchema = z.object({
-	name: z.string().min(3).max(32).optional(),
+	name: z.string().trim().min(3).max(32).optional(),
 
-	description: z.string().max(250).optional(),
+	description: z.string().trim().max(250).optional(),
 });
 
 export const categoryIdSchema = z.object({

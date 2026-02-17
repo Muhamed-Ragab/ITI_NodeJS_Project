@@ -1,12 +1,13 @@
 import { Router } from "express";
+import { requireAuth } from "../../middlewares/auth.middleware.js";
+import { requireRole } from "../../middlewares/role.middleware.js";
+import { validate } from "../../middlewares/validate.middleware.js";
 import * as categoryController from "./categories.controller.js";
-// import { isAdmin } from "../../middlewares/auth.middleware.js";
-// import { validate } from "../../middlewares/validate.middleware.js";
 
 import {
 	categoryCreateSchema,
-	categoryUpdateSchema,
 	categoryIdSchema,
+	categoryUpdateSchema,
 } from "./categories.validation.js";
 
 const router = Router();
@@ -18,8 +19,9 @@ const router = Router();
  */
 export const createCategoryRoute = router.post(
 	"/categories",
-	// isAdmin,
-	// validate(categoryCreateSchema),
+	requireAuth,
+	requireRole("admin"),
+	validate({ body: categoryCreateSchema }),
 	categoryController.createCategory
 );
 
@@ -30,7 +32,7 @@ export const createCategoryRoute = router.post(
  */
 export const getCategoryRoute = router.get(
 	"/categories/:id",
-	// validate(categoryIdSchema, "params"),
+	validate({ params: categoryIdSchema }),
 	categoryController.getCategoryById
 );
 
@@ -41,9 +43,9 @@ export const getCategoryRoute = router.get(
  */
 export const updateCategoryRoute = router.put(
 	"/categories/:id",
-	// isAdmin,
-	// validate(categoryIdSchema, "params"),
-	// validate(categoryUpdateSchema),
+	requireAuth,
+	requireRole("admin"),
+	validate({ params: categoryIdSchema, body: categoryUpdateSchema }),
 	categoryController.updateCategory
 );
 
@@ -54,8 +56,9 @@ export const updateCategoryRoute = router.put(
  */
 export const deleteCategoryRoute = router.delete(
 	"/categories/:id",
-	// isAdmin,
-	// validate(categoryIdSchema, "params"),
+	requireAuth,
+	requireRole("admin"),
+	validate({ params: categoryIdSchema }),
 	categoryController.deleteCategory
 );
 
