@@ -2,7 +2,7 @@ import * as service from "./users.service.js";
 import { sendSuccess } from "../../utils/response.js";
 import { ApiError } from "../../utils/errors/api-error.js";
 
-// ===== Profile =====
+//  Profile 
 export const getProfile = async (req, res, next) => {
   try {
     const user = await service.getUserById(req.user.id);
@@ -21,7 +21,7 @@ export const updateProfile = async (req, res, next) => {
   }
 };
 
-// ===== Wishlist =====
+//  Wishlist 
 export const getWishlist = async (req, res, next) => {
   try {
     const wishlist = await service.getUserWishlist(req.user.id);
@@ -49,7 +49,7 @@ export const removeWishlistItem = async (req, res, next) => {
   }
 };
 
-// ===== Cart =====
+//  Cart 
 export const getCart = async (req, res, next) => {
   try {
     const cart = await service.getUserCart(req.user.id);

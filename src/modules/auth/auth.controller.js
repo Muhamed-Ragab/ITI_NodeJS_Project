@@ -1,8 +1,4 @@
-import {
-  registerUser,
-  loginUser,
-  handleGoogleCallback,
-} from "./auth.service.js";
+import { registerUser, loginUser, handleGoogleCallback } from "./auth.service.js";
 import { sendSuccess } from "../../utils/response.js";
 import { ApiError } from "../../utils/errors/api-error.js";
 
@@ -25,7 +21,6 @@ export const login = async (req, res, next) => {
 };
 
 export const googleStart = (_req, res) => {
-  // Replace with real OAuth URL in production
   const url = "https://accounts.google.com/o/oauth2/auth?...";
   res.redirect(url);
 };

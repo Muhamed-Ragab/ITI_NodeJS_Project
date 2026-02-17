@@ -6,9 +6,7 @@ import { ApiError } from "../../utils/errors/api-error.js";
 
 export const registerUser = async ({ name, email, password }) => {
   const existing = await findUserByEmail(email);
-  if (existing) {
-    throw ApiError.badRequest({ message: "Email already exists" });
-  }
+  if (existing) throw ApiError.badRequest({ message: "Email already exists" });
 
   const hashed = await bcrypt.hash(password, 10);
   const user = await createUser({ name, email, password: hashed });
@@ -17,6 +15,7 @@ export const registerUser = async ({ name, email, password }) => {
     expiresIn: "7d",
   });
 
+  user.password = undefined; // اخفاء الباسورد
   return { user, token };
 };
 
@@ -31,6 +30,7 @@ export const loginUser = async ({ email, password }) => {
     expiresIn: "7d",
   });
 
+  user.password = undefined; // اخفاء الباسورد
   return { user, token };
 };
 
@@ -48,5 +48,6 @@ export const handleGoogleCallback = async (profile) => {
     expiresIn: "7d",
   });
 
+  user.password = undefined; // اخفاء الباسورد
   return { user, token };
 };

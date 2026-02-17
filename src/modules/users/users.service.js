@@ -2,7 +2,7 @@ import * as repo from "./users.repository.js";
 import { ApiError } from "../../utils/errors/api-error.js";
 import bcrypt from "bcryptjs";
 
-// ==== Users ====
+//  Users 
 export const getUserById = async (id) => {
   const user = await repo.findById(id);
   if (!user) throw ApiError.notFound({ message: "User not found" });
@@ -22,7 +22,7 @@ export const updateUserProfile = async (id, data) => {
   return safeUpdated;
 };
 
-// ==== Wishlist ====
+//  Wishlist 
 export const getUserWishlist = async (id) => {
   const user = await repo.findById(id);
   if (!user) throw ApiError.notFound({ message: "User not found" });
@@ -32,7 +32,7 @@ export const getUserWishlist = async (id) => {
 export const addProductToWishlist = (id, product) => repo.addWishlist(id, product);
 export const removeProductFromWishlist = (id, product) => repo.removeWishlist(id, product);
 
-// ==== Cart ====
+//  Cart 
 export const getUserCart = async (id) => {
   const user = await repo.findById(id);
   if (!user) throw ApiError.notFound({ message: "User not found" });
@@ -42,7 +42,7 @@ export const getUserCart = async (id) => {
 export const upsertCartItem = (id, product, qty) => repo.updateCartItem(id, product, qty);
 export const removeCartItem = (id, product) => repo.removeCartItem(id, product);
 
-// ==== Role ====
+//  Role 
 export const updateRole = async (id, role) => {
   const updated = await repo.updateRole(id, role);
   if (!updated) throw ApiError.notFound({ message: "User not found or role update failed" });

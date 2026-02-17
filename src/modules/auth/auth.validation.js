@@ -11,7 +11,6 @@ export const loginSchema = z.object({
   password: z.string().min(6),
 });
 
-// optional for Google callback query validation
 export const googleCallbackSchema = z.object({
   code: z.string(),
 });
