@@ -25,6 +25,9 @@
   "linter": {
     "enabled": true,
     "rules": {
+      "performance": {
+        "noNamespaceImport": "off"
+      },
       "recommended": true
     }
   },
