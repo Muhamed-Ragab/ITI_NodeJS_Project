@@ -1,5 +1,5 @@
-import * as categoryRepository from "./categories.repository.js";
 import slugify from "slugify";
+import * as categoryRepository from "./categories.repository.js";
 
 // Create Category
 

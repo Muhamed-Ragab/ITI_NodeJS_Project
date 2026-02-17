@@ -1,29 +1,26 @@
 import cors from "cors";
 import express from "express";
-import { StatusCodes } from "http-status-codes";
 import morgan from "morgan";
-import { z } from "zod";
-import { env } from "./config/env.js"; // Import validated env
+import { env } from "./config/env.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
-import { validate } from "./middlewares/validate.middleware.js";
-import { ApiError } from "./utils/errors/api-error.js";
+import categoryRouter from "./modules/categories/categories.routes.js";
 import { sendSuccess } from "./utils/response.js";
 
 const app = express();
 const appNodeEnv = env?.NODE_ENV ?? process.env.NODE_ENV ?? "development";
 
 // Middleware
-app.use(morgan(appNodeEnv === "production" ? "combined" : "dev")); // HTTP request logger
+app.use(morgan(appNodeEnv === "production" ? "combined" : "dev"));
 app.use(
 	cors({
 		origin:
 			appNodeEnv === "production" ? "https://your-frontend-domain.com" : "*",
 	})
-); // Enable CORS, adjust origin for production
-app.use(express.json()); // Body parser for JSON
-app.use(express.urlencoded({ extended: true })); // Body parser for URL-encoded data
+);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Basic route
+// Health Check
 app.get("/", (_req, res) => {
 	return sendSuccess(res, {
 		data: {
@@ -34,36 +31,10 @@ app.get("/", (_req, res) => {
 	});
 });
 
-const responseExampleSchema = z.object({
-	name: z.string().trim().min(1),
-	role: z.enum(["admin", "member"]).default("member"),
-});
+// Routes
+app.use("/api/categories", categoryRouter);
 
-// Example route for team members to see middleware + response helpers usage.
-app.post(
-	"/examples/response",
-	validate({ body: responseExampleSchema }),
-	(req, res, next) => {
-		if (req.body.name.toLowerCase() === "error") {
-			return next(
-				ApiError.badRequest({
-					code: "EXAMPLE_BUSINESS_ERROR",
-					message: "Example business rule failed",
-					details: {
-						name: "Please use any name except 'error'.",
-					},
-				})
-			);
-		}
-
-		return sendSuccess(res, {
-			statusCode: StatusCodes.CREATED,
-			data: req.body,
-			message: "Example response created successfully",
-		});
-	}
-);
-
+// Error Handling
 app.use(errorHandler);
 
 export default app;

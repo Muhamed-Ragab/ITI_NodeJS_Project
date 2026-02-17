@@ -1,6 +1,6 @@
-import * as categoryService from "./categories.service.js";
-import { sendSuccess, sendError } from "../../utils/response.js";
 import { StatusCodes } from "http-status-codes";
+import { sendError, sendSuccess } from "../../utils/response.js";
+import * as categoryService from "./categories.service.js";
 
 // Create Category
 export const createCategory = async (req, res) => {
@@ -13,6 +13,13 @@ export const createCategory = async (req, res) => {
 			message: "Category created successfully",
 		});
 	} catch (error) {
+		if (error.code === 11_000) {
+			return sendError(res, {
+				statusCode: StatusCodes.CONFLICT,
+				code: "CATEGORY.DUPLICATE",
+				message: "Category with this name already exists",
+			});
+		}
 		return sendError(res, {
 			statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
 			code: "CATEGORY.CREATE_FAILED",
@@ -42,6 +49,13 @@ export const getCategoryById = async (req, res) => {
 			message: "Category retrieved successfully",
 		});
 	} catch (error) {
+		if (error.name === "CastError") {
+			return sendError(res, {
+				statusCode: StatusCodes.BAD_REQUEST,
+				code: "CATEGORY.INVALID_ID",
+				message: "Invalid category ID format",
+			});
+		}
 		return sendError(res, {
 			statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
 			code: "CATEGORY.RETRIEVE_FAILED",
@@ -74,6 +88,20 @@ export const updateCategory = async (req, res) => {
 			message: "Category updated successfully",
 		});
 	} catch (error) {
+		if (error.name === "CastError") {
+			return sendError(res, {
+				statusCode: StatusCodes.BAD_REQUEST,
+				code: "CATEGORY.INVALID_ID",
+				message: "Invalid category ID format",
+			});
+		}
+		if (error.code === 11_000) {
+			return sendError(res, {
+				statusCode: StatusCodes.CONFLICT,
+				code: "CATEGORY.DUPLICATE",
+				message: "Category with this name already exists",
+			});
+		}
 		return sendError(res, {
 			statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
 			code: "CATEGORY.UPDATE_FAILED",
@@ -103,6 +131,13 @@ export const deleteCategory = async (req, res) => {
 			message: "Category deleted successfully",
 		});
 	} catch (error) {
+		if (error.name === "CastError") {
+			return sendError(res, {
+				statusCode: StatusCodes.BAD_REQUEST,
+				code: "CATEGORY.INVALID_ID",
+				message: "Invalid category ID format",
+			});
+		}
 		return sendError(res, {
 			statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
 			code: "CATEGORY.DELETE_FAILED",
@@ -113,7 +148,7 @@ export const deleteCategory = async (req, res) => {
 };
 
 // List Categories
-export const listCategories = async (req, res) => {
+export const listCategories = async (_req, res) => {
 	try {
 		const categories = await categoryService.listCategories();
 

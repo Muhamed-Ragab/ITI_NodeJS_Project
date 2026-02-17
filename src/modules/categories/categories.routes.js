@@ -1,72 +1,43 @@
 import { Router } from "express";
+import { requireAuth } from "../../middlewares/auth.middleware.js";
+import { requireRole } from "../../middlewares/role.middleware.js";
+import { validate } from "../../middlewares/validate.middleware.js";
 import * as categoryController from "./categories.controller.js";
-// import { isAdmin } from "../../middlewares/auth.middleware.js";
-// import { validate } from "../../middlewares/validate.middleware.js";
-
 import {
 	categoryCreateSchema,
-	categoryUpdateSchema,
 	categoryIdSchema,
+	categoryUpdateSchema,
 } from "./categories.validation.js";
 
-const router = Router();
+const categoryRouter = Router();
 
-/**
- * createCategoryRoute
- * POST /api/categories
- * Access: Admin
- */
-export const createCategoryRoute = router.post(
-	"/categories",
-	// isAdmin,
-	// validate(categoryCreateSchema),
-	categoryController.createCategory
-);
+categoryRouter
+	.route("/")
+	.get(categoryController.listCategories)
+	.post(
+		requireAuth,
+		requireRole("admin"),
+		validate({ body: categoryCreateSchema }),
+		categoryController.createCategory
+	);
 
-/**
- * getCategoryRoute
- * GET /api/categories/:id
- * Access: Public
- */
-export const getCategoryRoute = router.get(
-	"/categories/:id",
-	// validate(categoryIdSchema, "params"),
-	categoryController.getCategoryById
-);
+categoryRouter
+	.route("/:id")
+	.get(
+		validate({ params: categoryIdSchema }),
+		categoryController.getCategoryById
+	)
+	.put(
+		requireAuth,
+		requireRole("admin"),
+		validate({ params: categoryIdSchema, body: categoryUpdateSchema }),
+		categoryController.updateCategory
+	)
+	.delete(
+		requireAuth,
+		requireRole("admin"),
+		validate({ params: categoryIdSchema }),
+		categoryController.deleteCategory
+	);
 
-/**
- * updateCategoryRoute
- * PUT /api/categories/:id
- * Access: Admin
- */
-export const updateCategoryRoute = router.put(
-	"/categories/:id",
-	// isAdmin,
-	// validate(categoryIdSchema, "params"),
-	// validate(categoryUpdateSchema),
-	categoryController.updateCategory
-);
-
-/**
- * deleteCategoryRoute
- * DELETE /api/categories/:id
- * Access: Admin
- */
-export const deleteCategoryRoute = router.delete(
-	"/categories/:id",
-	// isAdmin,
-	// validate(categoryIdSchema, "params"),
-	categoryController.deleteCategory
-);
-
-/**
- * listCategoriesRoute
- * GET /api/categories
- * Access: Public
- */
-export const listCategoriesRoute = router.get(
-	"/categories",
-	categoryController.listCategories
-);
-
-export default router;
+export default categoryRouter;
