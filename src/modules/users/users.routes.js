@@ -1,23 +1,87 @@
 import { Router } from "express";
-import { validate } from "../../middlewares/validate.middleware.js";
 import { requireAuth } from "../../middlewares/auth.middleware.js";
-import { profileUpdateSchema } from "./users.validation.js";
+import { requireRole } from "../../middlewares/role.middleware.js";
+import { validate } from "../../middlewares/validate.middleware.js";
 import * as controller from "./users.controller.js";
+import {
+	addressIdSchema,
+	addressSchema,
+	cartItemSchema,
+	productIdSchema,
+	profileUpdateSchema,
+	roleUpdateSchema,
+	userIdSchema,
+} from "./users.validation.js";
 
-const router = Router();
+const userRouter = Router();
 
 // Profile
-router.get("/profile", requireAuth, controller.getProfile);
-router.put("/profile", requireAuth, validate({ body: profileUpdateSchema }), controller.updateProfile);
+userRouter.get("/profile", requireAuth, controller.getProfile);
+userRouter.put(
+	"/profile",
+	requireAuth,
+	validate({ body: profileUpdateSchema }),
+	controller.updateProfile
+);
 
 // Wishlist
-router.get("/wishlist", requireAuth, controller.getWishlist);
-router.post("/wishlist", requireAuth, controller.addWishlistItem);
-router.delete("/wishlist/:productId", requireAuth, controller.removeWishlistItem);
+userRouter.get("/wishlist", requireAuth, controller.getWishlist);
+userRouter.post(
+	"/wishlist",
+	requireAuth,
+	validate({ body: productIdSchema }),
+	controller.addWishlistItem
+);
+userRouter.delete(
+	"/wishlist/:productId",
+	requireAuth,
+	validate({ params: productIdSchema }),
+	controller.removeWishlistItem
+);
 
 // Cart
-router.get("/cart", requireAuth, controller.getCart);
-router.put("/cart", requireAuth, controller.upsertCart);
-router.delete("/cart/:productId", requireAuth, controller.removeCartItemController);
+userRouter.get("/cart", requireAuth, controller.getCart);
+userRouter.put(
+	"/cart",
+	requireAuth,
+	validate({ body: cartItemSchema }),
+	controller.upsertCart
+);
+userRouter.delete(
+	"/cart/:productId",
+	requireAuth,
+	validate({ params: productIdSchema }),
+	controller.removeCartItemController
+);
 
-export default router;
+// Addresses
+userRouter.post(
+	"/address",
+	requireAuth,
+	validate({ body: addressSchema }),
+	controller.addAddress
+);
+userRouter.put(
+	"/address/:addressId",
+	requireAuth,
+	validate({ params: addressIdSchema, body: addressSchema }),
+	controller.updateAddress
+);
+userRouter.delete(
+	"/address/:addressId",
+	requireAuth,
+	validate({ params: addressIdSchema }),
+	controller.removeAddress
+);
+
+// Admin
+userRouter.get("/", requireAuth, requireRole("admin"), controller.listUsers);
+userRouter.put(
+	"/admin/:id/role",
+	requireAuth,
+	requireRole("admin"),
+	validate({ params: userIdSchema, body: roleUpdateSchema }),
+	controller.updateRole
+);
+
+export default userRouter;
