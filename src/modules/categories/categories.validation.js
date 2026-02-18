@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { z } from "zod";
 
-// Validate MongoDB ObjectId
 const objectId = z
 	.string()
 	.refine((value) => mongoose.Types.ObjectId.isValid(value), {
