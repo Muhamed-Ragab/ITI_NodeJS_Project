@@ -66,12 +66,87 @@ export const googleStart = (_req, res) => {
 
 export const googleCallback = async (_req, res, next) => {
 	try {
-		// TODO: Exchange _req.query.code for Google access token and fetch profile
-		const profile = {
-			id: "google_id_placeholder",
-			displayName: "Google User",
-			emails: [{ value: "google_user@gmail.com" }],
-		};
+		const { code } = _req.query;
+		const redirectUri = `http://localhost:${env.PORT}/api/auth/google/callback`;
+
+		let profile;
+		if (env.NODE_ENV === "test") {
+			profile = {
+				id: "google_id_placeholder",
+				displayName: "Google User",
+				emails: [{ value: "google_user@gmail.com" }],
+			};
+		} else {
+			if (!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET)) {
+				return next(
+					ApiError.internal({
+						code: "AUTH.GOOGLE_CONFIG_MISSING",
+						message: "Google OAuth credentials are not configured",
+					})
+				);
+			}
+
+			const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+				method: "POST",
+				headers: { "Content-Type": "application/x-www-form-urlencoded" },
+				body: new URLSearchParams({
+					code,
+					client_id: env.GOOGLE_CLIENT_ID,
+					client_secret: env.GOOGLE_CLIENT_SECRET,
+					redirect_uri: redirectUri,
+					grant_type: "authorization_code",
+				}),
+			});
+
+			if (!tokenResponse.ok) {
+				const tokenErrorText = await tokenResponse.text();
+				throw ApiError.unauthorized({
+					code: "AUTH.GOOGLE_TOKEN_EXCHANGE_FAILED",
+					message: "Failed to exchange Google auth code",
+					details: { tokenError: tokenErrorText },
+				});
+			}
+
+			const tokenPayload = await tokenResponse.json();
+			if (!tokenPayload.access_token) {
+				throw ApiError.unauthorized({
+					code: "AUTH.GOOGLE_ACCESS_TOKEN_MISSING",
+					message: "Google access token was not returned",
+				});
+			}
+
+			const profileResponse = await fetch(
+				"https://www.googleapis.com/oauth2/v2/userinfo",
+				{
+					headers: {
+						Authorization: `Bearer ${tokenPayload.access_token}`,
+					},
+				}
+			);
+
+			if (!profileResponse.ok) {
+				const profileErrorText = await profileResponse.text();
+				throw ApiError.unauthorized({
+					code: "AUTH.GOOGLE_PROFILE_FETCH_FAILED",
+					message: "Failed to fetch Google profile",
+					details: { profileError: profileErrorText },
+				});
+			}
+
+			const profilePayload = await profileResponse.json();
+			if (!(profilePayload.id && profilePayload.email)) {
+				throw ApiError.badRequest({
+					code: "AUTH.GOOGLE_PROFILE_INCOMPLETE",
+					message: "Google profile is missing required fields",
+				});
+			}
+
+			profile = {
+				id: profilePayload.id,
+				displayName: profilePayload.name ?? "Google User",
+				emails: [{ value: profilePayload.email }],
+			};
+		}
 
 		const result = await authService.handleGoogleCallback(profile);
 		return sendSuccess(res, {
