@@ -65,20 +65,19 @@ const userSchema = new mongoose.Schema(
 	}
 );
 
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
 	if (!(this.isModified("password") && this.password)) {
-		return next();
+		return;
 	}
+
 	this.password = await bcrypt.hash(this.password, 10);
-	next();
 });
 
-userSchema.pre("findOneAndUpdate", async function (next) {
+userSchema.pre("findOneAndUpdate", async function () {
 	const update = this.getUpdate();
 	if (update?.password) {
 		update.password = await bcrypt.hash(update.password, 10);
 	}
-	next();
 });
 
 const User = mongoose.model("User", userSchema);

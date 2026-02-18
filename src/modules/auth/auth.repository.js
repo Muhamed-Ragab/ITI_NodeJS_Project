@@ -8,6 +8,14 @@ export const findUserByGoogleId = async (googleId) => {
 	return await User.findOne({ googleId });
 };
 
+export const attachGoogleIdToUser = async (userId, googleId) => {
+	return await User.findByIdAndUpdate(
+		userId,
+		{ googleId },
+		{ new: true, runValidators: true }
+	);
+};
+
 export const createUser = async (data) => {
 	return await User.create(data);
 };
