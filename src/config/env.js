@@ -9,7 +9,7 @@ const envSchema = z.object({
 		.enum(["development", "production", "test"])
 		.default("development"),
 	PORT: z.coerce.number().default(3000),
-	MONGODB_URI: z.string().url(),
+	MONGODB_URI: z.url(),
 	JWT_SECRET: z.string().min(32), // Minimum 32 chars for better security
 	STRIPE_SECRET_KEY: z.string().optional(),
 	CLOUDINARY_URL: z.string().optional(),
@@ -25,11 +25,21 @@ let envParsed;
 try {
 	envParsed = envSchema.parse(process.env);
 } catch (err) {
-	// In tests we allow importing the schema without failing the module import
-	// so unit tests can validate the schema in isolation. In non-test
-	// environments re-throw so the app fails fast on bad/missing config.
+	// In tests, provide stable defaults so modules depending on `env`
+	// (e.g. auth token generation / oauth redirects) remain import-safe.
+	// In non-test environments re-throw so the app fails fast.
 	if (process.env.NODE_ENV === "test") {
-		envParsed = undefined; // keep import-safe for unit tests
+		envParsed = envSchema.parse({
+			NODE_ENV: "test",
+			PORT: process.env.PORT ?? "3000",
+			MONGODB_URI:
+				process.env.MONGODB_URI ?? "mongodb://127.0.0.1:27017/testdb",
+			JWT_SECRET: process.env.JWT_SECRET ?? "a".repeat(32),
+			STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+			CLOUDINARY_URL: process.env.CLOUDINARY_URL,
+			GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+			GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+		});
 	} else {
 		const zerr = err;
 		throw new Error(`Environment validation failed: ${zerr.message}`);
