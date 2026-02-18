@@ -5,6 +5,7 @@ import User from "../../../src/modules/users/user.model.js";
 vi.mock("../../../src/modules/users/user.model.js", () => ({
 	default: {
 		findOne: vi.fn(),
+		findByIdAndUpdate: vi.fn(),
 		create: vi.fn(),
 	},
 }));
@@ -28,6 +29,19 @@ describe("Auth Repository", () => {
 		const googleId = "123";
 		await authRepository.findUserByGoogleId(googleId);
 		expect(User.findOne).toHaveBeenCalledWith({ googleId });
+	});
+
+	it("attachGoogleIdToUser should call User.findByIdAndUpdate", async () => {
+		const userId = "user-id";
+		const googleId = "google-id";
+
+		await authRepository.attachGoogleIdToUser(userId, googleId);
+
+		expect(User.findByIdAndUpdate).toHaveBeenCalledWith(
+			userId,
+			{ googleId },
+			{ new: true, runValidators: true }
+		);
 	});
 
 	it("createUser should call User.create", async () => {

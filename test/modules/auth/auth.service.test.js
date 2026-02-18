@@ -107,7 +107,42 @@ describe("Auth Service", () => {
 			const result = await authService.handleGoogleCallback(profile);
 
 			expect(authRepository.createUser).toHaveBeenCalled();
+			expect(authRepository.findUserByEmail).toHaveBeenCalledWith("g@test.com");
 			expect(result.token).toBe("gtoken");
+		});
+
+		it("should attach googleId when email already exists", async () => {
+			const profile = {
+				id: "google-new",
+				displayName: "G User",
+				emails: [{ value: "existing@test.com" }],
+			};
+			const existingUser = {
+				_id: "3",
+				email: "existing@test.com",
+				role: "member",
+				password: "hashed_pass",
+				toObject: () => ({
+					_id: "3",
+					email: "existing@test.com",
+					role: "member",
+					password: "hashed_pass",
+				}),
+			};
+
+			authRepository.findUserByGoogleId.mockResolvedValue(null);
+			authRepository.findUserByEmail.mockResolvedValue(existingUser);
+			authRepository.attachGoogleIdToUser.mockResolvedValue(existingUser);
+			jwt.sign.mockReturnValue("linked-token");
+
+			const result = await authService.handleGoogleCallback(profile);
+
+			expect(authRepository.createUser).not.toHaveBeenCalled();
+			expect(authRepository.attachGoogleIdToUser).toHaveBeenCalledWith(
+				existingUser._id,
+				"google-new"
+			);
+			expect(result.token).toBe("linked-token");
 		});
 
 		it("should return existing user if found", async () => {
@@ -129,6 +164,82 @@ describe("Auth Service", () => {
 
 			expect(authRepository.createUser).not.toHaveBeenCalled();
 			expect(result.token).toBe("gtoken");
+		});
+
+		it("should throw bad request when email is missing", async () => {
+			const profile = {
+				id: "g123",
+				displayName: "G User",
+				emails: [],
+			};
+
+			authRepository.findUserByGoogleId.mockResolvedValue(null);
+
+			await expect(
+				authService.handleGoogleCallback(profile)
+			).rejects.toMatchObject({
+				code: "AUTH.GOOGLE_EMAIL_MISSING",
+			});
+		});
+
+		it("should map duplicate key error to account conflict", async () => {
+			const profile = {
+				id: "g123",
+				displayName: "G User",
+				emails: [{ value: "g@test.com" }],
+			};
+
+			authRepository.findUserByGoogleId.mockResolvedValue(null);
+			authRepository.findUserByEmail.mockResolvedValue(null);
+			authRepository.createUser.mockRejectedValue({ code: 11_000 });
+
+			await expect(
+				authService.handleGoogleCallback(profile)
+			).rejects.toMatchObject({
+				code: "AUTH.GOOGLE_ACCOUNT_CONFLICT",
+			});
+		});
+
+		it("should map mongoose validation error", async () => {
+			const profile = {
+				id: "g123",
+				displayName: "G User",
+				emails: [{ value: "g@test.com" }],
+			};
+
+			authRepository.findUserByGoogleId.mockResolvedValue(null);
+			authRepository.findUserByEmail.mockResolvedValue(null);
+			authRepository.createUser.mockRejectedValue({
+				name: "ValidationError",
+				message: "Name is required",
+			});
+
+			await expect(
+				authService.handleGoogleCallback(profile)
+			).rejects.toMatchObject({
+				code: "AUTH.GOOGLE_USER_VALIDATION_FAILED",
+			});
+		});
+
+		it("should map mongoose cast error", async () => {
+			const profile = {
+				id: "g123",
+				displayName: "G User",
+				emails: [{ value: "g@test.com" }],
+			};
+
+			authRepository.findUserByGoogleId.mockResolvedValue(null);
+			authRepository.findUserByEmail.mockResolvedValue(null);
+			authRepository.createUser.mockRejectedValue({
+				name: "CastError",
+				message: "Cast to ObjectId failed",
+			});
+
+			await expect(
+				authService.handleGoogleCallback(profile)
+			).rejects.toMatchObject({
+				code: "AUTH.GOOGLE_USER_INVALID_DATA",
+			});
 		});
 	});
 });

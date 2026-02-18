@@ -3,6 +3,15 @@ import { ApiError } from "../utils/errors/api-error.js";
 
 const VALIDATION_SOURCES = ["body", "params", "query"];
 
+const setValidatedValue = (req, source, value) => {
+	Object.defineProperty(req, source, {
+		value,
+		writable: true,
+		enumerable: true,
+		configurable: true,
+	});
+};
+
 export const validate = (schemaMap) => async (req, _res, next) => {
 	try {
 		for (const source of VALIDATION_SOURCES) {
@@ -11,7 +20,8 @@ export const validate = (schemaMap) => async (req, _res, next) => {
 				continue;
 			}
 
-			req[source] = await schema.parseAsync(req[source]);
+			const parsedValue = await schema.parseAsync(req[source]);
+			setValidatedValue(req, source, parsedValue);
 		}
 
 		next();

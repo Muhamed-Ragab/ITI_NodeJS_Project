@@ -34,4 +34,47 @@ describe("validate middleware", () => {
 		expect(error.statusCode).toBe(StatusCodes.BAD_REQUEST);
 		expect(error.code).toBe("VALIDATION_ERROR");
 	});
+
+	it("validates req.query when it is a getter-only property", async () => {
+		const middleware = validate({
+			query: z.object({ code: z.string().min(1) }),
+		});
+
+		const req = {};
+		Object.defineProperty(req, "query", {
+			get() {
+				return { code: "google-auth-code" };
+			},
+			configurable: true,
+			enumerable: true,
+		});
+		const next = vi.fn();
+
+		await middleware(req, {}, next);
+
+		expect(req.query).toEqual({ code: "google-auth-code" });
+		expect(next).toHaveBeenCalledWith();
+	});
+
+	it("forwards validation error when query validation fails", async () => {
+		const middleware = validate({
+			query: z.object({ code: z.string().min(1) }),
+		});
+
+		const req = {};
+		Object.defineProperty(req, "query", {
+			get() {
+				return {};
+			},
+			configurable: true,
+			enumerable: true,
+		});
+		const next = vi.fn();
+
+		await middleware(req, {}, next);
+
+		const [error] = next.mock.calls[0];
+		expect(error.statusCode).toBe(StatusCodes.BAD_REQUEST);
+		expect(error.code).toBe("VALIDATION_ERROR");
+	});
 });
