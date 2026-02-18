@@ -1,53 +1,70 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { env } from "../../config/env.js";
-import { findUserByEmail, findUserByGoogleId, createUser } from "./auth.repository.js";
 import { ApiError } from "../../utils/errors/api-error.js";
+import * as authRepository from "./auth.repository.js";
+
+const generateToken = (user) =>
+	jwt.sign(
+		{ id: user._id, email: user.email, role: user.role },
+		env.JWT_SECRET,
+		{ expiresIn: "7d" }
+	);
+
+const stripPassword = (user) => {
+	const { password, ...rest } = user.toObject();
+	return rest;
+};
 
 export const registerUser = async ({ name, email, password }) => {
-  const existing = await findUserByEmail(email);
-  if (existing) throw ApiError.badRequest({ message: "Email already exists" });
+	const existing = await authRepository.findUserByEmail(email);
+	if (existing) {
+		throw ApiError.badRequest({
+			code: "AUTH.EMAIL_EXISTS",
+			message: "Email already exists",
+		});
+	}
 
-  const hashed = await bcrypt.hash(password, 10);
-  const user = await createUser({ name, email, password: hashed });
+	const user = await authRepository.createUser({ name, email, password });
+	const token = generateToken(user);
 
-  const token = jwt.sign({ id: user._id, email: user.email }, env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
-
-  user.password = undefined; // اخفاء الباسورد
-  return { user, token };
+	return { user: stripPassword(user), token };
 };
 
 export const loginUser = async ({ email, password }) => {
-  const user = await findUserByEmail(email);
-  if (!user) throw ApiError.unauthorized({ message: "Invalid credentials" });
+	const user = await authRepository.findUserByEmail(email);
+	if (!user) {
+		throw ApiError.unauthorized({
+			code: "AUTH.INVALID_CREDENTIALS",
+			message: "Invalid credentials",
+		});
+	}
 
-  const match = bcrypt.compareSync(password, user.password);
-  if (!match) throw ApiError.unauthorized({ message: "Invalid credentials" });
+	const isMatch = await bcrypt.compare(password, user.password);
+	if (!isMatch) {
+		throw ApiError.unauthorized({
+			code: "AUTH.INVALID_CREDENTIALS",
+			message: "Invalid credentials",
+		});
+	}
 
-  const token = jwt.sign({ id: user._id, email: user.email }, env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
+	const token = generateToken(user);
 
-  user.password = undefined; // اخفاء الباسورد
-  return { user, token };
+	return { user: stripPassword(user), token };
 };
 
 export const handleGoogleCallback = async (profile) => {
-  let user = await findUserByGoogleId(profile.id);
-  if (!user) {
-    user = await createUser({
-      name: profile.displayName,
-      email: profile.emails[0].value,
-      googleId: profile.id,
-    });
-  }
+	let user = await authRepository.findUserByGoogleId(profile.id);
 
-  const token = jwt.sign({ id: user._id, email: user.email }, env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
+	if (!user) {
+		user = await authRepository.createUser({
+			name: profile.displayName,
+			email: profile.emails[0].value,
+			googleId: profile.id,
+		});
+	}
 
-  user.password = undefined; // اخفاء الباسورد
-  return { user, token };
+	const token = generateToken(user);
+
+	return { user: stripPassword(user), token };
 };
