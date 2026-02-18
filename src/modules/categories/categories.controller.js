@@ -2,7 +2,6 @@ import { StatusCodes } from "http-status-codes";
 import { sendError, sendSuccess } from "../../utils/response.js";
 import * as categoryService from "./categories.service.js";
 
-// Create Category
 export const createCategory = async (req, res) => {
 	try {
 		const category = await categoryService.createCategory(req.body);
@@ -29,7 +28,6 @@ export const createCategory = async (req, res) => {
 	}
 };
 
-// Get Category By ID
 export const getCategoryById = async (req, res) => {
 	try {
 		const category = await categoryService.getCategoryById(req.params.id);
@@ -65,7 +63,6 @@ export const getCategoryById = async (req, res) => {
 	}
 };
 
-// Update Category
 export const updateCategory = async (req, res) => {
 	try {
 		const category = await categoryService.updateCategory(
@@ -111,7 +108,6 @@ export const updateCategory = async (req, res) => {
 	}
 };
 
-// Delete Category
 export const deleteCategory = async (req, res) => {
 	try {
 		const category = await categoryService.deleteCategory(req.params.id);
@@ -147,7 +143,6 @@ export const deleteCategory = async (req, res) => {
 	}
 };
 
-// List Categories
 export const listCategories = async (_req, res) => {
 	try {
 		const categories = await categoryService.listCategories();

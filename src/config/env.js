@@ -1,7 +1,6 @@
 import dotenv from "dotenv";
 import { z } from "zod";
 
-// Load .env early and merge into process.env
 dotenv.config();
 
 const envSchema = z.object({
@@ -17,10 +16,8 @@ const envSchema = z.object({
 	GOOGLE_CLIENT_SECRET: z.string().optional(),
 });
 
-// Export schema for unit tests and external validation
 export { envSchema };
 
-// Parse and validate env — throws with readable error if something is missing/invalid
 let envParsed;
 try {
 	envParsed = envSchema.parse(process.env);
