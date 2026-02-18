@@ -5,6 +5,8 @@ import { env } from "./config/env.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import categoryRouter from "./modules/categories/categories.routes.js";
 import { sendSuccess } from "./utils/response.js";
+import authRouter from "./modules/auth/auth.routes.js";
+import userRouter from "./modules/users/users.routes.js";
 
 const app = express();
 const appNodeEnv = env?.NODE_ENV ?? process.env.NODE_ENV ?? "development";
@@ -33,6 +35,8 @@ app.get("/", (_req, res) => {
 
 // Routes
 app.use("/api/categories", categoryRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/users", userRouter);
 
 // Error Handling
 app.use(errorHandler);
