@@ -21,7 +21,7 @@ Rules / naming
 Enforcement
 
 - Local git hooks were removed; CI enforces branch naming and protection rules.
-- Use `npm run git:ensure-branch` to validate or auto-create a conforming branch locally.
+- Before pushing, confirm your branch follows allowed prefixes and is based on `develop`.
 
 Why
 
