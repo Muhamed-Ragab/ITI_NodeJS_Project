@@ -1,284 +1,197 @@
 # Feature Task Map (What/Where/Functions)
 
-Use this as a build checklist. It assumes the standard structure below; adjust paths if your team uses different filenames.
+Use this as the practical build/status checklist for the **current repository state**.
 
-## Auth
-```
-- what we need to do
-  - Implement register, login, Google OAuth start + callback, JWT middleware usage.
-  - Validation for inputs, consistent error responses, JWT issuance.
-- filename
+## Auth (implemented)
+
+```text
+- scope
+  - Register/login with JWT.
+  - Google OAuth start + callback.
+  - Reuse User model through repository/service.
+- files
   - src/modules/auth/auth.routes.js
   - src/modules/auth/auth.controller.js
   - src/modules/auth/auth.service.js
   - src/modules/auth/auth.repository.js
   - src/modules/auth/auth.validation.js
-  - src/modules/auth/auth.model.js (or reuse users.model.js if auth shares User)
-- functions name and what every method responsible for
+- current exported methods
   - auth.routes.js
-    - registerRoute: map POST /api/auth/register to controller [public]
-    - loginRoute: map POST /api/auth/login to controller [public]
-    - googleStartRoute: map GET /api/auth/google to controller [public]
-    - googleCallbackRoute: map GET /api/auth/google/callback to controller [public]
+    - POST /api/auth/register
+    - POST /api/auth/login
+    - GET /api/auth/google
+    - GET /api/auth/google/callback
   - auth.controller.js
-    - register: request validation, call service, return token + user
-    - login: request validation, call service, return token + user
-    - googleStart: build oauth url and redirect
-    - googleCallback: exchange code, call service, return token/redirect
+    - register
+    - login
+    - googleStart
+    - googleCallback
   - auth.service.js
-    - registerUser: check existing, hash password, create user, sign JWT
-    - loginUser: verify credentials, sign JWT
-    - handleGoogleCallback: exchange code, upsert user, sign JWT
+    - registerUser
+    - loginUser
+    - handleGoogleCallback
   - auth.repository.js
     - findUserByEmail
     - findUserByGoogleId
+    - attachGoogleIdToUser
     - createUser
   - auth.validation.js
     - registerSchema
     - loginSchema
-    - googleCallbackSchema (if you validate query)
+    - googleCallbackSchema
 ```
 
-## Users
-```
-- what we need to do
-  - Profile fetch/update (including single address object), wishlist add/remove/list, cart add/update/remove/list, admin role update.
-- filename
+## Users (implemented)
+
+```text
+- scope
+  - Profile read/update.
+  - Wishlist add/remove/list.
+  - Cart add/update/remove/list.
+  - Address add/update/remove.
+  - Admin list users + update role.
+- files
   - src/modules/users/users.routes.js
   - src/modules/users/users.controller.js
   - src/modules/users/users.service.js
   - src/modules/users/users.repository.js
   - src/modules/users/users.validation.js
-  - src/modules/users/users.model.js
-- functions name and what every method responsible for
-  - users.routes.js
-    - getProfileRoute: GET /api/users/profile [auth]
-    - updateProfileRoute: PUT /api/users/profile (includes address object) [auth]
-    - getWishlistRoute: GET /api/users/wishlist [auth]
-    - addWishlistRoute: POST /api/users/wishlist/:productId [auth]
-    - removeWishlistRoute: DELETE /api/users/wishlist/:productId [auth]
-    - getCartRoute: GET /api/users/cart [auth]
-    - upsertCartRoute: POST /api/users/cart [auth]
-    - removeCartRoute: DELETE /api/users/cart/:productId [auth]
-    - updateRoleRoute: PUT /api/users/:userId/role [admin]
-  - users.controller.js
-    - getProfile
-    - updateProfile (allows address object updates)
-    - getWishlist
-    - addWishlist
-    - removeWishlist
-    - getCart
-    - upsertCartItem
-    - removeCartItem
-    - updateUserRole
-  - users.service.js
-    - getUserById
-    - updateUserProfile (includes address object)
-    - getUserWishlist
-    - addProductToWishlist
-    - removeProductFromWishlist
-    - getUserCart
-    - upsertCartItem
-    - removeCartItem
-    - updateRole
-  - users.repository.js
-    - findById
-    - updateById (includes nested address updates)
-    - addWishlist / removeWishlist
-    - addCartItem / updateCartItem / removeCartItem
-    - updateRole
-  - users.validation.js
-    - profileUpdateSchema
-    - addressSchema (part of profileUpdateSchema or a nested schema)
-    - wishlistSchema (productId param)
-    - cartSchema (productId + qty)
-    - roleUpdateSchema
+  - src/modules/users/user.model.js
+- current routes
+  - GET /api/users/profile
+  - PUT /api/users/profile
+  - GET /api/users/wishlist
+  - POST /api/users/wishlist
+  - DELETE /api/users/wishlist/:productId
+  - GET /api/users/cart
+  - PUT /api/users/cart
+  - DELETE /api/users/cart/:productId
+  - POST /api/users/address
+  - PUT /api/users/address/:addressId
+  - DELETE /api/users/address/:addressId
+  - GET /api/users/               [admin]
+  - PUT /api/users/admin/:id/role [admin]
+- notable controller methods
+  - getProfile, updateProfile
+  - getWishlist, addWishlistItem, removeWishlistItem
+  - getCart, upsertCart, removeCartItemController
+  - addAddress, updateAddress, removeAddress
+  - listUsers, updateRole
 ```
 
-## Categories
-```
-- what we need to do
-  - CRUD categories, admin-only for write operations.
-- filename
+## Categories (implemented)
+
+```text
+- scope
+  - CRUD categories.
+  - Write operations restricted to admin role.
+- files
   - src/modules/categories/categories.routes.js
   - src/modules/categories/categories.controller.js
   - src/modules/categories/categories.service.js
   - src/modules/categories/categories.repository.js
   - src/modules/categories/categories.validation.js
   - src/modules/categories/categories.model.js
-- functions name and what every method responsible for
-  - categories.routes.js
-    - createCategoryRoute: POST /api/categories [admin]
-    - getCategoryRoute: GET /api/categories/:id [public]
-    - updateCategoryRoute: PUT /api/categories/:id [admin]
-    - deleteCategoryRoute: DELETE /api/categories/:id [admin]
-    - listCategoriesRoute: GET /api/categories [public]
-  - categories.controller.js
-    - createCategory
-    - getCategoryById
-    - updateCategory
-    - deleteCategory
-    - listCategories
-  - categories.service.js
-    - createCategory
-    - getCategoryById
-    - updateCategory
-    - deleteCategory
-    - listCategories
-  - categories.repository.js
-    - create
-    - findById
-    - updateById
-    - deleteById
-    - list
-  - categories.validation.js
-    - categoryCreateSchema
-    - categoryUpdateSchema
+- current methods
+  - controller/service: createCategory, getCategoryById, updateCategory, deleteCategory, listCategories
+  - repository: create, findById, updateById, deleteById, list
+  - validation: categoryCreateSchema, categoryUpdateSchema, categoryIdSchema
 ```
 
-## Products
-```
-- what we need to do
-  - Product CRUD (seller), list/search/filter, upload images (Cloudinary).
-- filename
+## Products (implemented)
+
+```text
+- scope
+  - Seller CRUD for products.
+  - Public listing/filtering.
+  - Seller image upload + frontend upload payload flow.
+- files
   - src/modules/products/products.routes.js
   - src/modules/products/products.controller.js
   - src/modules/products/products.service.js
   - src/modules/products/products.repository.js
   - src/modules/products/products.validation.js
   - src/modules/products/products.model.js
-- functions name and what every method responsible for
-  - products.routes.js
-    - createProductRoute: POST /api/products [seller]
-    - getProductRoute: GET /api/products/:id [public]
-    - updateProductRoute: PUT /api/products/:id [seller]
-    - deleteProductRoute: DELETE /api/products/:id [seller]
-    - listProductsRoute: GET /api/products [public]
-    - uploadImagesRoute: POST /api/products/:id/images/upload [seller]
-  - products.controller.js
-    - createProduct
-    - getProductById
-    - updateProduct
-    - deleteProduct
-    - listProducts
-    - uploadProductImages
-  - products.service.js
-    - createProduct
-    - getProductById
-    - updateProduct
-    - deleteProduct
-    - listProducts
-    - uploadImages
-  - products.repository.js
-    - create
-    - findById
-    - updateById
-    - deleteById
-    - listWithFilters
-    - appendImages
-  - products.validation.js
-    - productCreateSchema
-    - productUpdateSchema
-    - productQuerySchema
-    - imageUploadSchema
+  - src/services/cdn/cdn-provider.js
+  - src/services/cdn/cloudinary-provider.js
+  - src/services/cdn/index.js
+- current routes
+  - GET /api/products/
+  - POST /api/products/                         [seller]
+  - GET /api/products/:id
+  - PUT /api/products/:id                       [seller]
+  - DELETE /api/products/:id                    [seller]
+  - POST /api/products/images/upload-payload    [seller]
+  - POST /api/products/:id/images/upload        [seller]
+- notable methods
+  - controller: createProduct, getProductById, updateProduct, deleteProduct, listProducts, uploadProductImages, getProductImageUploadPayload
+  - service: createProduct, getProductById, updateProduct, deleteProduct, listProducts, uploadImages, getImageUploadPayload
+  - repository: create, findById, updateById, deleteById, listWithFilters, appendImages
+  - validation: productCreateSchema, productUpdateSchema, productIdSchema, productQuerySchema, imageUploadSchema, imageUploadPayloadSchema
 ```
 
-## Orders
-```
-- what we need to do
-  - Create order from cart, get order, list my orders, admin list, update status.
-- filename
+## Orders (planned / not implemented yet)
+
+```text
+- current state
+  - src/modules/orders/README.md exists.
+  - No routes/controller/service/repository/model files yet.
+- expected next files
   - src/modules/orders/orders.routes.js
   - src/modules/orders/orders.controller.js
   - src/modules/orders/orders.service.js
   - src/modules/orders/orders.repository.js
   - src/modules/orders/orders.validation.js
   - src/modules/orders/orders.model.js
-- functions name and what every method responsible for
-  - orders.routes.js
-    - createOrderRoute: POST /api/orders [auth]
-    - getOrderRoute: GET /api/orders/:id [auth, owner/admin]
-    - updateOrderStatusRoute: PUT /api/orders/:id/status [admin/seller]
-    - listMyOrdersRoute: GET /api/orders/me [auth]
-    - listAllOrdersRoute: GET /api/orders [admin]
-  - orders.controller.js
-    - createOrder
-    - getOrderById
-    - updateOrderStatus
-    - listMyOrders
-    - listAllOrders
-  - orders.service.js
-    - createOrderFromCart
-    - getOrderById
-    - updateStatus
-    - listOrdersByUser
-    - listOrdersAll
-  - orders.repository.js
-    - create
-    - findById
-    - updateStatusById
-    - findByUser
-    - listAll
-  - orders.validation.js
-    - orderCreateSchema
-    - orderStatusSchema
 ```
 
-## Payments
-```
-- what we need to do
-  - Create payment intent, handle Stripe webhook, update order status.
-- filename
+## Payments (planned / not implemented yet)
+
+```text
+- current state
+  - src/modules/payments/README.md exists.
+  - No routes/controller/service/repository/validation files yet.
+- expected next files
   - src/modules/payments/payments.routes.js
   - src/modules/payments/payments.controller.js
   - src/modules/payments/payments.service.js
   - src/modules/payments/payments.repository.js
   - src/modules/payments/payments.validation.js
-- functions name and what every method responsible for
-  - payments.routes.js
-    - createPaymentIntentRoute: POST /api/payments/create-payment-intent [auth]
-    - stripeWebhookRoute: POST /api/payments/webhook [public, Stripe only]
-  - payments.controller.js
-    - createPaymentIntent
-    - stripeWebhook
-  - payments.service.js
-    - createPaymentIntent
-    - handleStripeWebhook
-  - payments.repository.js
-    - findOrderById (or call orders repo)
-    - updateOrderPaymentStatus
-  - payments.validation.js
-    - paymentIntentSchema
 ```
 
-## Shared Middleware + Utils
-```
-- what we need to do
-  - Auth guard, role guard, validation middleware, error handler, async wrapper, response helpers.
-- filename
+## Shared Middleware + Utils (implemented)
+
+```text
+- files
   - src/middlewares/auth.middleware.js
+  - src/middlewares/role.middleware.js
   - src/middlewares/validate.middleware.js
   - src/middlewares/error.middleware.js
   - src/utils/response.js
   - src/utils/pagination.js
-  - src/utils/errors.js
-- functions name and what every method responsible for
+  - src/utils/errors/api-error.js
+- current exports
   - auth.middleware.js
-    - requireAuth: verify JWT, attach user to req
-    - requireRole: enforce role(s)
+    - requireAuth
+  - role.middleware.js
+    - requireRole
   - validate.middleware.js
-    - validate: run zod schema and pass validated data
+    - validate
   - error.middleware.js
-    - errorHandler: normalize errors and send response envelope
+    - errorHandler
   - response.js
-    - ok / created / fail helpers
+    - sendSuccess
+    - sendError
   - pagination.js
     - parsePagination
-  - errors.js
-    - AppError class + error factories
+    - buildPaginationMeta
+  - api-error.js
+    - ApiError class
+    - ApiError.badRequest / unauthorized / forbidden / notFound / internal
 ```
 
 ## Notes
-- If you already have a shared User model, Auth should reuse it.
-- Orders should depend on Users (cart) and Products (price/stock), so align data structures early.
-- Keep response envelopes consistent across modules.
+
+- Keep response envelope consistent (`success`, `data|error`, `message`).
+- Keep route/controller/service/repository responsibilities separated.
+- For new middleware changes, update tests under `test/middlewares/` and docs under `docs/`.
