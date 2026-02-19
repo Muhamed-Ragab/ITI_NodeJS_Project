@@ -145,46 +145,22 @@ const fetchGoogleProfile = async (accessToken) => {
 	}
 };
 
-export const register = async (req, res, next) => {
-	try {
-		const result = await authService.registerUser(req.body);
-		return sendSuccess(res, {
-			statusCode: StatusCodes.CREATED,
-			data: result,
-			message: "Registered successfully",
-		});
-	} catch (error) {
-		next(
-			error instanceof ApiError
-				? error
-				: ApiError.internal({
-						code: "AUTH.REGISTER_FAILED",
-						message: "Failed to register user",
-						details: { message: error.message },
-					})
-		);
-	}
+export const register = async (req, res) => {
+	const result = await authService.registerUser(req.body);
+	return sendSuccess(res, {
+		statusCode: StatusCodes.CREATED,
+		data: result,
+		message: "Registered successfully",
+	});
 };
 
-export const login = async (req, res, next) => {
-	try {
-		const result = await authService.loginUser(req.body);
-		return sendSuccess(res, {
-			statusCode: StatusCodes.OK,
-			data: result,
-			message: "Logged in successfully",
-		});
-	} catch (error) {
-		next(
-			error instanceof ApiError
-				? error
-				: ApiError.internal({
-						code: "AUTH.LOGIN_FAILED",
-						message: "Failed to login",
-						details: { message: error.message },
-					})
-		);
-	}
+export const login = async (req, res) => {
+	const result = await authService.loginUser(req.body);
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: result,
+		message: "Logged in successfully",
+	});
 };
 
 export const googleStart = (_req, res) => {
@@ -205,56 +181,37 @@ export const googleStart = (_req, res) => {
 	return res.redirect(`${rootUrl}?${qs.toString()}`);
 };
 
-export const googleCallback = async (_req, res, next) => {
-	try {
-		const { code } = _req.query;
-		if (!code) {
-			throw ApiError.badRequest({
-				code: "AUTH.GOOGLE_CODE_MISSING",
-				message: "Google authorization code is required",
-			});
-		}
-
-		const redirectUri = `http://localhost:${env.PORT}/api/auth/google/callback`;
-
-		const profile =
-			env.NODE_ENV === "test"
-				? {
-						id: "google_id_placeholder",
-						displayName: "Google User",
-						emails: [{ value: "google_user@gmail.com" }],
-					}
-				: await (async () => {
-						ensureGoogleConfig();
-						const accessToken = await exchangeCodeForAccessToken(
-							code,
-							redirectUri
-						);
-						return await fetchGoogleProfile(accessToken);
-					})();
-
-		const result = await authService.handleGoogleCallback(profile);
-		return sendSuccess(res, {
-			statusCode: StatusCodes.OK,
-			data: result,
-			message: "Google login successful",
+export const googleCallback = async (req, res) => {
+	const { code } = req.query;
+	if (!code) {
+		throw ApiError.badRequest({
+			code: "AUTH.GOOGLE_CODE_MISSING",
+			message: "Google authorization code is required",
 		});
-	} catch (error) {
-		if (!(error instanceof ApiError)) {
-			logDevError({
-				scope: "auth.google.callback",
-				message: "Unhandled Google callback error",
-				error,
-			});
-		}
-
-		next(
-			error instanceof ApiError
-				? error
-				: ApiError.internal({
-						code: "AUTH.GOOGLE_CALLBACK_FAILED",
-						message: "Failed to complete Google login",
-					})
-		);
 	}
+
+	const redirectUri = `http://localhost:${env.PORT}/api/auth/google/callback`;
+
+	const profile =
+		env.NODE_ENV === "test"
+			? {
+					id: "google_id_placeholder",
+					displayName: "Google User",
+					emails: [{ value: "google_user@gmail.com" }],
+				}
+			: await (async () => {
+					ensureGoogleConfig();
+					const accessToken = await exchangeCodeForAccessToken(
+						code,
+						redirectUri
+					);
+					return await fetchGoogleProfile(accessToken);
+				})();
+
+	const result = await authService.handleGoogleCallback(profile);
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: result,
+		message: "Google login successful",
+	});
 };

@@ -1,4 +1,5 @@
 import slugify from "slugify";
+import { ApiError } from "../../utils/errors/api-error.js";
 import * as categoryRepository from "./categories.repository.js";
 
 export const createCategory = async (category) => {
@@ -14,7 +15,17 @@ export const createCategory = async (category) => {
 };
 
 export const getCategoryById = async (id) => {
-	return await categoryRepository.findById(id);
+	const category = await categoryRepository.findById(id);
+
+	if (!category) {
+		throw ApiError.notFound({
+			code: "CATEGORY.NOT_FOUND",
+			message: "Category not found",
+			details: { id },
+		});
+	}
+
+	return category;
 };
 
 export const updateCategory = async (id, category) => {
@@ -25,13 +36,33 @@ export const updateCategory = async (id, category) => {
 		});
 	}
 
-	return await categoryRepository.updateById(id, category);
+	const updatedCategory = await categoryRepository.updateById(id, category);
+
+	if (!updatedCategory) {
+		throw ApiError.notFound({
+			code: "CATEGORY.NOT_FOUND",
+			message: "Category not found",
+			details: { id },
+		});
+	}
+
+	return updatedCategory;
 };
 
 export const deleteCategory = async (id) => {
-	return await categoryRepository.deleteById(id);
+	const deletedCategory = await categoryRepository.deleteById(id);
+
+	if (!deletedCategory) {
+		throw ApiError.notFound({
+			code: "CATEGORY.NOT_FOUND",
+			message: "Category not found",
+			details: { id },
+		});
+	}
+
+	return deletedCategory;
 };
 
-export const listCategories = async () => {
-	return await categoryRepository.list();
+export const listCategories = async (filters = {}) => {
+	return await categoryRepository.list(filters);
 };

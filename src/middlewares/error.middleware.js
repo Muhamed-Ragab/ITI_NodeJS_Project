@@ -47,8 +47,54 @@ const normalizeValidationDetails = (error) =>
 		code: issue.code,
 	}));
 
+const normalizeKnownErrors = (error) => {
+	if (error instanceof ApiError) {
+		return error;
+	}
+
+	if (error?.name === "CastError") {
+		return ApiError.badRequest({
+			code: "INVALID_ID",
+			message: "Invalid ID format",
+			details: {
+				path: error.path,
+				value: error.value,
+			},
+		});
+	}
+
+	if (error?.name === "ValidationError") {
+		return ApiError.badRequest({
+			code: "VALIDATION_ERROR",
+			message: "Validation failed",
+			details:
+				error.errors && typeof error.errors === "object"
+					? Object.values(error.errors).map((item) => ({
+							path: item.path,
+							message: item.message,
+							kind: item.kind,
+						}))
+					: undefined,
+		});
+	}
+
+	if (error?.code === 11_000) {
+		const key = Object.keys(error?.keyPattern ?? {})[0];
+		return new ApiError({
+			statusCode: StatusCodes.CONFLICT,
+			code: "DUPLICATE_RESOURCE",
+			message: key
+				? `Duplicate value for field '${key}'`
+				: "Duplicate resource",
+			details: error?.keyValue,
+		});
+	}
+
+	return error;
+};
+
 export const errorHandler = (error, _req, res, _next) => {
-	let normalizedError = error;
+	let normalizedError = normalizeKnownErrors(error);
 	if (error instanceof ZodError) {
 		normalizedError = ApiError.badRequest({
 			code: "VALIDATION_ERROR",
