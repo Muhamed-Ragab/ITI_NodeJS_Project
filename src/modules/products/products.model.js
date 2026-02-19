@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { model, Schema } from "mongoose";
 
 const productSchema = new Schema(
 	{
@@ -57,6 +57,11 @@ const productSchema = new Schema(
 		is_active: {
 			type: Boolean,
 			default: true,
+		},
+
+		deletedAt: {
+			type: Date,
+			default: null,
 		},
 	},
 	{
