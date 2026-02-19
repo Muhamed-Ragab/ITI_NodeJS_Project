@@ -39,7 +39,10 @@ describe("Categories Repository", () => {
 
 			const result = await categoryRepository.findById(id);
 
-			expect(CategoryModel.findOne).toHaveBeenCalledWith({ _id: id, deletedAt: null });
+			expect(CategoryModel.findOne).toHaveBeenCalledWith({
+				_id: id,
+				deletedAt: null,
+			});
 			expect(result.name).toBe("Electronics");
 		});
 	});
@@ -85,7 +88,9 @@ describe("Categories Repository", () => {
 			const mockQuery = {
 				sort: vi.fn().mockReturnThis(),
 				skip: vi.fn().mockReturnThis(),
-				limit: vi.fn().mockResolvedValue([{ name: "Cat 1" }, { name: "Cat 2" }]),
+				limit: vi
+					.fn()
+					.mockResolvedValue([{ name: "Cat 1" }, { name: "Cat 2" }]),
 			};
 			CategoryModel.find.mockReturnValue(mockQuery);
 			CategoryModel.countDocuments.mockResolvedValue(2);
