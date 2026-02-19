@@ -73,25 +73,31 @@ A task is done only when all are true:
 5. Commit with Conventional Commit message.
 6. Push branch and provide PR-ready summary.
 
-## 8) Documentation accuracy rules (learned)
+## 8) Documentation source-of-truth policy (read files, do not duplicate)
 
-- Treat `package.json` scripts and `biome.json` as the source of truth for commands/style before updating docs.
-- Do not document helper scripts or hooks unless they currently exist in the repository.
-- Keep docs aligned with active formatter/linter behavior:
-  - Biome is used for formatting/linting.
-  - Import organization is enforced by Biome assist (`source.organizeImports`).
-- When updating developer workflow docs, prefer stable mandatory rules (branch base/prefix, quality gates, commit format) over optional local tooling.
+When instructions are needed, prefer reading and following the canonical docs instead of duplicating full guidance inside this file.
 
-## 9) Code style baseline (enforced)
+### A) Always read from `docs/`
 
-- Follow Biome formatting/linting output as authoritative.
-- Use **double quotes** for JavaScript strings.
-- Use **tab indentation**.
-- Keep imports auto-organized (do not manually fight Biome import order).
-- Use ESM syntax (`import` / `export`) consistently.
-- Before committing, run:
+- `docs/README.md` (documentation index + workflow overview)
+- `docs/BRANCHING.md` (branching rules)
+- `docs/COMMIT_GUIDELINES.md` (Conventional Commits)
+- `docs/QUALITY_CHECKS.md` (required local gates)
+- `docs/API_GUIDELINES.md` (API contracts)
+- `docs/MIDDLEWARE_GUIDE.md` (middleware behavior/contracts)
+- `docs/TESTING_GUIDE.md` (testing commands/strategy)
+- `docs/TEAM_TASKS_WITH_FILES.md` (current module/task map)
+- `docs/TEAM_PLAN_5_DAYS.md` (delivery planning context)
 
-```bash
-npm run format
-npm run lint
-```
+### B) Always read from `project-plan/`
+
+- `project-plan/ARCHITECTURE.md` (implemented architecture and layering)
+- `project-plan/ERD.md` (data model)
+- `project-plan/TASKS.md` (phase/task breakdown)
+
+### C) Style/commands source files
+
+- `package.json` scripts are the source of truth for runnable commands.
+- `biome.json` is the source of truth for formatting/linting/import organization.
+
+If any guidance in this file conflicts with the documents above, follow those documents and update this file to reference them clearly.
