@@ -72,3 +72,26 @@ A task is done only when all are true:
 4. Run all quality gates.
 5. Commit with Conventional Commit message.
 6. Push branch and provide PR-ready summary.
+
+## 8) Documentation accuracy rules (learned)
+
+- Treat `package.json` scripts and `biome.json` as the source of truth for commands/style before updating docs.
+- Do not document helper scripts or hooks unless they currently exist in the repository.
+- Keep docs aligned with active formatter/linter behavior:
+  - Biome is used for formatting/linting.
+  - Import organization is enforced by Biome assist (`source.organizeImports`).
+- When updating developer workflow docs, prefer stable mandatory rules (branch base/prefix, quality gates, commit format) over optional local tooling.
+
+## 9) Code style baseline (enforced)
+
+- Follow Biome formatting/linting output as authoritative.
+- Use **double quotes** for JavaScript strings.
+- Use **tab indentation**.
+- Keep imports auto-organized (do not manually fight Biome import order).
+- Use ESM syntax (`import` / `export`) consistently.
+- Before committing, run:
+
+```bash
+npm run format
+npm run lint
+```
