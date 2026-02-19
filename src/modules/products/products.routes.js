@@ -13,48 +13,53 @@ import {
 	productUpdateSchema,
 } from "./products.validation.js";
 
-const router = Router();
+const productsRouter = Router();
 
-router
-	.route("/")
-	.get(validate({ query: productQuerySchema }), productController.listProducts)
+productsRouter
+	.get(
+		"/",
+		validate({ query: productQuerySchema }),
+		productController.listProducts
+	)
 	.post(
+		"/",
 		requireAuth,
 		requireRole("seller"),
 		validate({ body: productCreateSchema }),
 		productController.createProduct
-	);
-
-router
-	.route("/:id")
-	.get(validate({ params: productIdSchema }), productController.getProductById)
+	)
+	.get(
+		"/:id",
+		validate({ params: productIdSchema }),
+		productController.getProductById
+	)
 	.put(
+		"/:id",
 		requireAuth,
 		requireRole("seller"),
 		validate({ params: productIdSchema, body: productUpdateSchema }),
 		productController.updateProduct
 	)
 	.delete(
+		"/:id",
 		requireAuth,
 		requireRole("seller"),
 		validate({ params: productIdSchema }),
 		productController.deleteProduct
+	)
+	.post(
+		"/images/upload-payload",
+		requireAuth,
+		requireRole("seller"),
+		validate({ body: imageUploadPayloadSchema }),
+		productController.getProductImageUploadPayload
+	)
+	.post(
+		"/:id/images/upload",
+		requireAuth,
+		requireRole("seller"),
+		validate({ params: productIdSchema, body: imageUploadSchema }),
+		productController.uploadProductImages
 	);
 
-router.post(
-	"/images/upload-payload",
-	requireAuth,
-	requireRole("seller"),
-	validate({ body: imageUploadPayloadSchema }),
-	productController.getProductImageUploadPayload
-);
-
-router.post(
-	"/:id/images/upload",
-	requireAuth,
-	requireRole("seller"),
-	validate({ params: productIdSchema, body: imageUploadSchema }),
-	productController.uploadProductImages
-);
-
-export default router;
+export default productsRouter;
