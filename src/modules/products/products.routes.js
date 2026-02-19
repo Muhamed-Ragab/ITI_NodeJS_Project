@@ -13,58 +13,53 @@ import {
 	productUpdateSchema,
 } from "./products.validation.js";
 
-const router = Router();
+const productsRouter = Router();
 
-export const createProductRoute = router.post(
-	"/",
-	requireAuth,
-	requireRole("seller"),
-	validate({ body: productCreateSchema }),
-	productController.createProduct
-);
+productsRouter
+	.get(
+		"/",
+		validate({ query: productQuerySchema }),
+		productController.listProducts
+	)
+	.post(
+		"/",
+		requireAuth,
+		requireRole("seller"),
+		validate({ body: productCreateSchema }),
+		productController.createProduct
+	)
+	.get(
+		"/:id",
+		validate({ params: productIdSchema }),
+		productController.getProductById
+	)
+	.put(
+		"/:id",
+		requireAuth,
+		requireRole("seller"),
+		validate({ params: productIdSchema, body: productUpdateSchema }),
+		productController.updateProduct
+	)
+	.delete(
+		"/:id",
+		requireAuth,
+		requireRole("seller"),
+		validate({ params: productIdSchema }),
+		productController.deleteProduct
+	)
+	.post(
+		"/images/upload-payload",
+		requireAuth,
+		requireRole("seller"),
+		validate({ body: imageUploadPayloadSchema }),
+		productController.getProductImageUploadPayload
+	)
+	.post(
+		"/:id/images/upload",
+		requireAuth,
+		requireRole("seller"),
+		validate({ params: productIdSchema, body: imageUploadSchema }),
+		productController.uploadProductImages
+	);
 
-export const getProductRoute = router.get(
-	"/:id",
-	validate({ params: productIdSchema }),
-	productController.getProductById
-);
-
-export const updateProductRoute = router.put(
-	"/:id",
-	requireAuth,
-	requireRole("seller"),
-	validate({ params: productIdSchema, body: productUpdateSchema }),
-	productController.updateProduct
-);
-
-export const deleteProductRoute = router.delete(
-	"/:id",
-	requireAuth,
-	requireRole("seller"),
-	validate({ params: productIdSchema }),
-	productController.deleteProduct
-);
-
-export const listProductsRoute = router.get(
-	"/",
-	validate({ query: productQuerySchema }),
-	productController.listProducts
-);
-
-export const getImageUploadPayloadRoute = router.post(
-	"/images/upload-payload",
-	requireAuth,
-	requireRole("seller"),
-	validate({ body: imageUploadPayloadSchema }),
-	productController.getProductImageUploadPayload
-);
-
-export const uploadImagesRoute = router.post(
-	"/:id/images/upload",
-	requireAuth,
-	requireRole("seller"),
-	validate({ params: productIdSchema, body: imageUploadSchema }),
-	productController.uploadProductImages
-);
-
-export default router;
+export default productsRouter;
