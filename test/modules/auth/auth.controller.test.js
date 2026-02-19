@@ -12,7 +12,7 @@ vi.mock("../../../src/utils/response.js", () => ({
 }));
 
 describe("Auth Controller", () => {
-	let req, res, next;
+	let req, res;
 
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -25,7 +25,6 @@ describe("Auth Controller", () => {
 			json: vi.fn().mockReturnThis(),
 			redirect: vi.fn(),
 		};
-		next = vi.fn();
 	});
 
 	describe("register", () => {
@@ -41,7 +40,7 @@ describe("Auth Controller", () => {
 			};
 			authService.registerUser.mockResolvedValue(mockResult);
 
-			await authController.register(req, res, next);
+			await authController.register(req, res);
 
 			expect(authService.registerUser).toHaveBeenCalledWith(req.body);
 			expect(sendSuccess).toHaveBeenCalledWith(
@@ -53,13 +52,11 @@ describe("Auth Controller", () => {
 			);
 		});
 
-		it("should call next with error if service fails", async () => {
+		it("should throw if service fails", async () => {
 			const error = ApiError.badRequest({ message: "Email exists" });
 			authService.registerUser.mockRejectedValue(error);
 
-			await authController.register(req, res, next);
-
-			expect(next).toHaveBeenCalledWith(error);
+			await expect(authController.register(req, res)).rejects.toBe(error);
 		});
 	});
 
@@ -69,7 +66,7 @@ describe("Auth Controller", () => {
 			const mockResult = { user: { id: "1" }, token: "mock_token" };
 			authService.loginUser.mockResolvedValue(mockResult);
 
-			await authController.login(req, res, next);
+			await authController.login(req, res);
 
 			expect(authService.loginUser).toHaveBeenCalledWith(req.body);
 			expect(sendSuccess).toHaveBeenCalledWith(
@@ -81,13 +78,11 @@ describe("Auth Controller", () => {
 			);
 		});
 
-		it("should call next with error if login fails", async () => {
+		it("should throw if login fails", async () => {
 			const error = ApiError.unauthorized({ message: "Invalid credentials" });
 			authService.loginUser.mockRejectedValue(error);
 
-			await authController.login(req, res, next);
-
-			expect(next).toHaveBeenCalledWith(error);
+			await expect(authController.login(req, res)).rejects.toBe(error);
 		});
 	});
 
@@ -106,7 +101,7 @@ describe("Auth Controller", () => {
 			const mockResult = { user: { id: "1" }, token: "mock_token" };
 			authService.handleGoogleCallback.mockResolvedValue(mockResult);
 
-			await authController.googleCallback(req, res, next);
+			await authController.googleCallback(req, res);
 
 			expect(authService.handleGoogleCallback).toHaveBeenCalled();
 			expect(sendSuccess).toHaveBeenCalledWith(
