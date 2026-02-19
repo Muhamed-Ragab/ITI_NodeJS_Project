@@ -5,9 +5,9 @@ import * as categoryRepository from "../../../src/modules/categories/categories.
 vi.mock("../../../src/modules/categories/categories.model.js", () => ({
 	default: {
 		create: vi.fn(),
-		findById: vi.fn(),
-		findByIdAndUpdate: vi.fn(),
-		findByIdAndDelete: vi.fn(),
+		findOne: vi.fn(),
+		findOneAndUpdate: vi.fn(),
+		countDocuments: vi.fn(),
 		find: vi.fn(),
 	},
 }));
@@ -32,31 +32,34 @@ describe("Categories Repository", () => {
 	describe("findById", () => {
 		it("should call CategoryModel.findById with id", async () => {
 			const id = "507f1f77bcf86cd799439011";
-			CategoryModel.findById.mockResolvedValue({
+			CategoryModel.findOne.mockResolvedValue({
 				_id: id,
 				name: "Electronics",
 			});
 
 			const result = await categoryRepository.findById(id);
 
-			expect(CategoryModel.findById).toHaveBeenCalledWith(id);
+			expect(CategoryModel.findOne).toHaveBeenCalledWith({
+				_id: id,
+				deletedAt: null,
+			});
 			expect(result.name).toBe("Electronics");
 		});
 	});
 
 	describe("updateById", () => {
-		it("should call CategoryModel.findByIdAndUpdate with correct params", async () => {
+		it("should call CategoryModel.findOneAndUpdate with correct params", async () => {
 			const id = "507f1f77bcf86cd799439011";
 			const updateData = { name: "New Name" };
-			CategoryModel.findByIdAndUpdate.mockResolvedValue({
+			CategoryModel.findOneAndUpdate.mockResolvedValue({
 				_id: id,
 				...updateData,
 			});
 
 			const result = await categoryRepository.updateById(id, updateData);
 
-			expect(CategoryModel.findByIdAndUpdate).toHaveBeenCalledWith(
-				id,
+			expect(CategoryModel.findOneAndUpdate).toHaveBeenCalledWith(
+				{ _id: id, deletedAt: null },
 				updateData,
 				expect.objectContaining({ new: true, runValidators: true })
 			);
@@ -65,29 +68,43 @@ describe("Categories Repository", () => {
 	});
 
 	describe("deleteById", () => {
-		it("should call CategoryModel.findByIdAndDelete", async () => {
+		it("should soft delete category", async () => {
 			const id = "507f1f77bcf86cd799439011";
-			CategoryModel.findByIdAndDelete.mockResolvedValue({ _id: id });
+			CategoryModel.findOneAndUpdate.mockResolvedValue({ _id: id });
 
 			const result = await categoryRepository.deleteById(id);
 
-			expect(CategoryModel.findByIdAndDelete).toHaveBeenCalledWith(id);
+			expect(CategoryModel.findOneAndUpdate).toHaveBeenCalledWith(
+				{ _id: id, deletedAt: null },
+				expect.objectContaining({ deletedAt: expect.any(Date) }),
+				expect.objectContaining({ new: true })
+			);
 			expect(result._id).toBe(id);
 		});
 	});
 
 	describe("list", () => {
-		it("should call CategoryModel.find with sort", async () => {
+		it("should return paginated list", async () => {
 			const mockQuery = {
-				sort: vi.fn().mockResolvedValue([{ name: "Cat 1" }, { name: "Cat 2" }]),
+				sort: vi.fn().mockReturnThis(),
+				skip: vi.fn().mockReturnThis(),
+				limit: vi
+					.fn()
+					.mockResolvedValue([{ name: "Cat 1" }, { name: "Cat 2" }]),
 			};
 			CategoryModel.find.mockReturnValue(mockQuery);
+			CategoryModel.countDocuments.mockResolvedValue(2);
 
 			const result = await categoryRepository.list();
 
 			expect(CategoryModel.find).toHaveBeenCalled();
 			expect(mockQuery.sort).toHaveBeenCalledWith({ createdAt: -1 });
-			expect(result).toHaveLength(2);
+			expect(mockQuery.skip).toHaveBeenCalledWith(0);
+			expect(mockQuery.limit).toHaveBeenCalledWith(10);
+			expect(CategoryModel.countDocuments).toHaveBeenCalledWith({
+				deletedAt: null,
+			});
+			expect(result.categories).toHaveLength(2);
 		});
 	});
 });

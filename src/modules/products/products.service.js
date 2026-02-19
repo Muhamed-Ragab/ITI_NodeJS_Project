@@ -1,6 +1,9 @@
+import { createCdnProvider } from "../../services/cdn/index.js";
+import { ApiError } from "../../utils/errors/api-error.js";
 import * as productRepository from "./products.repository.js";
 
-// Create Product
+const cdnProvider = createCdnProvider("cloudinary");
+
 export const createProduct = async (productData, sellerId) => {
 	try {
 		return await productRepository.create({
@@ -8,76 +11,111 @@ export const createProduct = async (productData, sellerId) => {
 			seller_id: sellerId,
 		});
 	} catch (error) {
-		if (error.code === 11000) {
-			throw new Error("Product already exists");
+		if (error.code === 11_000) {
+			throw ApiError.badRequest({
+				code: "PRODUCT.DUPLICATE",
+				message: "Product with this title already exists",
+			});
 		}
+
 		throw error;
 	}
 };
 
-// Get Product By ID
 export const getProductById = async (id) => {
-	return await productRepository.findById(id);
+	const product = await productRepository.findById(id);
+
+	if (!product) {
+		throw ApiError.notFound({
+			code: "PRODUCT.NOT_FOUND",
+			message: "Product not found",
+			details: { id },
+		});
+	}
+
+	return product;
 };
 
-// Update Product
 export const updateProduct = async (id, productData, sellerId) => {
 	const product = await productRepository.findById(id);
 
 	if (!product) {
-		return null;
+		throw ApiError.notFound({
+			code: "PRODUCT.NOT_FOUND",
+			message: "Product not found",
+			details: { id },
+		});
 	}
 
-	// Check if seller owns the product
 	if (product.seller_id._id.toString() !== sellerId.toString()) {
-		throw new Error("Unauthorized: You can only update your own products");
+		throw ApiError.forbidden({
+			code: "PRODUCT.UNAUTHORIZED",
+			message: "You can only update your own products",
+		});
 	}
 
-	try {
-		return await productRepository.updateById(id, productData);
-	} catch (error) {
-		if (error.code === 11000) {
-			throw new Error("Product already exists");
-		}
-		throw error;
-	}
+	return await productRepository.updateById(id, productData);
 };
 
-// Delete Product
 export const deleteProduct = async (id, sellerId) => {
 	const product = await productRepository.findById(id);
 
 	if (!product) {
-		return null;
+		throw ApiError.notFound({
+			code: "PRODUCT.NOT_FOUND",
+			message: "Product not found",
+			details: { id },
+		});
 	}
 
-	// Check if seller owns the product
 	if (product.seller_id._id.toString() !== sellerId.toString()) {
-		throw new Error("Unauthorized: You can only delete your own products");
+		throw ApiError.forbidden({
+			code: "PRODUCT.UNAUTHORIZED",
+			message: "You can only delete your own products",
+		});
 	}
 
 	return await productRepository.deleteById(id);
 };
 
-// List Products
 export const listProducts = async (filters) => {
 	return await productRepository.listWithFilters(filters);
 };
 
-// Upload Images
 export const uploadImages = async (id, images, sellerId) => {
 	const product = await productRepository.findById(id);
 
 	if (!product) {
-		return null;
+		throw ApiError.notFound({
+			code: "PRODUCT.NOT_FOUND",
+			message: "Product not found",
+			details: { id },
+		});
 	}
 
-	// Check if seller owns the product
 	if (product.seller_id._id.toString() !== sellerId.toString()) {
-		throw new Error(
-			"Unauthorized: You can only upload images to your own products"
-		);
+		throw ApiError.forbidden({
+			code: "PRODUCT.UNAUTHORIZED",
+			message: "You can only upload images to your own products",
+		});
 	}
 
-	return await productRepository.appendImages(id, images);
+	const uploadedImages = await cdnProvider.uploadMany(images, {
+		folder: "products",
+	});
+
+	return await productRepository.appendImages(id, uploadedImages);
+};
+
+export const getImageUploadPayload = (sellerId, options = {}) => {
+	if (!sellerId) {
+		throw ApiError.unauthorized({
+			code: "PRODUCT.UNAUTHORIZED",
+			message: "Authentication is required",
+		});
+	}
+
+	return cdnProvider.getUploadRequestPayload({
+		folder: options.folder ?? "products",
+	});
 };
