@@ -1,7 +1,6 @@
-import { z } from "zod";
 import mongoose from "mongoose";
+import { z } from "zod";
 
-// Validate MongoDB ObjectId
 const objectId = z
 	.string()
 	.refine((value) => mongoose.Types.ObjectId.isValid(value), {
@@ -44,4 +43,8 @@ export const productQuerySchema = z.object({
 
 export const imageUploadSchema = z.object({
 	images: z.array(z.string().url()).min(1),
+});
+
+export const imageUploadPayloadSchema = z.object({
+	folder: z.string().min(1).max(150).optional(),
 });

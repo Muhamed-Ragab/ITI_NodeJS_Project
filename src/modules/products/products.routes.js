@@ -1,87 +1,69 @@
 import { Router } from "express";
-import * as productController from "./products.controller.js";
-import { isSeller } from "../../middlewares/auth.middleware.js";
+import { requireAuth } from "../../middlewares/auth.middleware.js";
+import { requireRole } from "../../middlewares/role.middleware.js";
 import { validate } from "../../middlewares/validate.middleware.js";
+import * as productController from "./products.controller.js";
 
 import {
+	imageUploadPayloadSchema,
+	imageUploadSchema,
 	productCreateSchema,
-	productUpdateSchema,
 	productIdSchema,
 	productQuerySchema,
-	imageUploadSchema,
+	productUpdateSchema,
 } from "./products.validation.js";
 
 const router = Router();
 
-/**
- * createProductRoute
- * POST /api/products
- * Access: Seller
- */
 export const createProductRoute = router.post(
-	"/products",
-	isSeller,
-	validate(productCreateSchema),
+	"/",
+	requireAuth,
+	requireRole("seller"),
+	validate({ body: productCreateSchema }),
 	productController.createProduct
 );
 
-/**
- * getProductRoute
- * GET /api/products/:id
- * Access: Public
- */
 export const getProductRoute = router.get(
-	"/products/:id",
-	validate(productIdSchema, "params"),
+	"/:id",
+	validate({ params: productIdSchema }),
 	productController.getProductById
 );
 
-/**
- * updateProductRoute
- * PUT /api/products/:id
- * Access: Seller
- */
 export const updateProductRoute = router.put(
-	"/products/:id",
-	isSeller,
-	validate(productIdSchema, "params"),
-	validate(productUpdateSchema),
+	"/:id",
+	requireAuth,
+	requireRole("seller"),
+	validate({ params: productIdSchema, body: productUpdateSchema }),
 	productController.updateProduct
 );
 
-/**
- * deleteProductRoute
- * DELETE /api/products/:id
- * Access: Seller
- */
 export const deleteProductRoute = router.delete(
-	"/products/:id",
-	isSeller,
-	validate(productIdSchema, "params"),
+	"/:id",
+	requireAuth,
+	requireRole("seller"),
+	validate({ params: productIdSchema }),
 	productController.deleteProduct
 );
 
-/**
- * listProductsRoute
- * GET /api/products
- * Access: Public
- */
 export const listProductsRoute = router.get(
-	"/products",
-	validate(productQuerySchema, "query"),
+	"/",
+	validate({ query: productQuerySchema }),
 	productController.listProducts
 );
 
-/**
- * uploadImagesRoute
- * POST /api/products/:id/images/upload
- * Access: Seller
- */
+export const getImageUploadPayloadRoute = router.post(
+	"/images/upload-payload",
+	requireAuth,
+	requireRole("seller"),
+	validate({ body: imageUploadPayloadSchema }),
+	productController.getProductImageUploadPayload
+);
+
 export const uploadImagesRoute = router.post(
-	"/products/:id/images/upload",
-	isSeller,
-	validate(productIdSchema, "params"),
-	validate(imageUploadSchema),
+	"/:id/images/upload",
+	requireAuth,
+	requireRole("seller"),
+	validate({ params: productIdSchema, body: imageUploadSchema }),
 	productController.uploadProductImages
 );
 
