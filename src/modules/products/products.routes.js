@@ -15,43 +15,33 @@ import {
 
 const router = Router();
 
-export const createProductRoute = router.post(
-	"/",
-	requireAuth,
-	requireRole("seller"),
-	validate({ body: productCreateSchema }),
-	productController.createProduct
-);
+router
+	.route("/")
+	.get(validate({ query: productQuerySchema }), productController.listProducts)
+	.post(
+		requireAuth,
+		requireRole("seller"),
+		validate({ body: productCreateSchema }),
+		productController.createProduct
+	);
 
-export const getProductRoute = router.get(
-	"/:id",
-	validate({ params: productIdSchema }),
-	productController.getProductById
-);
+router
+	.route("/:id")
+	.get(validate({ params: productIdSchema }), productController.getProductById)
+	.put(
+		requireAuth,
+		requireRole("seller"),
+		validate({ params: productIdSchema, body: productUpdateSchema }),
+		productController.updateProduct
+	)
+	.delete(
+		requireAuth,
+		requireRole("seller"),
+		validate({ params: productIdSchema }),
+		productController.deleteProduct
+	);
 
-export const updateProductRoute = router.put(
-	"/:id",
-	requireAuth,
-	requireRole("seller"),
-	validate({ params: productIdSchema, body: productUpdateSchema }),
-	productController.updateProduct
-);
-
-export const deleteProductRoute = router.delete(
-	"/:id",
-	requireAuth,
-	requireRole("seller"),
-	validate({ params: productIdSchema }),
-	productController.deleteProduct
-);
-
-export const listProductsRoute = router.get(
-	"/",
-	validate({ query: productQuerySchema }),
-	productController.listProducts
-);
-
-export const getImageUploadPayloadRoute = router.post(
+router.post(
 	"/images/upload-payload",
 	requireAuth,
 	requireRole("seller"),
@@ -59,7 +49,7 @@ export const getImageUploadPayloadRoute = router.post(
 	productController.getProductImageUploadPayload
 );
 
-export const uploadImagesRoute = router.post(
+router.post(
 	"/:id/images/upload",
 	requireAuth,
 	requireRole("seller"),
