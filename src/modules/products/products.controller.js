@@ -49,6 +49,29 @@ export const deleteProduct = async (req, res) => {
 	});
 };
 
+export const adminUpdateProduct = async (req, res) => {
+	const product = await productService.adminUpdateProduct(
+		req.params.id,
+		req.body
+	);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: product,
+		message: "Product updated successfully",
+	});
+};
+
+export const adminDeleteProduct = async (req, res) => {
+	const product = await productService.adminDeleteProduct(req.params.id);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: product,
+		message: "Product deleted successfully",
+	});
+};
+
 export const listProducts = async (req, res) => {
 	const result = await productService.listProducts(req.query);
 

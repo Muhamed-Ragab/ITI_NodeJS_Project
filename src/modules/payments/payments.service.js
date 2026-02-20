@@ -152,3 +152,7 @@ export const handleStripeWebhook = async (stripeSignature, rawBody) => {
 
 	return { received: true };
 };
+
+export const listPaymentsForAdmin = async (filters = {}) => {
+	return await paymentsRepo.listPaymentsForAdmin(filters);
+};

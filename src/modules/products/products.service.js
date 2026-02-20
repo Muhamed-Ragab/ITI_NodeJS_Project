@@ -57,6 +57,20 @@ export const updateProduct = async (id, productData, sellerId) => {
 	return await productRepository.updateById(id, productData);
 };
 
+export const adminUpdateProduct = async (id, productData) => {
+	const product = await productRepository.findById(id);
+
+	if (!product) {
+		throw ApiError.notFound({
+			code: "PRODUCT.NOT_FOUND",
+			message: "Product not found",
+			details: { id },
+		});
+	}
+
+	return await productRepository.updateById(id, productData);
+};
+
 export const deleteProduct = async (id, sellerId) => {
 	const product = await productRepository.findById(id);
 
@@ -72,6 +86,20 @@ export const deleteProduct = async (id, sellerId) => {
 		throw ApiError.forbidden({
 			code: "PRODUCT.UNAUTHORIZED",
 			message: "You can only delete your own products",
+		});
+	}
+
+	return await productRepository.deleteById(id);
+};
+
+export const adminDeleteProduct = async (id) => {
+	const product = await productRepository.findById(id);
+
+	if (!product) {
+		throw ApiError.notFound({
+			code: "PRODUCT.NOT_FOUND",
+			message: "Product not found",
+			details: { id },
 		});
 	}
 

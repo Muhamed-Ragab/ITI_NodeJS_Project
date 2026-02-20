@@ -10,3 +10,9 @@ const objectId = z
 export const paymentIntentSchema = z.object({
 	orderId: objectId,
 });
+
+export const paymentsAdminQuerySchema = z.object({
+	status: z.string().optional(),
+	page: z.string().optional(),
+	limit: z.string().optional(),
+});

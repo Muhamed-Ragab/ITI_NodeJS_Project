@@ -64,6 +64,28 @@ describe("Products Service", () => {
 		);
 	});
 
+	it("admin updates product without seller ownership check", async () => {
+		repository.findById.mockResolvedValue({ _id: "p1" });
+		repository.updateById.mockResolvedValue({ _id: "p1", title: "Updated" });
+
+		const result = await service.adminUpdateProduct("p1", { title: "Updated" });
+
+		expect(result).toEqual({ _id: "p1", title: "Updated" });
+		expect(repository.updateById).toHaveBeenCalledWith("p1", {
+			title: "Updated",
+		});
+	});
+
+	it("admin deletes product without seller ownership check", async () => {
+		repository.findById.mockResolvedValue({ _id: "p1" });
+		repository.deleteById.mockResolvedValue({ _id: "p1" });
+
+		const result = await service.adminDeleteProduct("p1");
+
+		expect(result).toEqual({ _id: "p1" });
+		expect(repository.deleteById).toHaveBeenCalledWith("p1");
+	});
+
 	it("uploads images via cdn provider then appends", async () => {
 		repository.findById.mockResolvedValue({
 			seller_id: { _id: { toString: () => "s1" } },

@@ -34,6 +34,20 @@ productsRouter
 		productController.getProductById
 	)
 	.put(
+		"/admin/:id",
+		requireAuth,
+		requireRole("admin"),
+		validate({ params: productIdSchema, body: productUpdateSchema }),
+		productController.adminUpdateProduct
+	)
+	.delete(
+		"/admin/:id",
+		requireAuth,
+		requireRole("admin"),
+		validate({ params: productIdSchema }),
+		productController.adminDeleteProduct
+	)
+	.put(
 		"/:id",
 		requireAuth,
 		requireRole("seller"),
