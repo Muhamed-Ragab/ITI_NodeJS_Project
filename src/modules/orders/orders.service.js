@@ -1,56 +1,39 @@
 import { StatusCodes } from "http-status-codes";
 import mongoose from "mongoose";
 import { ApiError } from "../../utils/errors/api-error.js";
+import ProductModel from "../products/products.model.js";
 import * as usersRepo from "../users/users.repository.js";
 import * as ordersRepo from "./orders.repository.js";
 
 const ORDER_STATUSES = ["pending", "paid", "shipped", "delivered", "cancelled"];
 
-/**
- * Resolve Product model. Throws if not registered (products module must be loaded first).
- */
-function getProductModel() {
-	const Product = mongoose.models.Product;
-	if (!Product) {
-		throw ApiError.internal({
-			code: "ORDER.PRODUCT_MODEL_REQUIRED",
-			message:
-				"Product model is not registered. Load the products module first.",
-		});
-	}
-	return Product;
-}
-
-/**
- * Create order from the authenticated user's cart.
- * Validates cart not empty, product existence, and stock; then creates order and clears cart.
- */
-export const createOrderFromCart = async (userId, options = {}) => {
-	const user = await usersRepo.findById(userId);
-	if (!user) {
-		throw ApiError.notFound({
-			code: "USER.NOT_FOUND",
-			message: "User not found",
-		});
-	}
-
-	const cart = user.cart || [];
-	if (cart.length === 0) {
+const validateAndFetchCartItems = async (cart) => {
+	if (!cart || cart.length === 0) {
 		throw ApiError.badRequest({
 			code: "ORDER.CART_EMPTY",
 			message: "Cart is empty",
 		});
 	}
 
-	const Product = getProductModel();
-	const items = [];
-	let total_amount = 0;
+	const productIds = cart.map((entry) => entry.product);
+
+	const products = await ProductModel.find({
+		_id: { $in: productIds },
+	}).select("_id title price stock_quantity");
+
+	const productMap = new Map();
+	for (const product of products) {
+		productMap.set(String(product._id), product);
+	}
+
+	const validatedItems = [];
+	let totalAmount = 0;
 
 	for (const entry of cart) {
 		const productId = entry.product;
 		const quantity = entry.quantity ?? 1;
+		const product = productMap.get(String(productId));
 
-		const product = await Product.findById(productId);
 		if (!product) {
 			throw ApiError.notFound({
 				code: "ORDER.PRODUCT_NOT_FOUND",
@@ -74,42 +57,66 @@ export const createOrderFromCart = async (userId, options = {}) => {
 		}
 
 		const price = Number(product.price) ?? 0;
-		items.push({
+		validatedItems.push({
 			product: product._id,
 			title: product.title ?? "",
 			price,
 			quantity,
 		});
-		total_amount += price * quantity;
+		totalAmount += price * quantity;
 	}
 
-	const shippingAddressIndex = options.shippingAddressIndex ?? 0;
-	const addresses = user.addresses || [];
-	const shipping_address = addresses[shippingAddressIndex]
-		? {
-				street: addresses[shippingAddressIndex].street,
-				city: addresses[shippingAddressIndex].city,
-				country: addresses[shippingAddressIndex].country,
-				zip: addresses[shippingAddressIndex].zip,
-			}
-		: undefined;
-
-	const order = await ordersRepo.create({
-		user: userId,
-		total_amount,
-		status: "pending",
-		shipping_address,
-		items,
-	});
-
-	await usersRepo.updateById(userId, { cart: [] });
-
-	return order;
+	return { items: validatedItems, totalAmount };
 };
 
-/**
- * Get order by id. Allowed only for order owner or admin.
- */
+export const createOrderFromCart = async (userId, options = {}) => {
+	const session = await mongoose.startSession();
+
+	try {
+		return await session.withTransaction(
+			async () => {
+				const user = await usersRepo.findById(userId);
+				if (!user) {
+					throw ApiError.notFound({
+						code: "USER.NOT_FOUND",
+						message: "User not found",
+					});
+				}
+
+				const { items, totalAmount } = await validateAndFetchCartItems(
+					user.cart || []
+				);
+
+				const shippingAddressIndex = options.shippingAddressIndex ?? 0;
+				const addresses = user.addresses || [];
+				const shipping_address = addresses[shippingAddressIndex]
+					? {
+							street: addresses[shippingAddressIndex].street,
+							city: addresses[shippingAddressIndex].city,
+							country: addresses[shippingAddressIndex].country,
+							zip: addresses[shippingAddressIndex].zip,
+						}
+					: undefined;
+
+				const order = await ordersRepo.create({
+					user: userId,
+					total_amount: totalAmount,
+					status: "pending",
+					shipping_address,
+					items,
+				});
+
+				await usersRepo.updateById(userId, { cart: [] });
+
+				return order;
+			},
+			{ session }
+		);
+	} finally {
+		await session.endSession();
+	}
+};
+
 export const getOrderById = async (orderId, userId, userRole) => {
 	const order = await ordersRepo.findById(orderId);
 	if (!order) {
@@ -132,16 +139,10 @@ export const getOrderById = async (orderId, userId, userRole) => {
 	return order;
 };
 
-/**
- * List orders for the given user.
- */
 export const listOrdersByUser = async (userId) => {
 	return await ordersRepo.findByUser(userId);
 };
 
-/**
- * Update order status. Allowed for admin only (docs also mention seller; user schema has member|admin).
- */
 export const updateStatus = async (orderId, status, _userRole) => {
 	const order = await ordersRepo.findById(orderId);
 	if (!order) {
@@ -163,9 +164,6 @@ export const updateStatus = async (orderId, status, _userRole) => {
 	return await ordersRepo.updateStatusById(orderId, status);
 };
 
-/**
- * List all orders (admin only). Supports skip/limit pagination.
- */
 export const listOrdersAll = async (skip = 0, limit = 20) => {
 	return await ordersRepo.listAll(skip, limit);
 };
