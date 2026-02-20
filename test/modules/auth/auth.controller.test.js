@@ -86,6 +86,24 @@ describe("Auth Controller", () => {
 		});
 	});
 
+	describe("logout", () => {
+		it("should logout authenticated user and return 200", async () => {
+			req.user = { id: "u1", role: "member" };
+			authService.logoutUser.mockResolvedValue({ loggedOut: true });
+
+			await authController.logout(req, res);
+
+			expect(authService.logoutUser).toHaveBeenCalledWith(req.user);
+			expect(sendSuccess).toHaveBeenCalledWith(
+				res,
+				expect.objectContaining({
+					statusCode: StatusCodes.OK,
+					data: { loggedOut: true },
+				})
+			);
+		});
+	});
+
 	describe("googleStart", () => {
 		it("should redirect to Google auth URL", () => {
 			authController.googleStart(req, res);

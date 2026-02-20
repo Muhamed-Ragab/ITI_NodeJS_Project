@@ -7,7 +7,12 @@ import * as authRepository from "./auth.repository.js";
 
 const generateToken = (user) =>
 	jwt.sign(
-		{ id: user._id, email: user.email, role: user.role },
+		{
+			id: user._id,
+			email: user.email,
+			role: user.role,
+			tokenVersion: user.tokenVersion ?? 0,
+		},
 		env.JWT_SECRET,
 		{ expiresIn: "7d" }
 	);
@@ -102,6 +107,20 @@ export const loginUser = async ({ email, password }) => {
 	const token = generateToken(user);
 
 	return { user: stripPassword(user), token };
+};
+
+export const logoutUser = async (user) => {
+	const existingUser = await authRepository.findUserById(user?.id);
+	if (!existingUser) {
+		throw ApiError.notFound({
+			code: "AUTH.USER_NOT_FOUND",
+			message: "User not found",
+		});
+	}
+
+	await authRepository.incrementTokenVersion(existingUser._id);
+
+	return { loggedOut: true };
 };
 
 export const handleGoogleCallback = async (profile) => {
