@@ -28,3 +28,5 @@ yarn-error.log*
 .env.*.local
 .cache/
 coverage/
+tasks/lessons.md
+tasks/todo.md
