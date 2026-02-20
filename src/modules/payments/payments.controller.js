@@ -31,3 +31,13 @@ export const stripeWebhook = async (req, res) => {
 		message: "Webhook processed successfully",
 	});
 };
+
+export const listPaymentsForAdmin = async (req, res) => {
+	const result = await service.listPaymentsForAdmin(req.query);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: result,
+		message: "Payments retrieved successfully",
+	});
+};

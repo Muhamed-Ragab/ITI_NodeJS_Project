@@ -12,6 +12,7 @@ This module manages all product-related operations, including creation, retrieva
 -   Retrieve Product Details
 -   Update Product (Seller only)
 -   Delete Product (Seller only)
+-   Update/Delete any product (Admin only)
 -   Search Products by keywords
 -   Filter Products by category, price range, etc.
 -   Manage product images via Cloudinary
@@ -21,5 +22,7 @@ This module manages all product-related operations, including creation, retrieva
 -   `GET /api/products/:id`
 -   `PUT /api/products/:id` (Seller role required)
 -   `DELETE /api/products/:id` (Seller role required)
+-   `PUT /api/products/admin/:id` (Admin role required)
+-   `DELETE /api/products/admin/:id` (Admin role required)
 -   `GET /api/products` (Search and Filter)
 -   `POST /api/products/:id/images/upload` (for Cloudinary upload)

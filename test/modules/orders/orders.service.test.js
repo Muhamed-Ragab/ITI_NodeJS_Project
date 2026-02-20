@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import ProductModel from "../../../src/modules/products/products.model.js";
 import * as ordersRepo from "../../../src/modules/orders/orders.repository.js";
 import * as ordersService from "../../../src/modules/orders/orders.service.js";
+import ProductModel from "../../../src/modules/products/products.model.js";
 import * as usersRepo from "../../../src/modules/users/users.repository.js";
 import { ApiError } from "../../../src/utils/errors/api-error.js";
 
@@ -107,18 +107,18 @@ describe("Orders Service", () => {
 		it("should throw error if user not found", async () => {
 			vi.spyOn(usersRepo, "findById").mockResolvedValue(null);
 
-			await expect(ordersService.createOrderFromCart("user123")).rejects.toThrow(
-				ApiError
-			);
+			await expect(
+				ordersService.createOrderFromCart("user123")
+			).rejects.toThrow(ApiError);
 		});
 
 		it("should throw error if cart is empty", async () => {
 			const mockUser = { _id: "user123", cart: [] };
 			vi.spyOn(usersRepo, "findById").mockResolvedValue(mockUser);
 
-			await expect(ordersService.createOrderFromCart("user123")).rejects.toThrow(
-				ApiError
-			);
+			await expect(
+				ordersService.createOrderFromCart("user123")
+			).rejects.toThrow(ApiError);
 		});
 
 		it("should throw error if product not found", async () => {
@@ -130,9 +130,9 @@ describe("Orders Service", () => {
 			vi.spyOn(usersRepo, "findById").mockResolvedValue(mockUser);
 			setProductFindResult([]);
 
-			await expect(ordersService.createOrderFromCart("user123")).rejects.toThrow(
-				ApiError
-			);
+			await expect(
+				ordersService.createOrderFromCart("user123")
+			).rejects.toThrow(ApiError);
 		});
 
 		it("should throw error if insufficient stock", async () => {
@@ -153,9 +153,9 @@ describe("Orders Service", () => {
 			vi.spyOn(usersRepo, "findById").mockResolvedValue(mockUser);
 			setProductFindResult(mockProducts);
 
-			await expect(ordersService.createOrderFromCart("user123")).rejects.toThrow(
-				ApiError
-			);
+			await expect(
+				ordersService.createOrderFromCart("user123")
+			).rejects.toThrow(ApiError);
 		});
 	});
 
