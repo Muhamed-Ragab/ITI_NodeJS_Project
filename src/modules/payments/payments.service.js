@@ -5,9 +5,6 @@ import * as paymentsRepo from "./payments.repository.js";
 
 let stripeClient = null;
 
-/**
- * Get or initialize Stripe client.
- */
 function getStripeClient() {
 	if (!stripeClient) {
 		const stripeSecretKey =
@@ -25,10 +22,6 @@ function getStripeClient() {
 	return stripeClient;
 }
 
-/**
- * Create payment intent for an order.
- * Verifies order ownership and status, then creates Stripe payment intent.
- */
 export const createPaymentIntent = async (orderId, userId) => {
 	const order = await paymentsRepo.findOrderById(orderId);
 	if (!order) {
@@ -92,10 +85,6 @@ export const createPaymentIntent = async (orderId, userId) => {
 	}
 };
 
-/**
- * Handle Stripe webhook event.
- * Verifies signature and processes payment events to update order status.
- */
 export const handleStripeWebhook = async (stripeSignature, rawBody) => {
 	const stripe = getStripeClient();
 	const webhookSecret =
@@ -124,14 +113,20 @@ export const handleStripeWebhook = async (stripeSignature, rawBody) => {
 	}
 
 	const paymentIntent = event.data.object;
+	const eventType = event.type;
 
-	if (event.type === "payment_intent.succeeded") {
+	if (eventType === "payment_intent.succeeded") {
 		const orderId = paymentIntent.metadata?.orderId;
 		if (!orderId) {
 			throw ApiError.badRequest({
 				code: "PAYMENT.MISSING_ORDER_ID",
 				message: "Order ID not found in payment intent metadata",
 			});
+		}
+
+		const currentOrder = await paymentsRepo.findOrderById(orderId);
+		if (currentOrder?.status === "paid") {
+			return { received: true, alreadyProcessed: true };
 		}
 
 		await paymentsRepo.updateOrderPaymentStatus(orderId, {
@@ -142,7 +137,7 @@ export const handleStripeWebhook = async (stripeSignature, rawBody) => {
 				method: paymentIntent.payment_method_types?.[0] || null,
 			},
 		});
-	} else if (event.type === "payment_intent.payment_failed") {
+	} else if (eventType === "payment_intent.payment_failed") {
 		const orderId = paymentIntent.metadata?.orderId;
 		if (orderId) {
 			await paymentsRepo.updateOrderPaymentStatus(orderId, {

@@ -4,10 +4,6 @@ export const findById = async (id) => {
 	return await User.findById(id);
 };
 
-export const findByEmail = async (email) => {
-	return await User.findOne({ email });
-};
-
 export const list = async () => {
 	return await User.find().sort({ createdAt: -1 });
 };
