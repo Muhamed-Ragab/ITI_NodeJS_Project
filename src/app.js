@@ -17,31 +17,31 @@ const appNodeEnv = env?.NODE_ENV ?? process.env.NODE_ENV ?? "development";
 // Middleware
 app.use(morgan(appNodeEnv === "production" ? "combined" : "dev"));
 app.use(
-  cors({
-    origin:
-      appNodeEnv === "production" ? "https://your-frontend-domain.com" : "*",
-  }),
+	cors({
+		origin:
+			appNodeEnv === "production" ? "https://your-frontend-domain.com" : "*",
+	})
 );
 
 // Stripe webhook needs raw body, so we need to handle it specially
 app.use((req, res, next) => {
-  if (req.url === "/api/payments/webhook") {
-    express.raw({ type: "application/json" })(req, res, next);
-  } else {
-    express.json()(req, res, next);
-  }
+	if (req.url === "/api/payments/webhook") {
+		express.raw({ type: "application/json" })(req, res, next);
+	} else {
+		express.json()(req, res, next);
+	}
 });
 app.use(express.urlencoded({ extended: true }));
 
 // Health Check
 app.get("/api", (_req, res) => {
-  return sendSuccess(res, {
-    data: {
-      version: "1.0.0",
-      nodeEnv: appNodeEnv,
-    },
-    message: "API is running!",
-  });
+	return sendSuccess(res, {
+		data: {
+			version: "1.0.0",
+			nodeEnv: appNodeEnv,
+		},
+		message: "API is running!",
+	});
 });
 
 // Routes
