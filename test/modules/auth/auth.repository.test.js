@@ -5,6 +5,7 @@ import User from "../../../src/modules/users/user.model.js";
 vi.mock("../../../src/modules/users/user.model.js", () => ({
 	default: {
 		findOne: vi.fn(),
+		findById: vi.fn(),
 		findByIdAndUpdate: vi.fn(),
 		create: vi.fn(),
 	},
@@ -48,5 +49,21 @@ describe("Auth Repository", () => {
 		const data = { name: "Test" };
 		await authRepository.createUser(data);
 		expect(User.create).toHaveBeenCalledWith(data);
+	});
+
+	it("findUserById should call User.findById", async () => {
+		await authRepository.findUserById("u1");
+
+		expect(User.findById).toHaveBeenCalledWith("u1");
+	});
+
+	it("incrementTokenVersion should increment tokenVersion", async () => {
+		await authRepository.incrementTokenVersion("u1");
+
+		expect(User.findByIdAndUpdate).toHaveBeenCalledWith(
+			"u1",
+			{ $inc: { tokenVersion: 1 } },
+			{ new: true }
+		);
 	});
 });

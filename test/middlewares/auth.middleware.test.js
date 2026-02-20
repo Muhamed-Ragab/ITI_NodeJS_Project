@@ -2,7 +2,12 @@ import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { requireAuth } from "../../src/middlewares/auth.middleware.js";
+import * as authRepository from "../../src/modules/auth/auth.repository.js";
 import { ApiError } from "../../src/utils/errors/api-error.js";
+
+vi.mock("../../src/modules/auth/auth.repository.js", () => ({
+	findUserById: vi.fn(),
+}));
 
 const next = vi.fn();
 
@@ -12,8 +17,8 @@ beforeEach(() => {
 });
 
 describe("auth middleware", () => {
-	it("returns ApiError unauthorized when authorization header is missing", () => {
-		requireAuth({ headers: {} }, {}, next);
+	it("returns ApiError unauthorized when authorization header is missing", async () => {
+		await requireAuth({ headers: {} }, {}, next);
 
 		expect(next).toHaveBeenCalledTimes(1);
 		const [error] = next.mock.calls[0];
@@ -22,24 +27,69 @@ describe("auth middleware", () => {
 		expect(error.code).toBe("UNAUTHORIZED");
 	});
 
-	it("returns ApiError unauthorized when token is invalid", () => {
-		requireAuth({ headers: { authorization: "Bearer bad" } }, {}, next);
+	it("returns ApiError unauthorized when token is invalid", async () => {
+		await requireAuth({ headers: { authorization: "Bearer bad" } }, {}, next);
 
 		const [error] = next.mock.calls[0];
 		expect(error).toBeInstanceOf(ApiError);
 		expect(error.statusCode).toBe(StatusCodes.UNAUTHORIZED);
 	});
 
-	it("attaches decoded user and calls next with no args when token is valid", () => {
+	it("attaches decoded user and calls next with no args when token is valid", async () => {
 		const token = jwt.sign(
-			{ sub: "user-1", role: "admin" },
+			{ id: "user-1", role: "admin", tokenVersion: 0 },
 			process.env.JWT_SECRET
 		);
 		const req = { headers: { authorization: `Bearer ${token}` } };
+		authRepository.findUserById.mockResolvedValue({
+			_id: "user-1",
+			tokenVersion: 0,
+		});
 
-		requireAuth(req, {}, next);
+		await requireAuth(req, {}, next);
 
-		expect(req.user).toMatchObject({ sub: "user-1", role: "admin" });
+		expect(req.user).toMatchObject({ id: "user-1", role: "admin" });
 		expect(next).toHaveBeenCalledWith();
+	});
+
+	it("returns unauthorized when user does not exist in database", async () => {
+		const token = jwt.sign(
+			{ id: "missing-user", role: "member", tokenVersion: 0 },
+			process.env.JWT_SECRET
+		);
+		authRepository.findUserById.mockResolvedValue(null);
+
+		await requireAuth(
+			{ headers: { authorization: `Bearer ${token}` } },
+			{},
+			next
+		);
+
+		const [error] = next.mock.calls[0];
+		expect(error).toBeInstanceOf(ApiError);
+		expect(error.code).toBe("AUTH.USER_NOT_FOUND");
+		expect(error.statusCode).toBe(StatusCodes.UNAUTHORIZED);
+	});
+
+	it("returns unauthorized when token version is revoked", async () => {
+		const token = jwt.sign(
+			{ id: "user-1", role: "member", tokenVersion: 0 },
+			process.env.JWT_SECRET
+		);
+		authRepository.findUserById.mockResolvedValue({
+			_id: "user-1",
+			tokenVersion: 1,
+		});
+
+		await requireAuth(
+			{ headers: { authorization: `Bearer ${token}` } },
+			{},
+			next
+		);
+
+		const [error] = next.mock.calls[0];
+		expect(error).toBeInstanceOf(ApiError);
+		expect(error.code).toBe("AUTH.TOKEN_REVOKED");
+		expect(error.statusCode).toBe(StatusCodes.UNAUTHORIZED);
 	});
 });

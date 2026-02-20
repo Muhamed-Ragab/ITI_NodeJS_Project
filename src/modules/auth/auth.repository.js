@@ -19,3 +19,15 @@ export const attachGoogleIdToUser = async (userId, googleId) => {
 export const createUser = async (data) => {
 	return await User.create(data);
 };
+
+export const findUserById = async (id) => {
+	return await User.findById(id);
+};
+
+export const incrementTokenVersion = async (userId) => {
+	return await User.findByIdAndUpdate(
+		userId,
+		{ $inc: { tokenVersion: 1 } },
+		{ new: true }
+	);
+};
