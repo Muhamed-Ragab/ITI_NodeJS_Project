@@ -87,6 +87,32 @@ describe("Auth Service", () => {
 		});
 	});
 
+	describe("logoutUser", () => {
+		it("should increment token version and return logout acknowledgment", async () => {
+			authRepository.findUserById.mockResolvedValue({ _id: "u1" });
+			authRepository.incrementTokenVersion.mockResolvedValue({
+				_id: "u1",
+				tokenVersion: 1,
+			});
+
+			const result = await authService.logoutUser({ id: "u1" });
+
+			expect(authRepository.findUserById).toHaveBeenCalledWith("u1");
+			expect(authRepository.incrementTokenVersion).toHaveBeenCalledWith("u1");
+			expect(result).toEqual({ loggedOut: true });
+		});
+
+		it("should throw not found when user does not exist", async () => {
+			authRepository.findUserById.mockResolvedValue(null);
+
+			await expect(
+				authService.logoutUser({ id: "missing" })
+			).rejects.toMatchObject({
+				code: "AUTH.USER_NOT_FOUND",
+			});
+		});
+	});
+
 	describe("handleGoogleCallback", () => {
 		it("should create user if not found and return token", async () => {
 			const profile = {

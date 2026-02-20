@@ -163,6 +163,16 @@ export const login = async (req, res) => {
 	});
 };
 
+export const logout = async (req, res) => {
+	const result = await authService.logoutUser(req.user);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: result,
+		message: "Logged out successfully",
+	});
+};
+
 export const googleStart = (_req, res) => {
 	const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth";
 	const options = {

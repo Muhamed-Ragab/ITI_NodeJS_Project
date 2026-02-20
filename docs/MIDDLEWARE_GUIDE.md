@@ -36,6 +36,8 @@ router.post(
 Purpose:
 - Read `Authorization: Bearer <token>` header.
 - Verify JWT using `env.JWT_SECRET`.
+- Fetch user from DB by `payload.id`.
+- Compare JWT `tokenVersion` against DB `user.tokenVersion`.
 - Attach decoded payload to `req.user`.
 - Forward unauthorized access errors with status `401`.
 
