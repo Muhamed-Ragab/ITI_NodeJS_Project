@@ -8,6 +8,9 @@ This folder contains the canonical, global documentation for the project.
 - `MIDDLEWARE_GUIDE.md` — Validation/auth/error middleware behavior and contracts.
 - `TESTING_GUIDE.md` — Unit/integration testing strategy and commands.
 - `QUALITY_CHECKS.md` — Pre-PR build/lint/format/test quality gates.
+- `TASKS_CHANGELOG.md` — phase-by-phase implementation summary and delivery log.
+- `demo-walkthrough.md` — end-to-end demo script for customer/seller/admin flows.
+- `presentation/README.md` — final presentation outline and speaker notes.
 
 ## Coding style (source of truth)
 
