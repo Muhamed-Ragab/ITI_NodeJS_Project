@@ -86,9 +86,46 @@ describe("Auth Controller", () => {
 		});
 	});
 
+	describe("requestEmailOtp", () => {
+		it("should request email otp and return 200", async () => {
+			req.body = { email: "test@example.com" };
+			authService.requestEmailOtp.mockResolvedValue({ otpRequested: true });
+
+			await authController.requestEmailOtp(req, res);
+
+			expect(authService.requestEmailOtp).toHaveBeenCalledWith(req.body);
+			expect(sendSuccess).toHaveBeenCalledWith(
+				res,
+				expect.objectContaining({
+					statusCode: StatusCodes.OK,
+					data: { otpRequested: true },
+				})
+			);
+		});
+	});
+
+	describe("loginWithEmailOtp", () => {
+		it("should login with email otp and return 200", async () => {
+			req.body = { email: "test@example.com", otp: "123456" };
+			const mockResult = { user: { id: "u1" }, token: "mock_token" };
+			authService.loginWithEmailOtp.mockResolvedValue(mockResult);
+
+			await authController.loginWithEmailOtp(req, res);
+
+			expect(authService.loginWithEmailOtp).toHaveBeenCalledWith(req.body);
+			expect(sendSuccess).toHaveBeenCalledWith(
+				res,
+				expect.objectContaining({
+					statusCode: StatusCodes.OK,
+					data: mockResult,
+				})
+			);
+		});
+	});
+
 	describe("logout", () => {
 		it("should logout authenticated user and return 200", async () => {
-			req.user = { id: "u1", role: "member" };
+			req.user = { id: "u1", role: "customer" };
 			authService.logoutUser.mockResolvedValue({ loggedOut: true });
 
 			await authController.logout(req, res);
@@ -127,6 +164,26 @@ describe("Auth Controller", () => {
 				expect.objectContaining({
 					statusCode: StatusCodes.OK,
 					data: mockResult,
+				})
+			);
+		});
+	});
+
+	describe("verifyEmail", () => {
+		it("should verify email and return 200", async () => {
+			req.query = { token: "verification-token" };
+			authService.verifyEmailByToken.mockResolvedValue({ verified: true });
+
+			await authController.verifyEmail(req, res);
+
+			expect(authService.verifyEmailByToken).toHaveBeenCalledWith(
+				"verification-token"
+			);
+			expect(sendSuccess).toHaveBeenCalledWith(
+				res,
+				expect.objectContaining({
+					statusCode: StatusCodes.OK,
+					data: { verified: true },
 				})
 			);
 		});
