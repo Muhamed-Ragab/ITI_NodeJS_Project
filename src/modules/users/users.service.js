@@ -354,3 +354,148 @@ export const reviewSellerPayoutRequest = async (
 		payout_requests: updated.seller_profile?.payout_requests || [],
 	};
 };
+
+export const updateMarketingPreferences = async (id, payload) => {
+	const user = await repo.findById(id);
+	if (!user) {
+		throw ApiError.notFound({
+			code: "USER.NOT_FOUND",
+			message: "User not found",
+		});
+	}
+
+	const current = user.marketing_preferences || {};
+	const nextPreferences = {
+		push_notifications:
+			payload.push_notifications ?? current.push_notifications ?? true,
+		email_newsletter:
+			payload.email_newsletter ?? current.email_newsletter ?? false,
+		promotional_notifications:
+			payload.promotional_notifications ??
+			current.promotional_notifications ??
+			true,
+	};
+
+	const updated = await repo.updateMarketingPreferences(id, nextPreferences);
+	if (!updated) {
+		throw ApiError.notFound({
+			code: "USER.NOT_FOUND",
+			message: "User not found",
+		});
+	}
+
+	return updated.marketing_preferences;
+};
+
+export const updatePreferredLanguage = async (id, language) => {
+	const updated = await repo.updatePreferredLanguage(id, language);
+	if (!updated) {
+		throw ApiError.notFound({
+			code: "USER.NOT_FOUND",
+			message: "User not found",
+		});
+	}
+
+	return { language: updated.preferred_language };
+};
+
+export const applyReferralCode = async (id, referralCode) => {
+	const result = await repo.applyReferralCode(id, referralCode);
+
+	if (result?.error === "REFERRAL_NOT_FOUND") {
+		throw ApiError.notFound({
+			code: "REFERRAL.NOT_FOUND",
+			message: "Referral code not found",
+		});
+	}
+
+	if (result?.error === "REFERRAL_SELF") {
+		throw ApiError.badRequest({
+			code: "REFERRAL.SELF_NOT_ALLOWED",
+			message: "You cannot apply your own referral code",
+		});
+	}
+
+	if (result?.error === "USER_NOT_FOUND") {
+		throw ApiError.notFound({
+			code: "USER.NOT_FOUND",
+			message: "User not found",
+		});
+	}
+
+	if (result?.error === "REFERRAL_ALREADY_APPLIED") {
+		throw ApiError.badRequest({
+			code: "REFERRAL.ALREADY_APPLIED",
+			message: "Referral code already applied",
+		});
+	}
+
+	return {
+		reward_points: result.rewardPoints,
+		referred_by: result.referrerId,
+		loyalty_points: result.updatedUser?.loyalty_points,
+	};
+};
+
+export const getLoyaltySummary = async (id) => {
+	const user = await repo.findById(id);
+	if (!user) {
+		throw ApiError.notFound({
+			code: "USER.NOT_FOUND",
+			message: "User not found",
+		});
+	}
+
+	return {
+		loyalty_points: Number(user.loyalty_points || 0),
+		referrals_count: Number(user.referrals_count || 0),
+	};
+};
+
+export const getReferralSummary = async (id) => {
+	const user = await repo.findById(id);
+	if (!user) {
+		throw ApiError.notFound({
+			code: "USER.NOT_FOUND",
+			message: "User not found",
+		});
+	}
+
+	let referralCode = user.referral_code;
+	if (!referralCode) {
+		referralCode = `REF-${String(user._id).slice(-6).toUpperCase()}`;
+		await repo.updateById(id, { referral_code: referralCode });
+	}
+
+	return {
+		referral_code: referralCode,
+		referrals_count: Number(user.referrals_count || 0),
+		referred_by: user.referred_by || null,
+	};
+};
+
+export const grantLoyaltyPoints = async (id, points, _reason) => {
+	const updated = await repo.grantLoyaltyPoints(id, points);
+	if (!updated) {
+		throw ApiError.notFound({
+			code: "USER.NOT_FOUND",
+			message: "User not found",
+		});
+	}
+
+	return {
+		loyalty_points: Number(updated.loyalty_points || 0),
+		granted_points: points,
+	};
+};
+
+export const broadcastMarketingMessage = async ({ channel, title, body }) => {
+	const users = await repo.listUsersForMarketing(channel);
+
+	return {
+		channel,
+		title,
+		body,
+		recipients_count: users.length,
+	};
+};

@@ -626,6 +626,212 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Update Marketing Preferences",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": true,\n  \"push\": false,\n  \"promotional\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/preferences/marketing",
+              "host": ["{{base_url}}"],
+              "path": ["users", "preferences", "marketing"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Preferred Language",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"language\": \"ar\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/preferences/language",
+              "host": ["{{base_url}}"],
+              "path": ["users", "preferences", "language"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Loyalty Summary",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/loyalty",
+              "host": ["{{base_url}}"],
+              "path": ["users", "loyalty"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Apply Referral Code",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"REF-CODE-123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/referrals/apply",
+              "host": ["{{base_url}}"],
+              "path": ["users", "referrals", "apply"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Referral Summary",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwt_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/referrals",
+              "host": ["{{base_url}}"],
+              "path": ["users", "referrals"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Grant Loyalty Points [Admin]",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"points\": 50,\n  \"reason\": \"Customer retention campaign\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/admin/{{user_id}}/loyalty",
+              "host": ["{{base_url}}"],
+              "path": ["users", "admin", "{{user_id}}", "loyalty"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Broadcast Marketing Message [Admin]",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subject\": \"Weekend Sale\",\n  \"message\": \"Get 20% off selected products this weekend\",\n  \"channels\": [\"email\", \"push\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/admin/marketing/broadcast",
+              "host": ["{{base_url}}"],
+              "path": ["users", "admin", "marketing", "broadcast"]
+            }
+          },
+          "response": []
         }
       ]
     },

@@ -65,6 +65,22 @@ High-level API expectations, endpoint flows, validation and response shapes.
   - Seller payouts:
     - `POST /api/users/seller/payouts`
     - `PATCH /api/users/admin/seller-payouts/:id/:payoutId` (admin)
+  - Marketing & engagement:
+    - `PATCH /api/users/preferences/marketing`
+    - `PATCH /api/users/preferences/language`
+    - `GET /api/users/loyalty`
+    - `POST /api/users/referrals/apply`
+    - `GET /api/users/referrals`
+    - `PATCH /api/users/admin/:id/loyalty` (admin)
+    - `POST /api/users/admin/marketing/broadcast` (admin)
+  - Localization:
+    - Supported language values: `en`, `ar`, `fr`.
+  - Referral contract:
+    - Applying a valid referral grants loyalty points to both referred user and referrer.
+    - Referral cannot be self-applied and can only be applied once.
+  - Loyalty contract:
+    - Loyalty summary returns `loyalty_points` and `referrals_count`.
+    - Admin can grant loyalty points through dedicated admin endpoint.
 - Content management contract:
   - Public read endpoints:
     - `GET /api/content`

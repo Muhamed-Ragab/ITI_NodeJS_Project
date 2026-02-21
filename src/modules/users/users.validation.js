@@ -91,3 +91,37 @@ export const payoutReviewSchema = z.object({
 	status: z.enum(["approved", "rejected", "paid"]),
 	note: z.string().trim().max(300).optional(),
 });
+
+export const marketingPreferencesSchema = z
+	.object({
+		push_notifications: z.boolean().optional(),
+		email_newsletter: z.boolean().optional(),
+		promotional_notifications: z.boolean().optional(),
+	})
+	.refine((value) => Object.keys(value).length > 0, {
+		message: "At least one marketing preference is required",
+	});
+
+export const preferredLanguageSchema = z.object({
+	language: z.enum(["en", "ar", "fr"]),
+});
+
+export const referralApplySchema = z.object({
+	code: z
+		.string()
+		.trim()
+		.min(4)
+		.max(32)
+		.regex(/^[A-Z0-9-]+$/),
+});
+
+export const loyaltyGrantSchema = z.object({
+	points: z.number().int().min(1).max(10_000),
+	reason: z.string().trim().min(3).max(200).optional(),
+});
+
+export const marketingBroadcastSchema = z.object({
+	channel: z.enum(["email", "push", "promotional"]),
+	title: z.string().trim().min(3).max(120),
+	body: z.string().trim().min(5).max(1000),
+});

@@ -7,11 +7,16 @@ import {
 	addressIdSchema,
 	addressSchema,
 	cartItemSchema,
+	loyaltyGrantSchema,
+	marketingBroadcastSchema,
+	marketingPreferencesSchema,
 	payoutRequestCreateSchema,
 	payoutRequestIdSchema,
 	payoutReviewSchema,
+	preferredLanguageSchema,
 	productIdSchema,
 	profileUpdateSchema,
+	referralApplySchema,
 	restrictionUpdateSchema,
 	roleUpdateSchema,
 	savedPaymentMethodCreateSchema,
@@ -168,6 +173,42 @@ userRouter.patch(
 		body: payoutReviewSchema,
 	}),
 	controller.reviewSellerPayoutRequest
+);
+
+// Marketing & engagement (Phase 4)
+userRouter.patch(
+	"/preferences/marketing",
+	requireAuth,
+	validate({ body: marketingPreferencesSchema }),
+	controller.updateMarketingPreferences
+);
+userRouter.patch(
+	"/preferences/language",
+	requireAuth,
+	validate({ body: preferredLanguageSchema }),
+	controller.updatePreferredLanguage
+);
+userRouter.get("/loyalty", requireAuth, controller.getLoyaltySummary);
+userRouter.post(
+	"/referrals/apply",
+	requireAuth,
+	validate({ body: referralApplySchema }),
+	controller.applyReferralCode
+);
+userRouter.get("/referrals", requireAuth, controller.getReferralSummary);
+userRouter.patch(
+	"/admin/:id/loyalty",
+	requireAuth,
+	requireRole("admin"),
+	validate({ params: userIdSchema, body: loyaltyGrantSchema }),
+	controller.grantLoyaltyPoints
+);
+userRouter.post(
+	"/admin/marketing/broadcast",
+	requireAuth,
+	requireRole("admin"),
+	validate({ body: marketingBroadcastSchema }),
+	controller.broadcastMarketingMessage
 );
 
 export default userRouter;

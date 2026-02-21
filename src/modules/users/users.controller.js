@@ -263,3 +263,83 @@ export const reviewSellerPayoutRequest = async (req, res) => {
 		message: "Seller payout request reviewed successfully",
 	});
 };
+
+export const updateMarketingPreferences = async (req, res) => {
+	const preferences = await service.updateMarketingPreferences(
+		req.user.id,
+		req.body
+	);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: preferences,
+		message: "Marketing preferences updated successfully",
+	});
+};
+
+export const updatePreferredLanguage = async (req, res) => {
+	const result = await service.updatePreferredLanguage(
+		req.user.id,
+		req.body.language
+	);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: result,
+		message: "Preferred language updated successfully",
+	});
+};
+
+export const getLoyaltySummary = async (req, res) => {
+	const summary = await service.getLoyaltySummary(req.user.id);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: summary,
+		message: "Loyalty summary retrieved successfully",
+	});
+};
+
+export const applyReferralCode = async (req, res) => {
+	const result = await service.applyReferralCode(req.user.id, req.body.code);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: result,
+		message: "Referral code applied successfully",
+	});
+};
+
+export const getReferralSummary = async (req, res) => {
+	const summary = await service.getReferralSummary(req.user.id);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: summary,
+		message: "Referral summary retrieved successfully",
+	});
+};
+
+export const grantLoyaltyPoints = async (req, res) => {
+	const result = await service.grantLoyaltyPoints(
+		req.params.id,
+		req.body.points,
+		req.body.reason
+	);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: result,
+		message: "Loyalty points granted successfully",
+	});
+};
+
+export const broadcastMarketingMessage = async (req, res) => {
+	const result = await service.broadcastMarketingMessage(req.body);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: result,
+		message: "Marketing message broadcast simulated successfully",
+	});
+};

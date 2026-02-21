@@ -74,4 +74,52 @@ describe("Users Controller", () => {
 			expect(sendSuccess).toHaveBeenCalled();
 		});
 	});
+
+	describe("phase 4 marketing & engagement", () => {
+		it("should update marketing preferences", async () => {
+			req.body = { email_newsletter: true };
+			userService.updateMarketingPreferences.mockResolvedValue({
+				email_newsletter: true,
+			});
+
+			await userController.updateMarketingPreferences(req, res, next);
+
+			expect(userService.updateMarketingPreferences).toHaveBeenCalledWith(
+				"user123",
+				req.body
+			);
+			expect(sendSuccess).toHaveBeenCalled();
+		});
+
+		it("should apply referral code", async () => {
+			req.body = { code: "REF-1234" };
+			userService.applyReferralCode.mockResolvedValue({ reward_points: 25 });
+
+			await userController.applyReferralCode(req, res, next);
+
+			expect(userService.applyReferralCode).toHaveBeenCalledWith(
+				"user123",
+				"REF-1234"
+			);
+			expect(sendSuccess).toHaveBeenCalled();
+		});
+
+		it("should grant loyalty points from admin endpoint", async () => {
+			req.params = { id: "u1" };
+			req.body = { points: 50, reason: "campaign" };
+			userService.grantLoyaltyPoints.mockResolvedValue({
+				loyalty_points: 200,
+				granted_points: 50,
+			});
+
+			await userController.grantLoyaltyPoints(req, res, next);
+
+			expect(userService.grantLoyaltyPoints).toHaveBeenCalledWith(
+				"u1",
+				50,
+				"campaign"
+			);
+			expect(sendSuccess).toHaveBeenCalled();
+		});
+	});
 });
