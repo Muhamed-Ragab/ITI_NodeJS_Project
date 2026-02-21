@@ -8,6 +8,7 @@ A robust, modular e-commerce backend built with Node.js, Express, and MongoDB. T
 - **Database:** MongoDB (Mongoose ODM)
 - **Validation:** Zod
 - **Authentication:** JWT + Google OAuth 2.0
+  - Email verification token flow for email/password signup
 - **Media Storage:** Cloudinary CDN
 - **Payments:** Stripe API
 
@@ -60,7 +61,14 @@ Additional implementation guides:
    CLOUDINARY_URL=your_cloudinary_url
    GOOGLE_CLIENT_ID=your_google_id
    GOOGLE_CLIENT_SECRET=your_google_secret
+   APP_BASE_URL=http://localhost:3000
    ```
+
+### Email Verification Flow
+1. Register with `POST /api/auth/register`.
+2. The backend creates a verification token and sends a verification link.
+3. Verify account with `GET /api/auth/verify-email?token=<token>`.
+4. Login is allowed only after successful email verification.
 
 4. **Run the server:**
    ```bash
