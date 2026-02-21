@@ -46,6 +46,24 @@ export const requireAuth = async (req, _res, next) => {
 			);
 		}
 
+		if (user.deletedAt) {
+			return next(
+				ApiError.unauthorized({
+					code: "AUTH.USER_DELETED",
+					message: "User account is no longer available",
+				})
+			);
+		}
+
+		if (user.isRestricted) {
+			return next(
+				ApiError.forbidden({
+					code: "AUTH.USER_RESTRICTED",
+					message: "Your account is restricted",
+				})
+			);
+		}
+
 		const tokenVersion = payload?.tokenVersion ?? 0;
 		if ((user.tokenVersion ?? 0) !== tokenVersion) {
 			return next(

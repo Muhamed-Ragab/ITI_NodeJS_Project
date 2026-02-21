@@ -4,6 +4,7 @@ import { requireRole } from "../../middlewares/role.middleware.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import * as controller from "./payments.controller.js";
 import {
+	paymentCheckoutSchema,
 	paymentIntentSchema,
 	paymentsAdminQuerySchema,
 } from "./payments.validation.js";
@@ -15,6 +16,13 @@ paymentRouter.post(
 	requireAuth,
 	validate({ body: paymentIntentSchema }),
 	controller.createPaymentIntent
+);
+
+paymentRouter.post(
+	"/checkout",
+	requireAuth,
+	validate({ body: paymentCheckoutSchema }),
+	controller.processCheckoutPayment
 );
 
 paymentRouter.get(

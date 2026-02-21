@@ -9,12 +9,17 @@ This module handles all user authentication-related functionalities, including u
 
 ## Key Functionalities
 -   User Registration (email/password)
+-   Email verification using one-time verification token
 -   User Login (email/password)
+-   Email OTP request/login flow
 -   Google OAuth 2.0 based Login/Registration
 -   JWT Token Generation and Verification
 
 ## Expected API Endpoints
 -   `POST /api/auth/register`
 -   `POST /api/auth/login`
+-   `POST /api/auth/email/request-otp`
+-   `POST /api/auth/email/login`
+-   `GET /api/auth/verify-email?token=<verification_token>`
 -   `GET /api/auth/google` (Initiate Google OAuth flow)
 -   `GET /api/auth/google/callback` (Google OAuth callback handler)

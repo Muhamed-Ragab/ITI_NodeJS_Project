@@ -150,12 +150,32 @@ export const register = async (req, res) => {
 	return sendSuccess(res, {
 		statusCode: StatusCodes.CREATED,
 		data: result,
-		message: "Registered successfully",
+		message: "Registered successfully. Please verify your email",
 	});
 };
 
 export const login = async (req, res) => {
 	const result = await authService.loginUser(req.body);
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: result,
+		message: "Logged in successfully",
+	});
+};
+
+export const requestEmailOtp = async (req, res) => {
+	const result = await authService.requestEmailOtp(req.body);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: result,
+		message: "OTP sent successfully",
+	});
+};
+
+export const loginWithEmailOtp = async (req, res) => {
+	const result = await authService.loginWithEmailOtp(req.body);
+
 	return sendSuccess(res, {
 		statusCode: StatusCodes.OK,
 		data: result,
@@ -223,5 +243,16 @@ export const googleCallback = async (req, res) => {
 		statusCode: StatusCodes.OK,
 		data: result,
 		message: "Google login successful",
+	});
+};
+
+export const verifyEmail = async (req, res) => {
+	const { token } = req.query;
+	const result = await authService.verifyEmailByToken(token);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: result,
+		message: "Email verified successfully",
 	});
 };

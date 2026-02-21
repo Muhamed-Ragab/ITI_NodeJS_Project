@@ -4,9 +4,11 @@ import { requireRole } from "../../middlewares/role.middleware.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import * as controller from "./orders.controller.js";
 import {
+	guestOrderCreateSchema,
 	orderCreateSchema,
 	orderIdSchema,
 	orderStatusSchema,
+	sellerOrderStatusSchema,
 } from "./orders.validation.js";
 
 const orderRouter = Router();
@@ -19,8 +21,23 @@ orderRouter.post(
 	controller.createOrder
 );
 
+// POST /api/orders/guest — create guest order [public]
+orderRouter.post(
+	"/guest",
+	validate({ body: guestOrderCreateSchema }),
+	controller.createGuestOrder
+);
+
 // GET /api/orders/me — list current user's orders [auth]
 orderRouter.get("/me", requireAuth, controller.listMyOrders);
+
+// GET /api/orders/seller — list seller orders [seller]
+orderRouter.get(
+	"/seller",
+	requireAuth,
+	requireRole("seller"),
+	controller.listSellerOrders
+);
 
 // GET /api/orders — list all orders [admin]
 orderRouter.get(
@@ -45,6 +62,15 @@ orderRouter.put(
 	requireRole("admin"),
 	validate({ params: orderIdSchema, body: orderStatusSchema }),
 	controller.updateOrderStatus
+);
+
+// PUT /api/orders/:id/seller-status — update order status [seller]
+orderRouter.put(
+	"/:id/seller-status",
+	requireAuth,
+	requireRole("seller"),
+	validate({ params: orderIdSchema, body: sellerOrderStatusSchema }),
+	controller.updateSellerOrderStatus
 );
 
 export default orderRouter;
