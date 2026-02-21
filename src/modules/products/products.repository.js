@@ -86,3 +86,14 @@ export const appendImages = async (id, images) => {
 		{ new: true, runValidators: true }
 	);
 };
+
+export const updateRatingStats = async (id, stats) => {
+	return await ProductModel.findOneAndUpdate(
+		{ _id: id, deletedAt: null },
+		{
+			average_rating: stats.average_rating,
+			ratings_count: stats.ratings_count,
+		},
+		{ new: true, runValidators: true }
+	);
+};
