@@ -8,6 +8,107 @@ High-level API expectations, endpoint flows, validation and response shapes.
 - Use `ApiError` for operational errors and let `errorHandler` + `sendError` serialize all API errors.
 - Use shared middleware stack for protected routes: `requireAuth` then `requireRole(...)` when authorization is needed.
 - Auth logout is DB-backed: `POST /api/auth/logout` (requires auth) increments `tokenVersion`, revoking all previously issued tokens for that user.
+- Email verification contract:
+  - `POST /api/auth/register` creates an unverified account and sends verification link.
+  - `GET /api/auth/verify-email?token=...` verifies the email token.
+  - `POST /api/auth/login` is blocked for unverified users (`AUTH.EMAIL_NOT_VERIFIED`).
+- Email OTP login contract:
+  - `POST /api/auth/email/request-otp` generates a 6-digit OTP and sends it to the user's email.
+  - `POST /api/auth/email/login` authenticates with `{ email, otp }` and returns JWT on success.
+  - OTP rules:
+    - OTP is stored hashed (`emailOtpHash`) with expiry (`emailOtpExpiresAt`).
+    - OTP expires in 5 minutes.
+    - OTP is consumed (cleared) after successful login.
+  - Stable error codes:
+    - `AUTH.INVALID_EMAIL_OTP`
+    - `AUTH.EMAIL_OTP_REQUIRED`
+    - `AUTH.EMAIL_OTP_EXPIRED`
+- Email delivery contract (nodemailer):
+  - Mail transport uses SMTP config: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`.
+  - Sender fallback order: `MAIL_FROM` → `SMTP_FROM` → `SMTP_USER`.
+  - In test or when SMTP config is incomplete, sending is simulated and logged.
+- Role contract:
+  - User roles are standardized as `customer`, `seller`, `admin`.
+  - Admin role endpoints continue to require `admin`.
+  - Seller-only product endpoints require `seller`.
+- Order pricing contract:
+  - Persist price snapshot fields on order: `subtotal_amount`, `discount_amount`, `shipping_amount`, `tax_amount`, `total_amount`.
+  - Checkout creation endpoints:
+    - `POST /api/orders` (authenticated cart checkout)
+    - `POST /api/orders/guest` (public guest checkout)
+  - Supported checkout payment methods: `stripe`, `paypal`, `cod`, `wallet`.
+  - Payment method values are normalized to lowercase before persistence.
+  - Seller order access/processing endpoints:
+    - `GET /api/orders/seller`
+    - `PUT /api/orders/:id/seller-status` with allowed statuses: `shipped`, `delivered`, `cancelled`.
+- Payments checkout contract:
+  - `POST /api/payments/checkout` (authenticated) with payload:
+    - `orderId` (ObjectId)
+    - `method` (`stripe | paypal | cod | wallet`)
+    - `savedMethodId` (optional ObjectId)
+  - Behavior by method:
+    - `stripe`: delegates to Stripe payment intent creation flow.
+    - `wallet`: deducts `wallet_balance`, marks order as `paid`, persists wallet payment metadata.
+    - `cod`: stores `payment_info.status = pending_cod`.
+    - `paypal`: stores `payment_info.status = pending`.
+  - Only order owner can pay; only `pending` orders are payable.
+- User payments/seller operations contract:
+  - Saved payment methods:
+    - `GET /api/users/payment-methods`
+    - `POST /api/users/payment-methods`
+    - `DELETE /api/users/payment-methods/:methodId`
+    - `PATCH /api/users/payment-methods/:methodId/default`
+  - Seller onboarding:
+    - `POST /api/users/seller/onboarding`
+    - `GET /api/users/admin/seller-requests` (admin)
+    - `PATCH /api/users/admin/seller-requests/:id` (admin)
+  - Seller payouts:
+    - `POST /api/users/seller/payouts`
+    - `PATCH /api/users/admin/seller-payouts/:id/:payoutId` (admin)
+- Content management contract:
+  - Public read endpoints:
+    - `GET /api/content`
+    - `GET /api/content/:id`
+  - Admin write endpoints:
+    - `POST /api/content`
+    - `PUT /api/content/:id`
+    - `DELETE /api/content/:id`
+  - Supported content sections: `homepage`, `banner`.
+- Coupons contract:
+  - `POST /api/coupons/validate` (authenticated) validates coupon against current order subtotal and returns `coupon_info` + `discount_amount`.
+  - Admin management endpoints:
+    - `POST /api/coupons`
+    - `GET /api/coupons`
+    - `GET /api/coupons/:id`
+    - `PUT /api/coupons/:id`
+    - `DELETE /api/coupons/:id` (soft delete)
+  - Supported validation failures include stable codes like:
+    - `COUPON.NOT_FOUND`
+    - `COUPON.INACTIVE`
+    - `COUPON.EXPIRED`
+    - `COUPON.MIN_ORDER_NOT_MET`
+    - `COUPON.USAGE_LIMIT_REACHED`
+    - `COUPON.USER_LIMIT_REACHED`
+- Order timeline + notifications contract:
+  - `status_timeline[]` stores lifecycle events (`pending`, `paid`, `shipped`, `delivered`, `cancelled`) with source/note metadata.
+  - Timeline events are appended when:
+    - order is created (`pending`)
+    - admin updates status
+    - payment webhook marks order as paid
+  - Order status email notifications are emitted on placed/paid/status updates.
+- Admin user restriction/soft-delete contract:
+  - Admin endpoints:
+    - `PATCH /api/users/admin/:id/restriction` (`isRestricted: boolean`)
+    - `DELETE /api/users/admin/:id` (soft delete)
+  - Restricted users are blocked from authenticated access/login with `AUTH.USER_RESTRICTED`.
+  - Soft-deleted users are blocked with `AUTH.USER_DELETED`.
+- Reviews & ratings contract:
+  - `POST /api/reviews` creates one review per user per product.
+  - `GET /api/reviews/product/:productId` returns paginated product reviews.
+  - `PUT /api/reviews/:id` and `DELETE /api/reviews/:id` are allowed for review owner or admin.
+  - Product rating aggregates are updated after review create/update/delete:
+    - `average_rating`
+    - `ratings_count`
 - Response envelope standard:
   - Success: `{ success: true, data, message? }`
   - Error: `{ success: false, error: { code, details? }, message? }`
