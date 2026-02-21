@@ -12,10 +12,43 @@ export const findByUser = async (userId) => {
 	return await Order.find({ user: userId }).sort({ createdAt: -1 });
 };
 
-export const updateStatusById = async (orderId, status) => {
+export const findBySeller = async (sellerId) => {
+	return await Order.find({ "items.seller_id": sellerId }).sort({
+		createdAt: -1,
+	});
+};
+
+export const updateStatusById = async (orderId, status, source = "admin") => {
 	return await Order.findByIdAndUpdate(
 		orderId,
-		{ status },
+		{
+			status,
+			$push: {
+				status_timeline: {
+					status,
+					changed_at: new Date(),
+					source,
+					note: "Order status updated",
+				},
+			},
+		},
+		{ new: true, runValidators: true }
+	);
+};
+
+export const appendStatusTimelineEvent = async (orderId, event) => {
+	return await Order.findByIdAndUpdate(
+		orderId,
+		{
+			$push: {
+				status_timeline: {
+					status: event.status,
+					changed_at: event.changed_at ?? new Date(),
+					source: event.source ?? "system",
+					note: event.note ?? "",
+				},
+			},
+		},
 		{ new: true, runValidators: true }
 	);
 };
