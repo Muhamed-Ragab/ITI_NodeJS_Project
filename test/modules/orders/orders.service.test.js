@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import * as couponsService from "../../../src/modules/coupons/coupons.service.js";
 import * as ordersRepo from "../../../src/modules/orders/orders.repository.js";
 import * as ordersService from "../../../src/modules/orders/orders.service.js";
-import * as couponsService from "../../../src/modules/coupons/coupons.service.js";
 import ProductModel from "../../../src/modules/products/products.model.js";
-import * as orderNotifications from "../../../src/services/notifications/order-notifications.js";
 import * as usersRepo from "../../../src/modules/users/users.repository.js";
+import * as orderNotifications from "../../../src/services/notifications/order-notifications.js";
 import { ApiError } from "../../../src/utils/errors/api-error.js";
 
 vi.mock("../../../src/modules/coupons/coupons.service.js", () => ({
@@ -322,7 +322,9 @@ describe("Orders Service", () => {
 				},
 			]);
 
-			vi.spyOn(ordersRepo, "create").mockResolvedValue({ _id: "guest-order-1" });
+			vi.spyOn(ordersRepo, "create").mockResolvedValue({
+				_id: "guest-order-1",
+			});
 
 			await ordersService.createGuestOrder({
 				guest_info: {
@@ -340,7 +342,9 @@ describe("Orders Service", () => {
 					payment_info: expect.objectContaining({ method: "paypal" }),
 				})
 			);
-			expect(orderNotifications.sendOrderStatusNotification).toHaveBeenCalledWith(
+			expect(
+				orderNotifications.sendOrderStatusNotification
+			).toHaveBeenCalledWith(
 				expect.objectContaining({
 					email: "guest@test.com",
 					status: "pending",
@@ -413,7 +417,9 @@ describe("Orders Service", () => {
 
 	describe("listOrdersBySeller", () => {
 		it("should return seller-scoped orders", async () => {
-			const mockOrders = [{ _id: "order1", items: [{ seller_id: "seller123" }] }];
+			const mockOrders = [
+				{ _id: "order1", items: [{ seller_id: "seller123" }] },
+			];
 			vi.spyOn(ordersRepo, "findBySeller").mockResolvedValue(mockOrders);
 
 			const result = await ordersService.listOrdersBySeller("seller123");

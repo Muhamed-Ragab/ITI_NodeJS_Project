@@ -58,7 +58,10 @@ describe("Users Service", () => {
 
 	describe("admin restriction/soft delete", () => {
 		it("should set user restriction", async () => {
-			userRepo.setRestriction.mockResolvedValue({ _id: "u1", isRestricted: true });
+			userRepo.setRestriction.mockResolvedValue({
+				_id: "u1",
+				isRestricted: true,
+			});
 
 			const result = await userService.setUserRestriction("u1", true);
 

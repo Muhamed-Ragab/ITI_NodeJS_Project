@@ -159,11 +159,7 @@ describe("Payments Service", () => {
 			});
 
 			await expect(
-				paymentsService.processCheckoutPayment(
-					"order123",
-					"user123",
-					"wallet"
-				)
+				paymentsService.processCheckoutPayment("order123", "user123", "wallet")
 			).rejects.toThrow(ApiError);
 		});
 	});
