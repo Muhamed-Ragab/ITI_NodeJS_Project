@@ -1,9 +1,9 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import * as emailProvider from "../../../src/services/notifications/email-provider.js";
 import * as authRepository from "../../../src/modules/auth/auth.repository.js";
 import * as authService from "../../../src/modules/auth/auth.service.js";
+import * as emailProvider from "../../../src/services/notifications/email-provider.js";
 import { ApiError } from "../../../src/utils/errors/api-error.js";
 
 vi.mock("../../../src/modules/auth/auth.repository.js");
@@ -148,7 +148,10 @@ describe("Auth Service", () => {
 			});
 
 			await expect(
-				authService.loginUser({ email: "test@example.com", password: "password" })
+				authService.loginUser({
+					email: "test@example.com",
+					password: "password",
+				})
 			).rejects.toMatchObject({
 				code: "AUTH.USER_RESTRICTED",
 			});
@@ -169,7 +172,10 @@ describe("Auth Service", () => {
 			});
 
 			await expect(
-				authService.loginUser({ email: "test@example.com", password: "password" })
+				authService.loginUser({
+					email: "test@example.com",
+					password: "password",
+				})
 			).rejects.toMatchObject({
 				code: "AUTH.USER_DELETED",
 			});
@@ -200,7 +206,9 @@ describe("Auth Service", () => {
 
 		it("should throw for invalid token", async () => {
 			emailProvider.hashVerificationToken.mockReturnValue("token-hash");
-			authRepository.findUserByEmailVerificationTokenHash.mockResolvedValue(null);
+			authRepository.findUserByEmailVerificationTokenHash.mockResolvedValue(
+				null
+			);
 
 			await expect(
 				authService.verifyEmailByToken("invalid-token")

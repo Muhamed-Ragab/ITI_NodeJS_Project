@@ -15,7 +15,12 @@ describe("Coupons Controller", () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
-		req = { params: {}, query: {}, body: {}, user: { id: "u1", role: "admin" } };
+		req = {
+			params: {},
+			query: {},
+			body: {},
+			user: { id: "u1", role: "admin" },
+		};
 		res = { status: vi.fn().mockReturnThis(), json: vi.fn().mockReturnThis() };
 	});
 

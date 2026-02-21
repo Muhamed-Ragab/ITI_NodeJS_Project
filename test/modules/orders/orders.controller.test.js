@@ -51,9 +51,12 @@ describe("Orders Controller", () => {
 
 			await ordersController.createOrder(mockReq, mockRes);
 
-			expect(ordersService.createOrderFromCart).toHaveBeenCalledWith("user123", {
-				paymentMethod: "wallet",
-			});
+			expect(ordersService.createOrderFromCart).toHaveBeenCalledWith(
+				"user123",
+				{
+					paymentMethod: "wallet",
+				}
+			);
 		});
 	});
 

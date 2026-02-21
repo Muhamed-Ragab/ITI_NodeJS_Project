@@ -122,12 +122,9 @@ describe("Reviews Service", () => {
 				rating: 3,
 			});
 
-			const result = await reviewsService.updateReview(
-				"r1",
-				"u1",
-				"customer",
-				{ rating: 3 }
-			);
+			const result = await reviewsService.updateReview("r1", "u1", "customer", {
+				rating: 3,
+			});
 
 			expect(reviewsRepository.updateById).toHaveBeenCalledWith("r1", {
 				rating: 3,

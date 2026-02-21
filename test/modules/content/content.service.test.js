@@ -31,6 +31,8 @@ describe("Content Service", () => {
 	it("should return not found for missing content by id", async () => {
 		contentRepo.findById.mockResolvedValue(null);
 
-		await expect(contentService.getContentById("id-1")).rejects.toThrow(ApiError);
+		await expect(contentService.getContentById("id-1")).rejects.toThrow(
+			ApiError
+		);
 	});
 });
