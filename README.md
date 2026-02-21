@@ -30,6 +30,8 @@ Additional implementation guides:
 - `docs/MIDDLEWARE_GUIDE.md` — global middleware behavior and usage patterns.
 - `docs/TESTING_GUIDE.md` — middleware unit/integration test strategy.
 - `docs/QUALITY_CHECKS.md` — required local quality-gate command order.
+- `docs/TASKS_CHANGELOG.md` — consolidated phase-by-phase summary of delivered tasks and updates.
+- `MEAN_E-Commerce_API.postman_collection.json` — up-to-date API requests for auth, users, commerce, and Phase 4 engagement endpoints.
 
 ## 🛠️ Setup Instructions
 
