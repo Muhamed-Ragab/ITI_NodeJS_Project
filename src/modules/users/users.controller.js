@@ -132,3 +132,134 @@ export const updateRole = async (req, res) => {
 		message: "User role updated successfully",
 	});
 };
+
+export const setUserRestriction = async (req, res) => {
+	const updated = await service.setUserRestriction(
+		req.params.id,
+		req.body.isRestricted
+	);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: updated,
+		message: "User restriction updated successfully",
+	});
+};
+
+export const softDeleteUser = async (req, res) => {
+	const deleted = await service.softDeleteUser(req.params.id);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: deleted,
+		message: "User soft deleted successfully",
+	});
+};
+
+export const listSavedPaymentMethods = async (req, res) => {
+	const methods = await service.listSavedPaymentMethods(req.user.id);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: methods,
+		message: "Saved payment methods retrieved successfully",
+	});
+};
+
+export const addSavedPaymentMethod = async (req, res) => {
+	const methods = await service.addSavedPaymentMethod(req.user.id, req.body);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.CREATED,
+		data: methods,
+		message: "Saved payment method added successfully",
+	});
+};
+
+export const removeSavedPaymentMethod = async (req, res) => {
+	const methods = await service.removeSavedPaymentMethod(
+		req.user.id,
+		req.params.methodId
+	);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: methods,
+		message: "Saved payment method removed successfully",
+	});
+};
+
+export const setDefaultSavedPaymentMethod = async (req, res) => {
+	const methods = await service.setDefaultSavedPaymentMethod(
+		req.user.id,
+		req.params.methodId
+	);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: methods,
+		message: "Default payment method updated successfully",
+	});
+};
+
+export const requestSellerOnboarding = async (req, res) => {
+	const profile = await service.requestSellerOnboarding(req.user.id, req.body);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: profile,
+		message: "Seller onboarding request submitted successfully",
+	});
+};
+
+export const listPendingSellerRequests = async (_req, res) => {
+	const requests = await service.listPendingSellerRequests();
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: requests,
+		message: "Pending seller requests retrieved successfully",
+	});
+};
+
+export const reviewSellerOnboarding = async (req, res) => {
+	const reviewed = await service.reviewSellerOnboarding(
+		req.params.id,
+		req.body.status,
+		req.body.note
+	);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: reviewed,
+		message: "Seller onboarding request reviewed successfully",
+	});
+};
+
+export const createSellerPayoutRequest = async (req, res) => {
+	const payouts = await service.createSellerPayoutRequest(
+		req.user.id,
+		req.body
+	);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.CREATED,
+		data: payouts,
+		message: "Seller payout request submitted successfully",
+	});
+};
+
+export const reviewSellerPayoutRequest = async (req, res) => {
+	const result = await service.reviewSellerPayoutRequest(
+		req.params.id,
+		req.params.payoutId,
+		req.body.status,
+		req.body.note
+	);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: result,
+		message: "Seller payout request reviewed successfully",
+	});
+};
