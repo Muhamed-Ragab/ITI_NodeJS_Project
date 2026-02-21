@@ -14,6 +14,13 @@ const envSchema = z.object({
 	CLOUDINARY_URL: z.string().optional(),
 	GOOGLE_CLIENT_ID: z.string().optional(),
 	GOOGLE_CLIENT_SECRET: z.string().optional(),
+	APP_BASE_URL: z.string().optional(),
+	SMTP_HOST: z.string().optional(),
+	SMTP_PORT: z.coerce.number().optional(),
+	SMTP_USER: z.string().optional(),
+	SMTP_PASS: z.string().optional(),
+	MAIL_FROM: z.string().optional(),
+	SMTP_FROM: z.string().optional(),
 });
 
 export { envSchema };
@@ -36,6 +43,14 @@ try {
 			CLOUDINARY_URL: process.env.CLOUDINARY_URL,
 			GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
 			GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+			APP_BASE_URL: process.env.APP_BASE_URL,
+			SMTP_HOST: process.env.SMTP_HOST,
+			SMTP_PORT: process.env.SMTP_PORT,
+			SMTP_USER: process.env.SMTP_USER,
+			SMTP_PASS: process.env.SMTP_PASS,
+			MAIL_FROM: process.env.MAIL_FROM,
+			SMTP_FROM: process.env.SMTP_FROM,
+			STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
 		});
 	} else {
 		const zerr = err;
