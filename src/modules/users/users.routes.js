@@ -7,9 +7,17 @@ import {
 	addressIdSchema,
 	addressSchema,
 	cartItemSchema,
+	payoutRequestCreateSchema,
+	payoutRequestIdSchema,
+	payoutReviewSchema,
 	productIdSchema,
 	profileUpdateSchema,
+	restrictionUpdateSchema,
 	roleUpdateSchema,
+	savedPaymentMethodCreateSchema,
+	savedPaymentMethodIdSchema,
+	sellerApprovalSchema,
+	sellerOnboardingRequestSchema,
 	userIdSchema,
 } from "./users.validation.js";
 
@@ -82,6 +90,84 @@ userRouter.put(
 	requireRole("admin"),
 	validate({ params: userIdSchema, body: roleUpdateSchema }),
 	controller.updateRole
+);
+userRouter.patch(
+	"/admin/:id/restriction",
+	requireAuth,
+	requireRole("admin"),
+	validate({ params: userIdSchema, body: restrictionUpdateSchema }),
+	controller.setUserRestriction
+);
+userRouter.delete(
+	"/admin/:id",
+	requireAuth,
+	requireRole("admin"),
+	validate({ params: userIdSchema }),
+	controller.softDeleteUser
+);
+
+// Saved payment methods
+userRouter.get(
+	"/payment-methods",
+	requireAuth,
+	controller.listSavedPaymentMethods
+);
+userRouter.post(
+	"/payment-methods",
+	requireAuth,
+	validate({ body: savedPaymentMethodCreateSchema }),
+	controller.addSavedPaymentMethod
+);
+userRouter.delete(
+	"/payment-methods/:methodId",
+	requireAuth,
+	validate({ params: savedPaymentMethodIdSchema }),
+	controller.removeSavedPaymentMethod
+);
+userRouter.patch(
+	"/payment-methods/:methodId/default",
+	requireAuth,
+	validate({ params: savedPaymentMethodIdSchema }),
+	controller.setDefaultSavedPaymentMethod
+);
+
+// Seller onboarding
+userRouter.post(
+	"/seller/onboarding",
+	requireAuth,
+	validate({ body: sellerOnboardingRequestSchema }),
+	controller.requestSellerOnboarding
+);
+userRouter.get(
+	"/admin/seller-requests",
+	requireAuth,
+	requireRole("admin"),
+	controller.listPendingSellerRequests
+);
+userRouter.patch(
+	"/admin/seller-requests/:id",
+	requireAuth,
+	requireRole("admin"),
+	validate({ params: userIdSchema, body: sellerApprovalSchema }),
+	controller.reviewSellerOnboarding
+);
+
+// Seller payouts
+userRouter.post(
+	"/seller/payouts",
+	requireAuth,
+	validate({ body: payoutRequestCreateSchema }),
+	controller.createSellerPayoutRequest
+);
+userRouter.patch(
+	"/admin/seller-payouts/:id/:payoutId",
+	requireAuth,
+	requireRole("admin"),
+	validate({
+		params: userIdSchema.merge(payoutRequestIdSchema),
+		body: payoutReviewSchema,
+	}),
+	controller.reviewSellerPayoutRequest
 );
 
 export default userRouter;

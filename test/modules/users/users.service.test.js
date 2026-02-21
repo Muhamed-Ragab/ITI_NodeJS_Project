@@ -55,4 +55,27 @@ describe("Users Service", () => {
 			expect(userRepo.addCartItem).toHaveBeenCalledWith("u1", "p1", 2);
 		});
 	});
+
+	describe("admin restriction/soft delete", () => {
+		it("should set user restriction", async () => {
+			userRepo.setRestriction.mockResolvedValue({ _id: "u1", isRestricted: true });
+
+			const result = await userService.setUserRestriction("u1", true);
+
+			expect(userRepo.setRestriction).toHaveBeenCalledWith("u1", true);
+			expect(result.isRestricted).toBe(true);
+		});
+
+		it("should soft delete user", async () => {
+			userRepo.softDeleteById.mockResolvedValue({
+				_id: "u1",
+				deletedAt: new Date(),
+			});
+
+			const result = await userService.softDeleteUser("u1");
+
+			expect(userRepo.softDeleteById).toHaveBeenCalledWith("u1");
+			expect(result._id).toBe("u1");
+		});
+	});
 });
