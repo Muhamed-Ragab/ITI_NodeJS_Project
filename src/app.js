@@ -5,9 +5,12 @@ import { env } from "./config/env.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import authRouter from "./modules/auth/auth.routes.js";
 import categoryRouter from "./modules/categories/categories.routes.js";
+import contentRouter from "./modules/content/content.routes.js";
+import couponsRouter from "./modules/coupons/coupons.routes.js";
 import orderRouter from "./modules/orders/orders.routes.js";
 import paymentRouter from "./modules/payments/payments.routes.js";
 import productRouter from "./modules/products/products.routes.js";
+import reviewsRouter from "./modules/reviews/reviews.routes.js";
 import userRouter from "./modules/users/users.routes.js";
 import { sendSuccess } from "./utils/response.js";
 
@@ -47,8 +50,11 @@ app.get("/api", (_req, res) => {
 // Routes
 app.use("/api/categories", categoryRouter);
 app.use("/api/products", productRouter);
+app.use("/api/reviews", reviewsRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
+app.use("/api/coupons", couponsRouter);
+app.use("/api/content", contentRouter);
 app.use("/api/orders", orderRouter);
 
 // Payment routes - need special handling for Stripe webhook raw body

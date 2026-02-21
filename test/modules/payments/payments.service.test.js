@@ -72,4 +72,99 @@ describe("Payments Service", () => {
 			expect(result).toEqual(mockResult);
 		});
 	});
+
+	describe("processCheckoutPayment", () => {
+		it("should set COD payment metadata", async () => {
+			vi.spyOn(paymentsRepo, "findOrderById").mockResolvedValue({
+				_id: "order123",
+				user: "user123",
+				status: "pending",
+				total_amount: 100,
+			});
+			vi.spyOn(paymentsRepo, "updateOrderPaymentStatus").mockResolvedValue({
+				_id: "order123",
+			});
+
+			const result = await paymentsService.processCheckoutPayment(
+				"order123",
+				"user123",
+				"cod"
+			);
+
+			expect(result).toEqual(
+				expect.objectContaining({ method: "cod", status: "pending" })
+			);
+			expect(paymentsRepo.updateOrderPaymentStatus).toHaveBeenCalledWith(
+				"order123",
+				expect.objectContaining({
+					payment_info: expect.objectContaining({ method: "cod" }),
+				})
+			);
+		});
+
+		it("should pay using wallet and deduct user balance", async () => {
+			vi.spyOn(paymentsRepo, "findOrderById").mockResolvedValue({
+				_id: "order123",
+				user: "user123",
+				status: "pending",
+				total_amount: 40,
+			});
+			vi.spyOn(paymentsRepo, "updateOrderPaymentStatus").mockResolvedValue({
+				_id: "order123",
+			});
+
+			const usersRepo = await import(
+				"../../../src/modules/users/users.repository.js"
+			);
+			vi.spyOn(usersRepo, "findById")
+				.mockResolvedValueOnce({
+					_id: "user123",
+					wallet_balance: 100,
+				})
+				.mockResolvedValueOnce({
+					_id: "user123",
+					email: "user@test.com",
+					name: "User",
+				});
+			vi.spyOn(usersRepo, "updateById").mockResolvedValue({ _id: "user123" });
+
+			const result = await paymentsService.processCheckoutPayment(
+				"order123",
+				"user123",
+				"wallet"
+			);
+
+			expect(result).toEqual(
+				expect.objectContaining({ method: "wallet", status: "paid" })
+			);
+			expect(usersRepo.updateById).toHaveBeenCalledWith("user123", {
+				wallet_balance: 60,
+			});
+		});
+
+		it("should reject wallet payment when balance is insufficient", async () => {
+			vi.spyOn(paymentsRepo, "findOrderById").mockResolvedValue({
+				_id: "order123",
+				user: "user123",
+				status: "pending",
+				total_amount: 400,
+			});
+
+			const usersRepo = await import(
+				"../../../src/modules/users/users.repository.js"
+			);
+			vi.spyOn(usersRepo, "findById").mockResolvedValue({
+				_id: "user123",
+				wallet_balance: 100,
+			});
+
+			await expect(
+				paymentsService.processCheckoutPayment(
+					"order123",
+					"user123",
+					"wallet"
+				)
+			).rejects.toThrow(ApiError);
+		});
+	});
 });

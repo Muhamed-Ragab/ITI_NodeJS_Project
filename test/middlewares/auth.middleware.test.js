@@ -54,7 +54,7 @@ describe("auth middleware", () => {
 
 	it("returns unauthorized when user does not exist in database", async () => {
 		const token = jwt.sign(
-			{ id: "missing-user", role: "member", tokenVersion: 0 },
+			{ id: "missing-user", role: "customer", tokenVersion: 0 },
 			process.env.JWT_SECRET
 		);
 		authRepository.findUserById.mockResolvedValue(null);
@@ -73,7 +73,7 @@ describe("auth middleware", () => {
 
 	it("returns unauthorized when token version is revoked", async () => {
 		const token = jwt.sign(
-			{ id: "user-1", role: "member", tokenVersion: 0 },
+			{ id: "user-1", role: "customer", tokenVersion: 0 },
 			process.env.JWT_SECRET
 		);
 		authRepository.findUserById.mockResolvedValue({
@@ -91,5 +91,51 @@ describe("auth middleware", () => {
 		expect(error).toBeInstanceOf(ApiError);
 		expect(error.code).toBe("AUTH.TOKEN_REVOKED");
 		expect(error.statusCode).toBe(StatusCodes.UNAUTHORIZED);
+	});
+
+	it("returns unauthorized when user is soft deleted", async () => {
+		const token = jwt.sign(
+			{ id: "user-1", role: "customer", tokenVersion: 0 },
+			process.env.JWT_SECRET
+		);
+		authRepository.findUserById.mockResolvedValue({
+			_id: "user-1",
+			tokenVersion: 0,
+			deletedAt: new Date(),
+		});
+
+		await requireAuth(
+			{ headers: { authorization: `Bearer ${token}` } },
+			{},
+			next
+		);
+
+		const [error] = next.mock.calls[0];
+		expect(error).toBeInstanceOf(ApiError);
+		expect(error.code).toBe("AUTH.USER_DELETED");
+		expect(error.statusCode).toBe(StatusCodes.UNAUTHORIZED);
+	});
+
+	it("returns forbidden when user is restricted", async () => {
+		const token = jwt.sign(
+			{ id: "user-1", role: "customer", tokenVersion: 0 },
+			process.env.JWT_SECRET
+		);
+		authRepository.findUserById.mockResolvedValue({
+			_id: "user-1",
+			tokenVersion: 0,
+			isRestricted: true,
+		});
+
+		await requireAuth(
+			{ headers: { authorization: `Bearer ${token}` } },
+			{},
+			next
+		);
+
+		const [error] = next.mock.calls[0];
+		expect(error).toBeInstanceOf(ApiError);
+		expect(error.code).toBe("AUTH.USER_RESTRICTED");
+		expect(error.statusCode).toBe(StatusCodes.FORBIDDEN);
 	});
 });

@@ -1,11 +1,13 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import * as emailProvider from "../../../src/services/notifications/email-provider.js";
 import * as authRepository from "../../../src/modules/auth/auth.repository.js";
 import * as authService from "../../../src/modules/auth/auth.service.js";
 import { ApiError } from "../../../src/utils/errors/api-error.js";
 
 vi.mock("../../../src/modules/auth/auth.repository.js");
+vi.mock("../../../src/services/notifications/email-provider.js");
 vi.mock("bcryptjs");
 vi.mock("jsonwebtoken");
 
@@ -15,34 +17,53 @@ describe("Auth Service", () => {
 	});
 
 	describe("registerUser", () => {
-		it("should create a user and return token", async () => {
+		it("should create an unverified user and return verification requirement", async () => {
 			const userData = {
 				name: "Test",
 				email: "test@example.com",
 				password: "password",
 			};
 			authRepository.findUserByEmail.mockResolvedValue(null);
+			emailProvider.generateEmailVerificationToken.mockReturnValue({
+				token: "plain-token",
+				tokenHash: "hashed-token",
+				expiresAt: new Date("2030-01-01"),
+			});
 
 			const mockUser = {
 				_id: "1",
+				name: "Test",
 				email: userData.email,
-				role: "member",
+				isEmailVerified: false,
+				role: "customer",
 				toObject: () => ({
 					_id: "1",
+					name: "Test",
 					email: userData.email,
-					role: "member",
+					isEmailVerified: false,
+					role: "customer",
 					password: "hashed_pass",
 				}),
 			};
 			authRepository.createUser.mockResolvedValue(mockUser);
-			jwt.sign.mockReturnValue("token123");
+			emailProvider.sendVerificationEmail.mockResolvedValue({ sent: true });
 
 			const result = await authService.registerUser(userData);
 
 			expect(authRepository.createUser).toHaveBeenCalledWith(
-				expect.objectContaining({ email: userData.email })
+				expect.objectContaining({
+					email: userData.email,
+					isEmailVerified: false,
+					emailVerificationTokenHash: "hashed-token",
+				})
 			);
-			expect(result.token).toBe("token123");
+			expect(emailProvider.sendVerificationEmail).toHaveBeenCalledWith(
+				expect.objectContaining({
+					email: userData.email,
+					token: "plain-token",
+				})
+			);
+			expect(result.requiresEmailVerification).toBe(true);
 			expect(result.user.password).toBeUndefined();
 		});
 
@@ -61,11 +82,13 @@ describe("Auth Service", () => {
 				_id: "1",
 				email: credentials.email,
 				password: "hashed_pass",
-				role: "member",
+				isEmailVerified: true,
+				role: "customer",
 				toObject: () => ({
 					_id: "1",
 					email: credentials.email,
-					role: "member",
+					isEmailVerified: true,
+					role: "customer",
 					password: "hashed_pass",
 				}),
 			};
@@ -84,6 +107,223 @@ describe("Auth Service", () => {
 			await expect(
 				authService.loginUser({ email: "wrong@test.com", password: "any" })
 			).rejects.toThrow(ApiError);
+		});
+
+		it("should throw if email is not verified", async () => {
+			authRepository.findUserByEmail.mockResolvedValue({
+				_id: "1",
+				email: "test@example.com",
+				password: "hashed_pass",
+				isEmailVerified: false,
+				toObject: () => ({
+					_id: "1",
+					email: "test@example.com",
+					isEmailVerified: false,
+				}),
+			});
+			bcrypt.compare.mockResolvedValue(true);
+
+			await expect(
+				authService.loginUser({
+					email: "test@example.com",
+					password: "password",
+				})
+			).rejects.toMatchObject({
+				code: "AUTH.EMAIL_NOT_VERIFIED",
+			});
+		});
+
+		it("should throw when user is restricted", async () => {
+			authRepository.findUserByEmail.mockResolvedValue({
+				_id: "1",
+				email: "test@example.com",
+				password: "hashed_pass",
+				isRestricted: true,
+				isEmailVerified: true,
+				toObject: () => ({
+					_id: "1",
+					email: "test@example.com",
+					isRestricted: true,
+				}),
+			});
+
+			await expect(
+				authService.loginUser({ email: "test@example.com", password: "password" })
+			).rejects.toMatchObject({
+				code: "AUTH.USER_RESTRICTED",
+			});
+		});
+
+		it("should throw when user is soft deleted", async () => {
+			authRepository.findUserByEmail.mockResolvedValue({
+				_id: "1",
+				email: "test@example.com",
+				password: "hashed_pass",
+				deletedAt: new Date(),
+				isEmailVerified: true,
+				toObject: () => ({
+					_id: "1",
+					email: "test@example.com",
+					deletedAt: new Date(),
+				}),
+			});
+
+			await expect(
+				authService.loginUser({ email: "test@example.com", password: "password" })
+			).rejects.toMatchObject({
+				code: "AUTH.USER_DELETED",
+			});
+		});
+	});
+
+	describe("verifyEmailByToken", () => {
+		it("should verify email for a valid token", async () => {
+			emailProvider.hashVerificationToken.mockReturnValue("token-hash");
+			authRepository.findUserByEmailVerificationTokenHash.mockResolvedValue({
+				_id: "u1",
+				emailVerificationTokenExpiresAt: new Date(Date.now() + 60_000),
+			});
+			authRepository.verifyUserEmail.mockResolvedValue({
+				_id: "u1",
+				email: "verified@test.com",
+				toObject: () => ({ _id: "u1", email: "verified@test.com" }),
+			});
+
+			const result = await authService.verifyEmailByToken("plain-token");
+
+			expect(emailProvider.hashVerificationToken).toHaveBeenCalledWith(
+				"plain-token"
+			);
+			expect(authRepository.verifyUserEmail).toHaveBeenCalledWith("u1");
+			expect(result).toMatchObject({ verified: true });
+		});
+
+		it("should throw for invalid token", async () => {
+			emailProvider.hashVerificationToken.mockReturnValue("token-hash");
+			authRepository.findUserByEmailVerificationTokenHash.mockResolvedValue(null);
+
+			await expect(
+				authService.verifyEmailByToken("invalid-token")
+			).rejects.toMatchObject({
+				code: "AUTH.INVALID_VERIFICATION_TOKEN",
+			});
+		});
+
+		it("should throw for expired token", async () => {
+			emailProvider.hashVerificationToken.mockReturnValue("token-hash");
+			authRepository.findUserByEmailVerificationTokenHash.mockResolvedValue({
+				_id: "u1",
+				emailVerificationTokenExpiresAt: new Date(Date.now() - 60_000),
+			});
+
+			await expect(
+				authService.verifyEmailByToken("expired-token")
+			).rejects.toMatchObject({
+				code: "AUTH.VERIFICATION_TOKEN_EXPIRED",
+			});
+		});
+	});
+
+	describe("requestEmailOtp", () => {
+		it("should generate and send email otp", async () => {
+			authRepository.findUserByEmail.mockResolvedValue({
+				_id: "u1",
+				email: "test@example.com",
+				name: "Test",
+				isEmailVerified: true,
+				toObject: () => ({ _id: "u1", email: "test@example.com" }),
+			});
+			emailProvider.generateEmailOtpToken.mockReturnValue({
+				otp: "123456",
+				otpHash: "otp-hash",
+				expiresAt: new Date("2030-01-01"),
+			});
+			authRepository.setEmailOtp.mockResolvedValue({ _id: "u1" });
+			emailProvider.sendEmailOtp.mockResolvedValue({ sent: true });
+
+			const result = await authService.requestEmailOtp({
+				email: "test@example.com",
+			});
+
+			expect(authRepository.setEmailOtp).toHaveBeenCalledWith(
+				"u1",
+				"otp-hash",
+				expect.any(Date)
+			);
+			expect(emailProvider.sendEmailOtp).toHaveBeenCalledWith(
+				expect.objectContaining({ email: "test@example.com", otp: "123456" })
+			);
+			expect(result.otpRequested).toBe(true);
+		});
+
+		it("should reject unknown email", async () => {
+			authRepository.findUserByEmail.mockResolvedValue(null);
+
+			await expect(
+				authService.requestEmailOtp({ email: "missing@example.com" })
+			).rejects.toMatchObject({
+				code: "AUTH.INVALID_EMAIL_OTP",
+			});
+		});
+	});
+
+	describe("loginWithEmailOtp", () => {
+		it("should login successfully with valid otp", async () => {
+			authRepository.findUserByEmailWithOtp.mockResolvedValue({
+				_id: "u1",
+				email: "test@example.com",
+				role: "customer",
+				tokenVersion: 0,
+				emailOtpHash: "otp-hash",
+				emailOtpExpiresAt: new Date(Date.now() + 60_000),
+				toObject: () => ({
+					_id: "u1",
+					email: "test@example.com",
+					role: "customer",
+					tokenVersion: 0,
+				}),
+			});
+			emailProvider.hashEmailOtp.mockReturnValue("otp-hash");
+			authRepository.consumeEmailOtp.mockResolvedValue({
+				_id: "u1",
+				email: "test@example.com",
+				role: "customer",
+				tokenVersion: 0,
+				toObject: () => ({
+					_id: "u1",
+					email: "test@example.com",
+					role: "customer",
+					tokenVersion: 0,
+				}),
+			});
+			jwt.sign.mockReturnValue("otp-token");
+
+			const result = await authService.loginWithEmailOtp({
+				email: "test@example.com",
+				otp: "123456",
+			});
+
+			expect(result.token).toBe("otp-token");
+			expect(authRepository.consumeEmailOtp).toHaveBeenCalledWith("u1");
+		});
+
+		it("should reject invalid otp", async () => {
+			authRepository.findUserByEmailWithOtp.mockResolvedValue({
+				_id: "u1",
+				emailOtpHash: "correct",
+				emailOtpExpiresAt: new Date(Date.now() + 60_000),
+				toObject: () => ({ _id: "u1" }),
+			});
+			emailProvider.hashEmailOtp.mockReturnValue("wrong");
+
+			await expect(
+				authService.loginWithEmailOtp({
+					email: "test@example.com",
+					otp: "111111",
+				})
+			).rejects.toMatchObject({
+				code: "AUTH.INVALID_EMAIL_OTP",
+			});
 		});
 	});
 
@@ -121,11 +361,18 @@ describe("Auth Service", () => {
 				emails: [{ value: "g@test.com" }],
 			};
 			authRepository.findUserByGoogleId.mockResolvedValue(null);
+			authRepository.findUserByEmail.mockResolvedValue(null);
 			const mockUser = {
 				_id: "2",
 				email: "g@test.com",
-				role: "member",
-				toObject: () => ({ _id: "2", email: "g@test.com", role: "member" }),
+				isEmailVerified: true,
+				role: "customer",
+				toObject: () => ({
+					_id: "2",
+					email: "g@test.com",
+					isEmailVerified: true,
+					role: "customer",
+				}),
 			};
 			authRepository.createUser.mockResolvedValue(mockUser);
 			jwt.sign.mockReturnValue("gtoken");
@@ -146,12 +393,14 @@ describe("Auth Service", () => {
 			const existingUser = {
 				_id: "3",
 				email: "existing@test.com",
-				role: "member",
+				isEmailVerified: true,
+				role: "customer",
 				password: "hashed_pass",
 				toObject: () => ({
 					_id: "3",
 					email: "existing@test.com",
-					role: "member",
+					isEmailVerified: true,
+					role: "customer",
 					password: "hashed_pass",
 				}),
 			};
@@ -180,8 +429,14 @@ describe("Auth Service", () => {
 			const mockUser = {
 				_id: "2",
 				email: "g@test.com",
-				role: "member",
-				toObject: () => ({ _id: "2", email: "g@test.com", role: "member" }),
+				isEmailVerified: true,
+				role: "customer",
+				toObject: () => ({
+					_id: "2",
+					email: "g@test.com",
+					isEmailVerified: true,
+					role: "customer",
+				}),
 			};
 			authRepository.findUserByGoogleId.mockResolvedValue(mockUser);
 			jwt.sign.mockReturnValue("gtoken");

@@ -22,6 +22,14 @@ export const updateOrderPaymentStatus = async (orderId, paymentData) => {
 	}
 	if (paymentData.status) {
 		updateData.status = paymentData.status;
+		updateData.$push = {
+			status_timeline: {
+				status: paymentData.status,
+				changed_at: new Date(),
+				source: "payment_webhook",
+				note: `Order status changed from payment flow: ${paymentData.status}`,
+			},
+		};
 	}
 	return await Order.findByIdAndUpdate(orderId, updateData, {
 		new: true,

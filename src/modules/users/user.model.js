@@ -8,6 +8,65 @@ const addressSchema = new mongoose.Schema({
 	zip: { type: String, trim: true },
 });
 
+const savedPaymentMethodSchema = new mongoose.Schema(
+	{
+		provider: {
+			type: String,
+			enum: ["stripe", "paypal", "card"],
+			required: true,
+		},
+		provider_token: {
+			type: String,
+			required: true,
+		},
+		brand: { type: String, trim: true },
+		last4: { type: String, trim: true },
+		expiry_month: { type: Number, min: 1, max: 12 },
+		expiry_year: { type: Number, min: 2024 },
+		isDefault: {
+			type: Boolean,
+			default: false,
+		},
+	},
+	{ _id: true }
+);
+
+const payoutRequestSchema = new mongoose.Schema(
+	{
+		amount: { type: Number, required: true, min: 0.01 },
+		status: {
+			type: String,
+			enum: ["pending", "approved", "rejected", "paid"],
+			default: "pending",
+		},
+		note: { type: String, trim: true, default: "" },
+		requested_at: { type: Date, default: Date.now },
+		reviewed_at: { type: Date, default: null },
+	},
+	{ _id: true }
+);
+
+const sellerProfileSchema = new mongoose.Schema(
+	{
+		store_name: { type: String, trim: true },
+		bio: { type: String, trim: true },
+		payout_method: { type: String, trim: true },
+		approval_status: {
+			type: String,
+			enum: ["none", "pending", "approved", "rejected"],
+			default: "none",
+		},
+		approval_note: { type: String, trim: true },
+		requested_at: { type: Date },
+		reviewed_at: { type: Date },
+		payout_requests: {
+			type: [payoutRequestSchema],
+			default: [],
+		},
+	},
+	{ _id: false }
+);
+
 const userSchema = new mongoose.Schema(
 	{
 		name: {
@@ -29,16 +88,47 @@ const userSchema = new mongoose.Schema(
 			type: String,
 			select: false,
 		},
+		phone: {
+			type: String,
+			unique: true,
+			sparse: true,
+			trim: true,
+			match: [/^\+?[1-9]\d{7,14}$/, "Please provide a valid phone number"],
+		},
 		googleId: {
 			type: String,
 			unique: true,
 			sparse: true,
 		},
+		isEmailVerified: {
+			type: Boolean,
+			default: false,
+		},
+		emailVerificationTokenHash: {
+			type: String,
+			default: null,
+			select: false,
+		},
+		emailVerificationTokenExpiresAt: {
+			type: Date,
+			default: null,
+			select: false,
+		},
+		emailOtpHash: {
+			type: String,
+			default: null,
+			select: false,
+		},
+		emailOtpExpiresAt: {
+			type: Date,
+			default: null,
+			select: false,
+		},
 		addresses: [addressSchema],
 		role: {
 			type: String,
-			enum: ["member", "admin"],
-			default: "member",
+			enum: ["customer", "seller", "admin"],
+			default: "customer",
 		},
 		wishlist: [
 			{
@@ -59,10 +149,31 @@ const userSchema = new mongoose.Schema(
 				},
 			},
 		],
+		wallet_balance: {
+			type: Number,
+			default: 0,
+			min: 0,
+		},
+		saved_payment_methods: {
+			type: [savedPaymentMethodSchema],
+			default: [],
+		},
+		seller_profile: {
+			type: sellerProfileSchema,
+			default: () => ({ approval_status: "none" }),
+		},
 		tokenVersion: {
 			type: Number,
 			default: 0,
 			min: 0,
+		},
+		isRestricted: {
+			type: Boolean,
+			default: false,
+		},
+		deletedAt: {
+			type: Date,
+			default: null,
 		},
 	},
 	{

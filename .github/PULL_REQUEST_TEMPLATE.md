@@ -8,7 +8,13 @@ Short description of the change and motivation.
 ### Checklist
 - [ ] CI passes (build, lint, tests)
 - [ ] Tests added / updated
-- [ ] Documentation updated (README, PR template)
+- [ ] Documentation updated (README/docs/API/contracts if changed)
+- [ ] Branch name uses allowed prefixes (`feature/*`, `fix/*`, `docs/*`, `chore/*`, `hotfix/*`, `release/*`, `test/*`)
+- [ ] Local quality gates ran:
+  - [ ] `npm run format`
+  - [ ] `npm run lint`
+  - [ ] `npm run build`
+  - [ ] `npm test -- --run`
 - [ ] Reviewer(s): @team-member
 
 ### Notes for reviewer
