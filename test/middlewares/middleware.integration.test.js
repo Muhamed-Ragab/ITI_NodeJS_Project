@@ -130,7 +130,7 @@ describe("middleware integration", () => {
 
 	it("returns forbidden when role is not allowed", async () => {
 		const response = await fetch(`${baseUrl}/admin-check`, {
-			headers: { "x-role": "member" },
+			headers: { "x-role": "customer" },
 		});
 		const body = await response.json();
 
