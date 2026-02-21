@@ -81,4 +81,122 @@ describe("Users Service", () => {
 			expect(result._id).toBe("u1");
 		});
 	});
+
+	describe("phase 4 marketing & engagement", () => {
+		it("should merge and update marketing preferences", async () => {
+			userRepo.findById.mockResolvedValue({
+				_id: "u1",
+				marketing_preferences: {
+					push_notifications: true,
+					email_newsletter: false,
+					promotional_notifications: true,
+				},
+			});
+			userRepo.updateMarketingPreferences.mockResolvedValue({
+				marketing_preferences: {
+					push_notifications: true,
+					email_newsletter: true,
+					promotional_notifications: true,
+				},
+			});
+
+			const result = await userService.updateMarketingPreferences("u1", {
+				email_newsletter: true,
+			});
+
+			expect(userRepo.updateMarketingPreferences).toHaveBeenCalledWith("u1", {
+				push_notifications: true,
+				email_newsletter: true,
+				promotional_notifications: true,
+			});
+			expect(result.email_newsletter).toBe(true);
+		});
+
+		it("should update preferred language", async () => {
+			userRepo.updatePreferredLanguage.mockResolvedValue({
+				preferred_language: "ar",
+			});
+
+			const result = await userService.updatePreferredLanguage("u1", "ar");
+
+			expect(result).toEqual({ language: "ar" });
+		});
+
+		it("should apply referral code and return reward summary", async () => {
+			userRepo.applyReferralCode.mockResolvedValue({
+				rewardPoints: 25,
+				referrerId: "ref1",
+				updatedUser: { loyalty_points: 45 },
+			});
+
+			const result = await userService.applyReferralCode("u1", "REF-1234");
+
+			expect(result).toEqual({
+				reward_points: 25,
+				referred_by: "ref1",
+				loyalty_points: 45,
+			});
+		});
+
+		it("should reject already applied referral code", async () => {
+			userRepo.applyReferralCode.mockResolvedValue({
+				error: "REFERRAL_ALREADY_APPLIED",
+			});
+
+			await expect(
+				userService.applyReferralCode("u1", "REF-1234")
+			).rejects.toThrow(ApiError);
+		});
+
+		it("should return loyalty summary", async () => {
+			userRepo.findById.mockResolvedValue({
+				loyalty_points: 100,
+				referrals_count: 2,
+			});
+
+			const result = await userService.getLoyaltySummary("u1");
+
+			expect(result).toEqual({ loyalty_points: 100, referrals_count: 2 });
+		});
+
+		it("should create referral code when missing", async () => {
+			userRepo.findById.mockResolvedValue({
+				_id: "507f1f77bcf86cd799439011",
+				referrals_count: 0,
+				referred_by: null,
+			});
+			userRepo.updateById.mockResolvedValue({
+				referral_code: "REF-439011",
+			});
+
+			const result = await userService.getReferralSummary(
+				"507f1f77bcf86cd799439011"
+			);
+
+			expect(result.referral_code).toBe("REF-439011");
+		});
+
+		it("should grant loyalty points", async () => {
+			userRepo.grantLoyaltyPoints.mockResolvedValue({ loyalty_points: 200 });
+
+			const result = await userService.grantLoyaltyPoints("u1", 50, "purchase");
+
+			expect(result).toEqual({ loyalty_points: 200, granted_points: 50 });
+		});
+
+		it("should broadcast marketing summary", async () => {
+			userRepo.listUsersForMarketing.mockResolvedValue([
+				{ _id: "u1" },
+				{ _id: "u2" },
+			]);
+
+			const result = await userService.broadcastMarketingMessage({
+				channel: "email",
+				title: "Promo",
+				body: "Body",
+			});
+
+			expect(result.recipients_count).toBe(2);
+		});
+	});
 });

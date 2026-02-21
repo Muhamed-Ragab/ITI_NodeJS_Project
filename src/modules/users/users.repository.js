@@ -206,3 +206,92 @@ export const reviewSellerOnboarding = async (userId, status, note = "") => {
 		{ new: true, runValidators: true }
 	);
 };
+
+export const updateMarketingPreferences = async (userId, payload) => {
+	return await User.findOneAndUpdate(
+		{ _id: userId, deletedAt: null },
+		{ $set: { marketing_preferences: payload } },
+		{ new: true, runValidators: true }
+	).select("marketing_preferences");
+};
+
+export const updatePreferredLanguage = async (userId, language) => {
+	return await User.findOneAndUpdate(
+		{ _id: userId, deletedAt: null },
+		{ $set: { preferred_language: language } },
+		{ new: true, runValidators: true }
+	).select("preferred_language");
+};
+
+export const applyReferralCode = async (userId, referralCode) => {
+	const referrer = await User.findOne({
+		referral_code: referralCode,
+		deletedAt: null,
+	});
+	if (!referrer) {
+		return { error: "REFERRAL_NOT_FOUND" };
+	}
+
+	if (String(referrer._id) === String(userId)) {
+		return { error: "REFERRAL_SELF" };
+	}
+
+	const user = await User.findOne({ _id: userId, deletedAt: null });
+	if (!user) {
+		return { error: "USER_NOT_FOUND" };
+	}
+
+	if (user.referred_by) {
+		return { error: "REFERRAL_ALREADY_APPLIED" };
+	}
+
+	const rewardPoints = 25;
+
+	const [updatedUser] = await Promise.all([
+		User.findOneAndUpdate(
+			{ _id: userId, deletedAt: null },
+			{
+				$set: { referred_by: referrer._id },
+				$inc: { loyalty_points: rewardPoints },
+			},
+			{ new: true, runValidators: true }
+		).select("referred_by loyalty_points"),
+		User.findOneAndUpdate(
+			{ _id: referrer._id, deletedAt: null },
+			{ $inc: { referrals_count: 1, loyalty_points: rewardPoints } },
+			{ new: true, runValidators: true }
+		),
+	]);
+
+	return {
+		updatedUser,
+		referrerId: referrer._id,
+		rewardPoints,
+	};
+};
+
+export const grantLoyaltyPoints = async (userId, points) => {
+	return await User.findOneAndUpdate(
+		{ _id: userId, deletedAt: null },
+		{ $inc: { loyalty_points: points } },
+		{ new: true, runValidators: true }
+	).select("loyalty_points");
+};
+
+export const listUsersForMarketing = async (channel) => {
+	const query = { deletedAt: null };
+
+	if (channel === "email") {
+		query["marketing_preferences.email_newsletter"] = true;
+	}
+
+	if (channel === "push") {
+		query["marketing_preferences.push_notifications"] = true;
+	}
+
+	if (channel === "promotional") {
+		query["marketing_preferences.promotional_notifications"] = true;
+	}
+
+	return await User.find(query).select("email name marketing_preferences");
+};

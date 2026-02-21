@@ -67,6 +67,24 @@ const sellerProfileSchema = new mongoose.Schema(
 	{ _id: false }
 );
 
+const marketingPreferencesSchema = new mongoose.Schema(
+	{
+		push_notifications: {
+			type: Boolean,
+			default: true,
+		},
+		email_newsletter: {
+			type: Boolean,
+			default: false,
+		},
+		promotional_notifications: {
+			type: Boolean,
+			default: true,
+		},
+	},
+	{ _id: false }
+);
+
 const userSchema = new mongoose.Schema(
 	{
 		name: {
@@ -161,6 +179,41 @@ const userSchema = new mongoose.Schema(
 		seller_profile: {
 			type: sellerProfileSchema,
 			default: () => ({ approval_status: "none" }),
+		},
+		preferred_language: {
+			type: String,
+			enum: ["en", "ar", "fr"],
+			default: "en",
+		},
+		marketing_preferences: {
+			type: marketingPreferencesSchema,
+			default: () => ({
+				push_notifications: true,
+				email_newsletter: false,
+				promotional_notifications: true,
+			}),
+		},
+		loyalty_points: {
+			type: Number,
+			default: 0,
+			min: 0,
+		},
+		referral_code: {
+			type: String,
+			trim: true,
+			uppercase: true,
+			unique: true,
+			sparse: true,
+		},
+		referred_by: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User",
+			default: null,
+		},
+		referrals_count: {
+			type: Number,
+			default: 0,
+			min: 0,
 		},
 		tokenVersion: {
 			type: Number,

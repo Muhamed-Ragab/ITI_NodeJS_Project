@@ -29,6 +29,15 @@ npm run dev
    - `POST /api/orders`
 7. Create Stripe payment intent:
    - `POST /api/payments/create-payment-intent`
+8. Phase 4 engagement:
+   - Update marketing preferences:
+     - `PATCH /api/users/preferences/marketing`
+   - Set preferred language:
+     - `PATCH /api/users/preferences/language`
+   - Get loyalty summary:
+     - `GET /api/users/loyalty`
+   - Apply referral code:
+     - `POST /api/users/referrals/apply`
 
 ## 3) Seller journey
 
@@ -51,6 +60,11 @@ npm run dev
 4. Manage orders:
    - `GET /api/orders`
    - `PUT /api/orders/:id/status`
+5. Phase 4 marketing/loyalty operations:
+   - Grant loyalty points:
+     - `PATCH /api/users/admin/:id/loyalty`
+   - Broadcast marketing message (simulation):
+     - `POST /api/users/admin/marketing/broadcast`
 
 ## 5) Code walkthrough path
 
@@ -61,9 +75,16 @@ Follow this order to explain architecture quickly:
 3. One module end-to-end (recommended: `auth`):
    - routes → controller → service → repository → model → validation
 4. `orders` + `payments` integration path
-5. `test/modules/*` to show testing approach
+5. `users` engagement extensions (marketing preferences, referral, loyalty, language)
+6. `test/modules/*` to show testing approach
 
-## 6) Quality proof
+## 6) Phase 5 presentation flow
+
+1. Open `docs/presentation/README.md` and present slides 1→10 in order.
+2. Map each slide to a live endpoint demo section in this file.
+3. Conclude with quality gate proof and roadmap closure (Phase 0–5).
+
+## 7) Quality proof
 
 Run before/after demo:
 
