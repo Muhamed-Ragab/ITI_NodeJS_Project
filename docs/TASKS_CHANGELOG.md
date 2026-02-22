@@ -1,6 +1,6 @@
 # Tasks Change Log
 
-This document summarizes the implementation work completed across project phases and task-driven branches.
+This document summarizes implementation work across project phases and explains **what each delivered point does in the running system**.
 
 ## Scope covered
 
@@ -13,9 +13,11 @@ This document summarizes the implementation work completed across project phases
 ### Phase 0 — Workflow and deliverables foundation
 
 - Established structured delivery flow (branch-per-feature, PR-driven workflow).
+  - **System effect:** each feature is isolated in its own branch and reviewed before merge, reducing regression risk.
 - Added presentation and demo support artifacts:
   - `docs/presentation/README.md`
   - `docs/demo-walkthrough.md`
+  - **System effect:** team can consistently present architecture, feature coverage, and run a reproducible end-to-end demo.
 
 Code/document snippet:
 
@@ -30,15 +32,24 @@ Code/document snippet:
 
 ### Phase 1 — MVP and commerce completeness
 
-- Added/finished key capabilities including:
-  - email verification flow
-  - role model alignment (`customer | seller | admin`)
-  - reviews & ratings support
-  - order price snapshot fields
-  - coupons/discount validation + management
-  - order status timeline/events
-  - order email notifications
-  - admin user restriction and soft delete
+- Added/finished key capabilities:
+
+1. **Email verification flow**
+   - **System behavior:** users receive verification token and cannot complete normal login until email is verified.
+2. **Role model alignment (`customer | seller | admin`)**
+   - **System behavior:** authorization middleware enforces role-specific access to admin/seller endpoints.
+3. **Reviews & ratings support**
+   - **System behavior:** customers can submit reviews and product rating aggregates are recalculated after review changes.
+4. **Order price snapshot fields**
+   - **System behavior:** each order stores immutable subtotal/discount/tax/total details at checkout time.
+5. **Coupons/discount validation + management**
+   - **System behavior:** coupon validity and discount amounts are verified before checkout total is finalized.
+6. **Order status timeline/events**
+   - **System behavior:** status transitions are tracked chronologically for audit and order tracking.
+7. **Order email notifications**
+   - **System behavior:** users receive transactional notifications when important order status changes happen.
+8. **Admin user restriction and soft delete**
+   - **System behavior:** admin can restrict/soft-delete accounts without physical data removal, and token version invalidates active sessions.
 
 Code snippets:
 
@@ -142,10 +153,15 @@ export const softDeleteById = async (userId) => {
 ### Phase 2 — Checkout and payments expansion
 
 - Delivered:
-  - email OTP login flow
-  - guest checkout
-  - multi-method checkout support (`stripe`, `paypal`, `cod`, `wallet`)
-  - saved payment methods user APIs
+
+1. **Email OTP login flow**
+   - **System behavior:** users can request OTP and authenticate through email code as an alternative login path.
+2. **Guest checkout**
+   - **System behavior:** non-authenticated customers can place orders by providing guest and shipping data.
+3. **Multi-method checkout (`stripe`, `paypal`, `cod`, `wallet`)**
+   - **System behavior:** checkout service normalizes payment method and runs method-specific flow/status update.
+4. **Saved payment methods user APIs**
+   - **System behavior:** authenticated users can manage reusable payment method records and set default method.
 
 Code snippets:
 
@@ -190,11 +206,17 @@ userRouter.delete("/payment-methods/:methodId", requireAuth, validate({ params: 
 ### Phase 3 — Admin and seller business features
 
 - Delivered:
-  - admin promotions management
-  - homepage/banner content management
-  - seller onboarding + admin approval
-  - seller order processing/status updates
-  - seller payout request/review flow
+
+1. **Admin promotions management**
+   - **System behavior:** admins can create/update/list/delete coupon configurations used by checkout discounts.
+2. **Homepage/banner content management**
+   - **System behavior:** admins can publish and update content sections used by storefront pages.
+3. **Seller onboarding + admin approval**
+   - **System behavior:** user requests seller status; admin reviews and approves/rejects onboarding.
+4. **Seller order processing/status updates**
+   - **System behavior:** sellers can move owned order items through seller-specific lifecycle states.
+5. **Seller payout request/review flow**
+   - **System behavior:** sellers submit payout requests and admins review payout status with notes.
 
 Code snippets:
 
@@ -242,19 +264,25 @@ userRouter.patch("/admin/seller-payouts/:id/:payoutId", requireAuth, requireRole
 
 Implemented user engagement and marketing capabilities in users module:
 
-- Marketing preferences endpoint
-  - `PATCH /api/users/preferences/marketing`
-- Preferred language endpoint
-  - `PATCH /api/users/preferences/language`
-- Loyalty summary endpoint
-  - `GET /api/users/loyalty`
-- Referral apply + summary endpoints
-  - `POST /api/users/referrals/apply`
-  - `GET /api/users/referrals`
-- Admin loyalty grant endpoint
-  - `PATCH /api/users/admin/:id/loyalty`
-- Admin marketing broadcast simulation endpoint
-  - `POST /api/users/admin/marketing/broadcast`
+1. **Marketing preferences endpoint**
+   - `PATCH /api/users/preferences/marketing`
+   - **System behavior:** stores user opt-in/opt-out preferences for promotional channels.
+2. **Preferred language endpoint**
+   - `PATCH /api/users/preferences/language`
+   - **System behavior:** updates per-user locale preference for localized UI/content behavior.
+3. **Loyalty summary endpoint**
+   - `GET /api/users/loyalty`
+   - **System behavior:** returns current loyalty points and program summary for authenticated user.
+4. **Referral apply + summary endpoints**
+   - `POST /api/users/referrals/apply`
+   - `GET /api/users/referrals`
+   - **System behavior:** applies referral code with validation and exposes referral/reward history state.
+5. **Admin loyalty grant endpoint**
+   - `PATCH /api/users/admin/:id/loyalty`
+   - **System behavior:** admin can add points to a user and persist reason metadata.
+6. **Admin marketing broadcast simulation endpoint**
+   - `POST /api/users/admin/marketing/broadcast`
+   - **System behavior:** triggers campaign simulation that targets users based on marketing preferences.
 
 Code snippets:
 
@@ -303,7 +331,9 @@ Implementation touched:
 ### Phase 5 — Presentation and final demo readiness
 
 - Finalized slide structure and speaker notes in `docs/presentation/README.md`.
+  - **System effect:** presentation narrative maps directly to implemented modules and routes.
 - Expanded `docs/demo-walkthrough.md` with end-to-end demo flow including Phase 4 endpoints.
+  - **System effect:** demo can execute real API sequence from authentication to admin operations.
 
 Document snippets:
 
@@ -324,8 +354,11 @@ Document snippets:
 ## Documentation updates completed
 
 - Updated API contracts in `docs/API_GUIDELINES.md`.
+  - **System effect:** endpoint expectations and request/response contracts are aligned with implementation.
 - Added this change log (`docs/TASKS_CHANGELOG.md`) as consolidated implementation history.
-- Updated Postman collection to include Phase 4 engagement endpoints.
+  - **System effect:** feature traceability from phase goals to code and docs is explicit.
+- Updated Postman collection to include engagement, checkout, admin/seller, coupons/content/reviews endpoints.
+  - **System effect:** QA and demos can execute full project surface from Postman without manual request creation.
 
 Contract snippet:
 
@@ -339,15 +372,15 @@ Contract snippet:
 
 ## Postman collection updates
 
-Updated `MEAN_E-Commerce_API.postman_collection.json` under **Users** with:
+Updated `MEAN_E-Commerce_API.postman_collection.json` with:
 
-- Update Marketing Preferences
-- Update Preferred Language
-- Get Loyalty Summary
-- Apply Referral Code
-- Get Referral Summary
-- Grant Loyalty Points [Admin]
-- Broadcast Marketing Message [Admin]
+- Auth: Request Email OTP, Login With Email OTP, Verify Email.
+- Users: restriction/soft-delete, saved payment methods, seller onboarding/payout review, marketing & loyalty endpoints.
+- Orders: guest order, seller orders list, seller status update.
+- Payments: checkout payment endpoint for multi-method flow.
+- New folders: Coupons, Content, Reviews.
+
+**System effect:** API regression checks and stakeholder demos can cover all implemented business flows with predefined requests and variables.
 
 JSON snippet:
 
