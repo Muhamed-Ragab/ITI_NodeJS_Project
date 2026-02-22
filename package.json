@@ -15,7 +15,8 @@
     "test:coverage": "vitest --coverage",
     "test:watch": "vitest -w",
     "check": "ultracite check",
-    "fix": "ultracite fix"
+    "fix": "ultracite fix",
+    "seed": "node scripts/seed-users.js"
   },
   "keywords": [],
   "author": "",
