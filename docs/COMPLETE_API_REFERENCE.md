@@ -516,36 +516,6 @@ DELETE /users/cart/507f1f77bcf86cd799439011
 
 ---
 
-### 2.9 Get Addresses
-
-**Endpoint:** `GET /users/addresses`  
-**Auth:** Required
-
-**What it does:**
-- Returns all saved shipping addresses for user
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "addresses": [
-      {
-        "id": "507f1f77bcf86cd799439012",
-        "street": "123 Main St",
-        "city": "New York",
-        "state": "NY",
-        "country": "USA",
-        "zip": "10001",
-        "isDefault": true
-      }
-    ]
-  }
-}
-```
-
----
-
 ### 2.10 Add Address
 
 **Endpoint:** `POST /users/address`  
@@ -1129,58 +1099,7 @@ DELETE /products/507f1f77bcf86cd799439011
 
 ---
 
-### 4.6 Get Seller's Products
-
-**Endpoint:** `GET /products/seller/my-products`  
-**Auth:** Seller
-
-**What it does:**
-- Returns all products owned by current seller
-- Used for seller dashboard
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "products": [...],
-    "total": 15
-  }
-}
-```
-
----
-
-### 4.7 Update Stock (Seller)
-
-**Endpoint:** `PUT /products/:id/stock`  
-**Auth:** Seller
-
-**What it does:**
-- Quick endpoint to update only stock quantity
-- Useful for inventory management
-
-**Request Body:**
-```json
-{
-  "stock": 100
-}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Stock updated",
-  "data": {
-    "stock": 100
-  }
-}
-```
-
----
-
-### 4.8 Admin Update Product
+### 4.7 Admin Update Product
 
 **Endpoint:** `PUT /products/admin/:id`  
 **Auth:** Admin
@@ -1662,41 +1581,19 @@ GET /orders/seller?status=processing
 
 ---
 
-### 6.4 Get Payment Status
+### 6.4 Create Payment Intent
 
-**Endpoint:** `GET /payments/:orderId`  
-**Auth:** Required (owner)
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "orderId": "507f1f77bcf86cd799439100",
-    "paymentStatus": "paid",
-    "method": "stripe",
-    "transactionId": "pi_1234567890",
-    "amount": 225.97,
-    "paidAt": "2026-02-20T10:05:00Z"
-  }
-}
-```
-
----
-
-### 6.5 Process Refund (Admin)
-
-**Endpoint:** `POST /payments/:orderId/refund`  
-**Auth:** Admin
+**Endpoint:** `POST /payments/create-payment-intent`
+**Auth:** Required
 
 **What it does:**
-- Admin processes full/partial refund
-- Triggers Stripe refund API
+- Creates Stripe Payment Intent for checkout
+- Returns client secret for Stripe.js
 
 **Request Body:**
 ```json
 {
-  "amount": 22597
+  "orderId": "507f1f77bcf86cd799439100"
 }
 ```
 
@@ -1704,18 +1601,18 @@ GET /orders/seller?status=processing
 ```json
 {
   "success": true,
-  "message": "Refund processed successfully",
   "data": {
-    "refundId": "re_1234567890",
-    "amount": 225.97,
-    "status": "succeeded"
+    "clientSecret": "pi_1234567890_secret_abc123",
+    "paymentIntentId": "pi_1234567890",
+    "amount": 22597,
+    "currency": "usd"
   }
 }
 ```
 
 ---
 
-### 6.6 List Payments (Admin)
+### 6.5 List Payments (Admin)
 
 **Endpoint:** `GET /payments/admin`  
 **Auth:** Admin
@@ -1793,15 +1690,6 @@ GET /payments/admin?status=paid&startDate=2026-01-01&endDate=2026-02-28
   }
 }
 ```
-
----
-
-### 7.3 Get Products in Category
-
-**Endpoint:** `GET /categories/:id/products`  
-**Auth:** Public
-
-**Response:** Same as `GET /products` filtered by category
 
 ---
 
@@ -2139,8 +2027,7 @@ GET /content?section=homepage
     "productId": "507f1f77bcf86cd799439011",
     "userId": "507f1f77bcf86cd799439030",
     "rating": 5,
-    "comment": "Great product! Fast shipping and excellent quality.",
-    "helpful_count": 0
+    "comment": "Great product! Fast shipping and excellent quality."
   }
 }
 ```
@@ -2177,7 +2064,6 @@ GET /reviews/product/507f1f77bcf86cd799439011?page=1&limit=10&sort=newest
           "name": "John D.",
           "verified_purchase": true
         },
-        "helpful_count": 12,
         "createdAt": "2026-02-20T10:00:00Z"
       }
     ],
@@ -2227,7 +2113,7 @@ GET /reviews/product/507f1f77bcf86cd799439011?page=1&limit=10&sort=newest
 
 ### 10.5 Delete Review
 
-**Endpoint:** `DELETE /reviews/:id`  
+**Endpoint:** `DELETE /reviews/:id`
 **Auth:** Required (owner only)
 
 **Response:**
@@ -2235,34 +2121,6 @@ GET /reviews/product/507f1f77bcf86cd799439011?page=1&limit=10&sort=newest
 {
   "success": true,
   "message": "Review deleted"
-}
-```
-
----
-
-### 10.6 Mark Review as Helpful
-
-**Endpoint:** `PUT /reviews/:id/helpful`  
-**Auth:** Required
-
-**What it does:**
-- User marks review as helpful
-- Increments `helpful_count`
-- Can only mark once per user
-
-**Request:**
-```
-PUT /reviews/507f1f77bcf86cd799439070/helpful
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Review marked as helpful",
-  "data": {
-    "helpful_count": 13
-  }
 }
 ```
 

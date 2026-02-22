@@ -73,16 +73,9 @@ Manages user profiles, wishlists, addresses, and engagement features.
 
 | Method | Endpoint | Description | Auth | Request Body |
 |--------|----------|-------------|------|--------------|
-| GET | `/users/addresses` | Get all user addresses | Required | - |
 | POST | `/users/address` | Add new address | Required | `street, city, country, zip` |
 | PUT | `/users/address/:addressId` | Update address | Required | `street, city, country, zip` |
 | DELETE | `/users/address/:addressId` | Delete address | Required | - |
-
-### Wallet Endpoints
-
-| Method | Endpoint | Description | Auth | Request Body |
-|--------|----------|-------------|------|--------------|
-| PUT | `/users/wallet` | Update wallet balance (admin) | Admin | `userId, amount` |
 
 ### Saved Payment Methods
 
@@ -227,7 +220,6 @@ Product categorization management.
 | POST | `/categories` | Create new category | Admin | `name, description, parentId` |
 | PUT | `/categories/:id` | Update category | Admin | `name, description` |
 | DELETE | `/categories/:id` | Delete category | Admin | - |
-| GET | `/categories/:id/products` | Get products in category | Public | - |
 
 ---
 
@@ -242,10 +234,6 @@ Product inventory and details management.
 | POST | `/products` | Create product (seller) | Seller | `name, description, price, category, stock, images` |
 | PUT | `/products/:id` | Update product | Seller/Admin | Partial product fields |
 | DELETE | `/products/:id` | Delete product | Seller/Admin | - |
-| GET | `/products/seller/my-products` | Get seller's products | Seller | - |
-| PUT | `/products/:id/stock` | Update stock quantity | Seller | `stock` |
-| GET | `/products/:id/reviews` | Get product reviews | Public | - |
-| POST | `/products/:id/reviews` | Add product review | Required | `rating, comment` |
 
 ---
 
@@ -358,11 +346,10 @@ Product reviews and ratings.
 | Method | Endpoint | Description | Auth | Request Body |
 |--------|----------|-------------|------|--------------|
 | GET | `/reviews/product/:productId` | Get product reviews | Public | `page, limit` |
+| GET | `/reviews/:id` | Get review by ID | Public | - |
 | POST | `/reviews` | Create review | Required | `productId, rating, comment` |
 | PUT | `/reviews/:id` | Update own review | Required | `rating, comment` |
 | DELETE | `/reviews/:id` | Delete own review | Required | - |
-| GET | `/reviews/user` | Get user's reviews | Required | - |
-| PUT | `/reviews/:id/helpful` | Mark review as helpful | Required | - |
 
 ### Reviews Workflow
 
@@ -396,20 +383,9 @@ Order processing and management.
 | GET | `/orders/:id` | Get order details | Required | - |
 | POST | `/orders` | Create new order | Required | `items, shippingAddress, paymentMethod` |
 | POST | `/orders/guest` | Guest checkout | Public | `items, guestInfo, shippingAddress` |
-| PUT | `/orders/:id/cancel` | Cancel order | Required | - |
 | GET | `/orders/seller` | Get seller orders | Seller | `status` filter |
 | PUT | `/orders/:id/status` | Update order status | Seller/Admin | `status` |
-| PUT | `/orders/:id/tracking` | Add tracking info | Seller | `trackingNumber, carrier` |
-
-### Order Status Timeline
-
-Orders track all status changes:
-- `pending` - Order created, awaiting payment
-- `paid` - Payment confirmed
-- `processing` - Being prepared
-- `shipped` - In transit
-- `delivered` - Received by customer
-- `cancelled` - Cancelled
+| PUT | `/orders/:id/seller-status` | Update order status (seller) | Seller | `status` |
 
 ---
 
@@ -421,17 +397,7 @@ Payment processing with Stripe.
 |--------|----------|-------------|------|--------------|
 | POST | `/payments/checkout` | Process checkout | Required | `orderId, method, savedMethodId` |
 | POST | `/payments/webhook` | Stripe webhook handler | Public | Stripe signature |
-| GET | `/payments/:orderId` | Get payment status | Required | - |
-| POST | `/payments/:orderId/refund` | Process refund | Admin | `amount` |
-
-### Checkout Methods
-
-| Method | Description |
-|--------|-------------|
-| `stripe` | Credit/debit via Stripe |
-| `paypal` | PayPal checkout |
-| `cod` | Cash on delivery |
-| `wallet` | Use account wallet balance |
+| POST | `/payments/create-payment-intent` | Create Stripe payment intent | Required | `orderId` |
 
 ---
 
