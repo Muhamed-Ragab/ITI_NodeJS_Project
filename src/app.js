@@ -17,6 +17,10 @@ import { sendSuccess } from "./utils/response.js";
 const app = express();
 const appNodeEnv = env?.NODE_ENV ?? process.env.NODE_ENV ?? "development";
 
+// API Version
+const API_VERSION = "v1";
+const API_PREFIX = `/api/${API_VERSION}`;
+
 // Middleware
 app.use(morgan(appNodeEnv === "production" ? "combined" : "dev"));
 app.use(
@@ -28,7 +32,7 @@ app.use(
 
 // Stripe webhook needs raw body, so we need to handle it specially
 app.use((req, res, next) => {
-	if (req.url === "/api/payments/webhook") {
+	if (req.url === `${API_PREFIX}/payments/webhook`) {
 		express.raw({ type: "application/json" })(req, res, next);
 	} else {
 		express.json()(req, res, next);
@@ -40,25 +44,25 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/api", (_req, res) => {
 	return sendSuccess(res, {
 		data: {
-			version: "1.0.0",
+			version: API_VERSION,
 			nodeEnv: appNodeEnv,
 		},
 		message: "API is running!",
 	});
 });
 
-// Routes
-app.use("/api/categories", categoryRouter);
-app.use("/api/products", productRouter);
-app.use("/api/reviews", reviewsRouter);
-app.use("/api/auth", authRouter);
-app.use("/api/users", userRouter);
-app.use("/api/coupons", couponsRouter);
-app.use("/api/content", contentRouter);
-app.use("/api/orders", orderRouter);
+// Routes (versioned)
+app.use(`${API_PREFIX}/categories`, categoryRouter);
+app.use(`${API_PREFIX}/products`, productRouter);
+app.use(`${API_PREFIX}/reviews`, reviewsRouter);
+app.use(`${API_PREFIX}/auth`, authRouter);
+app.use(`${API_PREFIX}/users`, userRouter);
+app.use(`${API_PREFIX}/coupons`, couponsRouter);
+app.use(`${API_PREFIX}/content`, contentRouter);
+app.use(`${API_PREFIX}/orders`, orderRouter);
 
 // Payment routes - need special handling for Stripe webhook raw body
-app.use("/api/payments", paymentRouter);
+app.use(`${API_PREFIX}/payments`, paymentRouter);
 
 // Error Handling
 app.use(errorHandler);
