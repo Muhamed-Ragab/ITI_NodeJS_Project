@@ -1,7 +1,7 @@
 import cors from "cors";
 import express from "express";
 import morgan from "morgan";
-import { API_VERSION, API_PREFIX } from "./config/api-config.js";
+import { API_PREFIX, API_VERSION } from "./config/api-config.js";
 import { env } from "./config/env.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import authRouter from "./modules/auth/auth.routes.js";
