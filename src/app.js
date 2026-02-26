@@ -1,6 +1,7 @@
 import cors from "cors";
 import express from "express";
 import morgan from "morgan";
+import { API_VERSION, API_PREFIX } from "./config/api-config.js";
 import { env } from "./config/env.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import authRouter from "./modules/auth/auth.routes.js";
@@ -16,10 +17,6 @@ import { sendSuccess } from "./utils/response.js";
 
 const app = express();
 const appNodeEnv = env?.NODE_ENV ?? process.env.NODE_ENV ?? "development";
-
-// API Version
-const API_VERSION = "v1";
-const API_PREFIX = `/api/${API_VERSION}`;
 
 // Middleware
 app.use(morgan(appNodeEnv === "production" ? "combined" : "dev"));
