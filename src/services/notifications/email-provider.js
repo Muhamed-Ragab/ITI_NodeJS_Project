@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import { API_PREFIX } from "../../config/api-config.js";
 import { env } from "../../config/env.js";
 import { sendMail } from "./mailer.js";
 
@@ -43,7 +44,7 @@ export const hashEmailOtp = (otp) => {
 };
 
 export const sendVerificationEmail = async ({ email, name, token }) => {
-	const verificationLink = `${buildAppBaseUrl()}/api/auth/verify-email?token=${encodeURIComponent(token)}`;
+	const verificationLink = `${buildAppBaseUrl()}${API_PREFIX}/auth/verify-email?token=${encodeURIComponent(token)}`;
 	const subject = "Verify your email";
 	const text = `Hi ${name || "there"},\n\nPlease verify your email using this link:\n${verificationLink}\n\nThis link expires in 24 hours.`;
 	const html = `<p>Hi ${name || "there"},</p><p>Please verify your email using this link:</p><p><a href="${verificationLink}">${verificationLink}</a></p><p>This link expires in 24 hours.</p>`;

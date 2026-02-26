@@ -1,4 +1,5 @@
 import { StatusCodes } from "http-status-codes";
+import { API_PREFIX } from "../../config/api-config.js";
 import { env } from "../../config/env.js";
 import { ApiError } from "../../utils/errors/api-error.js";
 import { logDevError } from "../../utils/logger.js";
@@ -196,7 +197,7 @@ export const logout = async (req, res) => {
 export const googleStart = (_req, res) => {
 	const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth";
 	const options = {
-		redirect_uri: `http://localhost:${env.PORT}/api/auth/google/callback`,
+		redirect_uri: `http://localhost:${env.PORT}${API_PREFIX}/auth/google/callback`,
 		client_id: env.GOOGLE_CLIENT_ID,
 		access_type: "offline",
 		response_type: "code",
@@ -220,7 +221,7 @@ export const googleCallback = async (req, res) => {
 		});
 	}
 
-	const redirectUri = `http://localhost:${env.PORT}/api/auth/google/callback`;
+	const redirectUri = `http://localhost:${env.PORT}${API_PREFIX}/auth/google/callback`;
 
 	const profile =
 		env.NODE_ENV === "test"

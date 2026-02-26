@@ -47,77 +47,10 @@ const userSchema = new mongoose.Schema(
 	{ timestamps: true }
 );
 
-userSchema.pre("save", async function () {
-	if (this.isModified("password") && this.password) {
-		this.password = await bcrypt.hash(this.password, 10);
-	}
-});
-
 const User = mongoose.models.User || mongoose.model("User", userSchema);
 
-// Fake data - 3 users (admin, seller, customer)
-const users = [
-	// Admin
-	{
-		name: "Admin User",
-		email: "admin@example.com",
-		password: "Admin@123",
-		phone: "+201000000001",
-		role: "admin",
-		isEmailVerified: true,
-		wallet_balance: 0,
-		addresses: [
-			{
-				street: "123 Admin Street",
-				city: "Cairo",
-				country: "Egypt",
-				zip: "11511",
-			},
-		],
-	},
-	// Seller
-	{
-		name: "John Seller",
-		email: "seller@example.com",
-		password: "Seller@123",
-		phone: "+201000000002",
-		role: "seller",
-		isEmailVerified: true,
-		wallet_balance: 5000,
-		seller_profile: {
-			store_name: "John's Electronics",
-			bio: "Best electronics in town",
-			approval_status: "approved",
-		},
-		addresses: [
-			{
-				street: "456 Seller Ave",
-				city: "Alexandria",
-				country: "Egypt",
-				zip: "21500",
-			},
-		],
-	},
-	// Customer
-	{
-		name: "Alice Customer",
-		email: "customer@example.com",
-		password: "Customer@123",
-		phone: "+201000000010",
-		role: "customer",
-		isEmailVerified: true,
-		wallet_balance: 2500,
-		loyalty_points: 150,
-		addresses: [
-			{
-				street: "101 Customer Lane",
-				city: "Cairo",
-				country: "Egypt",
-				zip: "11511",
-			},
-		],
-	},
-];
+// Single password for all users
+const UNIFIED_PASSWORD = "Password@123";
 
 async function seedUsers() {
 	try {
@@ -133,15 +66,83 @@ async function seedUsers() {
 		await User.deleteMany({});
 		console.log("Existing users cleared");
 
+		// Hash password directly
+		const hashedPassword = await bcrypt.hash(UNIFIED_PASSWORD, 10);
+
+		// Prepare users with hashed password
+		const users = [
+			// Admin
+			{
+				name: "Admin User",
+				email: "admin@example.com",
+				password: hashedPassword,
+				phone: "+201000000001",
+				role: "admin",
+				isEmailVerified: true,
+				wallet_balance: 0,
+				addresses: [
+					{
+						street: "123 Admin Street",
+						city: "Cairo",
+						country: "Egypt",
+						zip: "11511",
+					},
+				],
+			},
+			// Seller
+			{
+				name: "John Seller",
+				email: "seller@example.com",
+				password: hashedPassword,
+				phone: "+201000000002",
+				role: "seller",
+				isEmailVerified: true,
+				wallet_balance: 5000,
+				seller_profile: {
+					store_name: "John's Electronics",
+					bio: "Best electronics in town",
+					approval_status: "approved",
+				},
+				addresses: [
+					{
+						street: "456 Seller Ave",
+						city: "Alexandria",
+						country: "Egypt",
+						zip: "21500",
+					},
+				],
+			},
+			// Customer
+			{
+				name: "Alice Customer",
+				email: "customer@example.com",
+				password: hashedPassword,
+				phone: "+201000000010",
+				role: "customer",
+				isEmailVerified: true,
+				wallet_balance: 2500,
+				loyalty_points: 150,
+				addresses: [
+					{
+						street: "101 Customer Lane",
+						city: "Cairo",
+						country: "Egypt",
+						zip: "11511",
+					},
+				],
+			},
+		];
+
 		// Insert new users
 		console.log("Seeding users...");
 		const createdUsers = await User.insertMany(users);
 
 		console.log("\n✅ Users seeded successfully!");
-		console.log("\nCreated users:");
-		console.log("- 1 Admin: admin@example.com / Admin@123");
-		console.log("- 1 Seller: seller@example.com / Seller@123");
-		console.log("- 1 Customer: customer@example.com / Customer@123");
+		console.log("\nCreated users (all using same password):");
+		console.log("- 1 Admin: admin@example.com");
+		console.log("- 1 Seller: seller@example.com");
+		console.log("- 1 Customer: customer@example.com");
+		console.log(`\nUnified password: ${UNIFIED_PASSWORD}`);
 
 		// Display created users
 		for (const user of createdUsers) {
