@@ -147,3 +147,7 @@ export const getImageUploadPayload = (sellerId, options = {}) => {
 		folder: options.folder ?? "products",
 	});
 };
+
+export const getBestSellers = async (limit = 10) => {
+	return await productRepository.getBestSellers(limit);
+};
