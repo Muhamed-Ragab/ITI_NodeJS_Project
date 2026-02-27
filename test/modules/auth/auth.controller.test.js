@@ -151,7 +151,7 @@ describe("Auth Controller", () => {
 	});
 
 	describe("googleCallback", () => {
-		it("should complete google login and return 200", async () => {
+		it("should complete google login and redirect to Angular home page", async () => {
 			req.query = { code: "mock_code" };
 			const mockResult = { user: { id: "1" }, token: "mock_token" };
 			authService.handleGoogleCallback.mockResolvedValue(mockResult);
@@ -159,18 +159,14 @@ describe("Auth Controller", () => {
 			await authController.googleCallback(req, res);
 
 			expect(authService.handleGoogleCallback).toHaveBeenCalled();
-			expect(sendSuccess).toHaveBeenCalledWith(
-				res,
-				expect.objectContaining({
-					statusCode: StatusCodes.OK,
-					data: mockResult,
-				})
+			expect(res.redirect).toHaveBeenCalledWith(
+				expect.stringContaining("/home?token=")
 			);
 		});
 	});
 
 	describe("verifyEmail", () => {
-		it("should verify email and return 200", async () => {
+		it("should verify email and redirect to Angular home page", async () => {
 			req.query = { token: "verification-token" };
 			authService.verifyEmailByToken.mockResolvedValue({ verified: true });
 
@@ -179,12 +175,8 @@ describe("Auth Controller", () => {
 			expect(authService.verifyEmailByToken).toHaveBeenCalledWith(
 				"verification-token"
 			);
-			expect(sendSuccess).toHaveBeenCalledWith(
-				res,
-				expect.objectContaining({
-					statusCode: StatusCodes.OK,
-					data: { verified: true },
-				})
+			expect(res.redirect).toHaveBeenCalledWith(
+				expect.stringContaining("/home?verified=true")
 			);
 		});
 	});

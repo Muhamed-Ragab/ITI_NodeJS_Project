@@ -240,20 +240,21 @@ export const googleCallback = async (req, res) => {
 				})();
 
 	const result = await authService.handleGoogleCallback(profile);
-	return sendSuccess(res, {
-		statusCode: StatusCodes.OK,
-		data: result,
-		message: "Google login successful",
-	});
+
+	// Redirect to Angular home page with JWT token
+	const frontendUrl = env.APP_BASE_URL || `http://localhost:${env.PORT}`;
+	const redirectUrl = `${frontendUrl}/home?token=${result.token}`;
+
+	return res.redirect(redirectUrl);
 };
 
 export const verifyEmail = async (req, res) => {
 	const { token } = req.query;
-	const result = await authService.verifyEmailByToken(token);
+	await authService.verifyEmailByToken(token);
 
-	return sendSuccess(res, {
-		statusCode: StatusCodes.OK,
-		data: result,
-		message: "Email verified successfully",
-	});
+	// Redirect to Angular home page with verification success
+	const frontendUrl = env.APP_BASE_URL || `http://localhost:${env.PORT}`;
+	const redirectUrl = `${frontendUrl}/home?verified=true`;
+
+	return res.redirect(redirectUrl);
 };

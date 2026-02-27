@@ -5,9 +5,9 @@ import { sendMail } from "./mailer.js";
 
 const TRAILING_SLASH_REGEX = /\/$/;
 
-const buildAppBaseUrl = () => {
-	if (env.APP_BASE_URL) {
-		return env.APP_BASE_URL.replace(TRAILING_SLASH_REGEX, "");
+const buildBackendApiUrl = () => {
+	if (env.BACKEND_API_URL) {
+		return env.BACKEND_API_URL.replace(TRAILING_SLASH_REGEX, "");
 	}
 
 	return `http://localhost:${env.PORT}`;
@@ -44,7 +44,7 @@ export const hashEmailOtp = (otp) => {
 };
 
 export const sendVerificationEmail = async ({ email, name, token }) => {
-	const verificationLink = `${buildAppBaseUrl()}${API_PREFIX}/auth/verify-email?token=${encodeURIComponent(token)}`;
+	const verificationLink = `${buildBackendApiUrl()}${API_PREFIX}/auth/verify-email?token=${encodeURIComponent(token)}`;
 	const subject = "Verify your email";
 	const text = `Hi ${name || "there"},\n\nPlease verify your email using this link:\n${verificationLink}\n\nThis link expires in 24 hours.`;
 	const html = `<p>Hi ${name || "there"},</p><p>Please verify your email using this link:</p><p><a href="${verificationLink}">${verificationLink}</a></p><p>This link expires in 24 hours.</p>`;
