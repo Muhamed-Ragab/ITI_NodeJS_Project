@@ -32,6 +32,7 @@ Handles all user authentication flows including traditional login, passwordless 
 **Auth:** Public (no auth required)
 
 **What it does:**
+
 - Creates a new user account with email/password
 - Automatically generates a unique referral code (e.g., `REF-ABC123`)
 - Sends email verification link to user's inbox
@@ -39,6 +40,7 @@ Handles all user authentication flows including traditional login, passwordless 
 - User cannot login until email is verified
 
 **Request Body:**
+
 ```json
 {
   "name": "John Doe",
@@ -49,6 +51,7 @@ Handles all user authentication flows including traditional login, passwordless 
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -61,6 +64,7 @@ Handles all user authentication flows including traditional login, passwordless 
 ```
 
 **Workflow:**
+
 1. User submits registration form
 2. System hashes password with bcrypt
 3. Generates JWT verification token (expires in 1 hour)
@@ -75,11 +79,13 @@ Handles all user authentication flows including traditional login, passwordless 
 **Auth:** Public
 
 **What it does:**
+
 - Authenticates user with email and password
 - Returns JWT access token (valid for 24 hours by default)
 - Blocks login if email not verified, user restricted, or account deleted
 
 **Request Body:**
+
 ```json
 {
   "email": "john@example.com",
@@ -88,6 +94,7 @@ Handles all user authentication flows including traditional login, passwordless 
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -104,6 +111,7 @@ Handles all user authentication flows including traditional login, passwordless 
 ```
 
 **Error Cases:**
+
 - `AUTH.INVALID_CREDENTIALS` - Wrong email/password
 - `AUTH.EMAIL_NOT_VERIFIED` - Email not verified yet
 - `AUTH.USER_RESTRICTED` - Admin restricted this account
@@ -117,11 +125,13 @@ Handles all user authentication flows including traditional login, passwordless 
 **Auth:** Public
 
 **What it does:**
+
 - Sends a 6-digit OTP to user's email for passwordless login
 - OTP expires in 5 minutes
 - OTP is hashed before storage (security best practice)
 
 **Request Body:**
+
 ```json
 {
   "email": "john@example.com"
@@ -129,6 +139,7 @@ Handles all user authentication flows including traditional login, passwordless 
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -137,6 +148,7 @@ Handles all user authentication flows including traditional login, passwordless 
 ```
 
 **Workflow:**
+
 1. User requests OTP (e.g., from login page "Login with OTP")
 2. System generates 6-digit code (e.g., `847293`)
 3. Hashes OTP and stores with expiry timestamp
@@ -151,11 +163,13 @@ Handles all user authentication flows including traditional login, passwordless 
 **Auth:** Public
 
 **What it does:**
+
 - Authenticates user with email + OTP (no password needed)
 - Returns JWT token on success
 - Consumes (clears) the OTP after successful login
 
 **Request Body:**
+
 ```json
 {
   "email": "john@example.com",
@@ -164,6 +178,7 @@ Handles all user authentication flows including traditional login, passwordless 
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -179,6 +194,7 @@ Handles all user authentication flows including traditional login, passwordless 
 ```
 
 **Error Cases:**
+
 - `AUTH.INVALID_EMAIL_OTP` - Wrong OTP
 - `AUTH.EMAIL_OTP_EXPIRED` - OTP expired (5 min limit)
 - `AUTH.EMAIL_OTP_REQUIRED` - Missing OTP
@@ -191,16 +207,19 @@ Handles all user authentication flows including traditional login, passwordless 
 **Auth:** Public
 
 **What it does:**
+
 - Verifies user's email using token from registration email
 - Activates account for login
 - Token expires in 1 hour
 
 **Request:**
+
 ```
 GET /auth/verify-email?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -209,6 +228,7 @@ GET /auth/verify-email?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **Workflow:**
+
 1. User registers → receives verification email
 2. User clicks link in email
 3. System validates token signature and expiry
@@ -223,17 +243,20 @@ GET /auth/verify-email?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Auth:** Required (JWT)
 
 **What it does:**
+
 - Invalidates current JWT token by incrementing `tokenVersion`
 - All previously issued tokens become invalid
 - DB-backed logout (more secure than client-side only)
 
 **Request:**
+
 ```http
 POST /auth/logout
 Authorization: Bearer <jwt_token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -242,6 +265,7 @@ Authorization: Bearer <jwt_token>
 ```
 
 **Security Note:**
+
 - Token versioning ensures logout is enforced server-side
 - Even if token hasn't expired, it won't work after logout
 
@@ -253,11 +277,13 @@ Authorization: Bearer <jwt_token>
 **Auth:** Public
 
 **What it does:**
+
 - Initiates Google OAuth 2.0 flow
 - Redirects user to Google login page
 - Creates/updates user account on callback
 
 **Request:**
+
 ```
 GET /auth/google
 ```
@@ -265,10 +291,12 @@ GET /auth/google
 **Callback:** `GET /auth/google/callback?code=<auth_code>`
 
 **Response:**
+
 - Redirects to frontend with JWT token
 - Creates new user if first time, or logs in existing user
 
 **Workflow:**
+
 1. User clicks "Login with Google"
 2. System redirects to Google OAuth consent screen
 3. User grants permission
@@ -288,6 +316,7 @@ Manages user profiles, preferences, shopping cart, wishlist, addresses, and paym
 **Auth:** Required
 
 **What it does:**
+
 - Returns complete user profile including:
   - Basic info (name, email, phone)
   - Role (customer/seller/admin)
@@ -297,6 +326,7 @@ Manages user profiles, preferences, shopping cart, wishlist, addresses, and paym
   - Seller profile (if applicable)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -306,7 +336,7 @@ Manages user profiles, preferences, shopping cart, wishlist, addresses, and paym
     "email": "john@example.com",
     "role": "customer",
     "phone": "+1234567890",
-    "wallet_balance": 50.00,
+    "wallet_balance": 50.0,
     "loyalty_points": 150,
     "referral_code": "REF-ABC123",
     "marketing_preferences": {
@@ -327,10 +357,12 @@ Manages user profiles, preferences, shopping cart, wishlist, addresses, and paym
 **Auth:** Required
 
 **What it does:**
+
 - Updates user's name and/or phone number
 - Cannot change email or role through this endpoint
 
 **Request Body:**
+
 ```json
 {
   "name": "John Updated",
@@ -339,6 +371,7 @@ Manages user profiles, preferences, shopping cart, wishlist, addresses, and paym
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -359,10 +392,12 @@ Manages user profiles, preferences, shopping cart, wishlist, addresses, and paym
 **Auth:** Required
 
 **What it does:**
+
 - Returns user's saved/favorited products
 - Useful for "Save for later" functionality
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -389,10 +424,12 @@ Manages user profiles, preferences, shopping cart, wishlist, addresses, and paym
 **Auth:** Required
 
 **What it does:**
+
 - Adds a product to user's wishlist
 - Prevents duplicates
 
 **Request Body:**
+
 ```json
 {
   "productId": "507f1f77bcf86cd799439011"
@@ -400,6 +437,7 @@ Manages user profiles, preferences, shopping cart, wishlist, addresses, and paym
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -418,11 +456,13 @@ Manages user profiles, preferences, shopping cart, wishlist, addresses, and paym
 **Auth:** Required
 
 **Request:**
+
 ```
 DELETE /users/wishlist/507f1f77bcf86cd799439011
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -438,10 +478,12 @@ DELETE /users/wishlist/507f1f77bcf86cd799439011
 **Auth:** Required
 
 **What it does:**
+
 - Returns user's shopping cart with all items
 - Includes calculated totals (subtotal, tax, shipping)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -456,7 +498,7 @@ DELETE /users/wishlist/507f1f77bcf86cd799439011
       }
     ],
     "subtotal": 199.98,
-    "tax": 20.00,
+    "tax": 20.0,
     "shipping": 5.99,
     "total": 225.97
   }
@@ -471,10 +513,12 @@ DELETE /users/wishlist/507f1f77bcf86cd799439011
 **Auth:** Required
 
 **What it does:**
+
 - Adds item to cart or updates quantity if exists
 - Auto-calculates line item subtotal
 
 **Request Body:**
+
 ```json
 {
   "productId": "507f1f77bcf86cd799439011",
@@ -483,6 +527,7 @@ DELETE /users/wishlist/507f1f77bcf86cd799439011
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -502,11 +547,13 @@ DELETE /users/wishlist/507f1f77bcf86cd799439011
 **Auth:** Required
 
 **Request:**
+
 ```
 DELETE /users/cart/507f1f77bcf86cd799439011
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -522,6 +569,7 @@ DELETE /users/cart/507f1f77bcf86cd799439011
 **Auth:** Required
 
 **Request Body:**
+
 ```json
 {
   "street": "123 Main St",
@@ -533,6 +581,7 @@ DELETE /users/cart/507f1f77bcf86cd799439011
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -555,6 +604,7 @@ DELETE /users/cart/507f1f77bcf86cd799439011
 **Auth:** Required
 
 **Request:**
+
 ```
 PUT /users/address/507f1f77bcf86cd799439012
 ```
@@ -569,11 +619,13 @@ PUT /users/address/507f1f77bcf86cd799439012
 **Auth:** Required
 
 **Request:**
+
 ```
 DELETE /users/address/507f1f77bcf86cd799439012
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -589,10 +641,12 @@ DELETE /users/address/507f1f77bcf86cd799439012
 **Auth:** Required
 
 **What it does:**
+
 - Returns user's saved payment methods (credit cards, etc.)
 - Used for faster checkout
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -620,6 +674,7 @@ DELETE /users/address/507f1f77bcf86cd799439012
 **Auth:** Required
 
 **Request Body:**
+
 ```json
 {
   "provider": "stripe",
@@ -632,6 +687,7 @@ DELETE /users/address/507f1f77bcf86cd799439012
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -652,6 +708,7 @@ DELETE /users/address/507f1f77bcf86cd799439012
 **Auth:** Required
 
 **Request:**
+
 ```
 DELETE /users/payment-methods/507f1f77bcf86cd799439013
 ```
@@ -664,14 +721,17 @@ DELETE /users/payment-methods/507f1f77bcf86cd799439013
 **Auth:** Required
 
 **What it does:**
+
 - Sets a payment method as default for future checkouts
 
 **Request:**
+
 ```
 PATCH /users/payment-methods/507f1f77bcf86cd799439013/default
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -689,10 +749,12 @@ PATCH /users/payment-methods/507f1f77bcf86cd799439013/default
 **Auth:** Required
 
 **What it does:**
+
 - Lets users control what marketing communications they receive
 - Preferences are checked before sending broadcasts
 
 **Request Body:**
+
 ```json
 {
   "push_notifications": true,
@@ -702,6 +764,7 @@ PATCH /users/payment-methods/507f1f77bcf86cd799439013/default
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -717,6 +780,7 @@ PATCH /users/payment-methods/507f1f77bcf86cd799439013/default
 ```
 
 **Use Case:**
+
 - User opts out of email newsletters but keeps push notifications
 - Admin broadcasts only reach users who opted in
 
@@ -728,10 +792,12 @@ PATCH /users/payment-methods/507f1f77bcf86cd799439013/default
 **Auth:** Required
 
 **What it does:**
+
 - Sets user's preferred language for localized content
 - Supported: `en` (English), `ar` (Arabic), `fr` (French)
 
 **Request Body:**
+
 ```json
 {
   "language": "ar"
@@ -739,6 +805,7 @@ PATCH /users/payment-methods/507f1f77bcf86cd799439013/default
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -757,10 +824,12 @@ PATCH /users/payment-methods/507f1f77bcf86cd799439013/default
 **Auth:** Required
 
 **What it does:**
+
 - Returns user's loyalty points balance and referral stats
 - Points earned from purchases, referrals, admin grants
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -772,6 +841,7 @@ PATCH /users/payment-methods/507f1f77bcf86cd799439013/default
 ```
 
 **Point Earning Examples:**
+
 - Purchase $100 = 10 points (10% back)
 - Successful referral = 25 points each
 - Admin bonus grant = variable
@@ -784,11 +854,13 @@ PATCH /users/payment-methods/507f1f77bcf86cd799439013/default
 **Auth:** Required
 
 **What it does:**
+
 - Applies a referral code to user's account
 - Both referrer and referee earn loyalty points
 - Can only apply once per account
 
 **Request Body:**
+
 ```json
 {
   "referralCode": "REF-ABC123"
@@ -796,6 +868,7 @@ PATCH /users/payment-methods/507f1f77bcf86cd799439013/default
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -808,6 +881,7 @@ PATCH /users/payment-methods/507f1f77bcf86cd799439013/default
 ```
 
 **Validation Rules:**
+
 - Cannot apply own referral code
 - Can only apply once (tracked in `appliedReferral: true`)
 - Code must exist and belong to another user
@@ -820,9 +894,11 @@ PATCH /users/payment-methods/507f1f77bcf86cd799439013/default
 **Auth:** Required
 
 **What it does:**
+
 - Shows user's referral code and referral stats
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -842,10 +918,12 @@ PATCH /users/payment-methods/507f1f77bcf86cd799439013/default
 **Auth:** Admin
 
 **What it does:**
+
 - Admin can grant bonus loyalty points to any user
 - Used for promotions, compensation, rewards
 
 **Request Body:**
+
 ```json
 {
   "points": 100
@@ -853,6 +931,7 @@ PATCH /users/payment-methods/507f1f77bcf86cd799439013/default
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -871,10 +950,12 @@ PATCH /users/payment-methods/507f1f77bcf86cd799439013/default
 **Auth:** Admin
 
 **What it does:**
+
 - Sends marketing message to users who opted in
 - Filters by channel (email, push, promotional)
 
 **Request Body:**
+
 ```json
 {
   "channel": "email_newsletter",
@@ -884,6 +965,7 @@ PATCH /users/payment-methods/507f1f77bcf86cd799439013/default
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -896,6 +978,7 @@ PATCH /users/payment-methods/507f1f77bcf86cd799439013/default
 ```
 
 **Workflow:**
+
 1. Admin creates broadcast message
 2. System queries users with `marketing_preferences[channel] = true`
 3. Sends email/push to filtered list
@@ -911,26 +994,29 @@ PATCH /users/payment-methods/507f1f77bcf86cd799439013/default
 **Auth:** Public
 
 **What it does:**
+
 - Returns paginated product list with filtering/sorting
 - Public endpoint (no auth required)
 
 **Query Parameters:**
+
 ```
 GET /products?page=1&limit=10&category=507f...&search=headphones&minPrice=50&maxPrice=200&rating=4&sort=price_asc
 ```
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `page` | number | Page number (default: 1) |
-| `limit` | number | Items per page (default: 10) |
-| `category` | string | Filter by category ID |
-| `search` | string | Search in name/description |
-| `minPrice` | number | Minimum price filter |
-| `maxPrice` | number | Maximum price filter |
-| `rating` | number | Minimum rating (1-5) |
-| `sort` | string | `price_asc`, `price_desc`, `newest`, `rating` |
+| Parameter  | Type   | Description                                   |
+| ---------- | ------ | --------------------------------------------- |
+| `page`     | number | Page number (default: 1)                      |
+| `limit`    | number | Items per page (default: 10)                  |
+| `category` | string | Filter by category ID                         |
+| `search`   | string | Search in name/description                    |
+| `minPrice` | number | Minimum price filter                          |
+| `maxPrice` | number | Maximum price filter                          |
+| `rating`   | number | Minimum rating (1-5)                          |
+| `sort`     | string | `price_asc`, `price_desc`, `newest`, `rating` |
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -973,6 +1059,7 @@ GET /products?page=1&limit=10&category=507f...&search=headphones&minPrice=50&max
 **Auth:** Public
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1004,11 +1091,13 @@ GET /products?page=1&limit=10&category=507f...&search=headphones&minPrice=50&max
 **Auth:** Seller
 
 **What it does:**
+
 - Seller creates a new product listing
 - Sets initial stock, price, images
 - Product is immediately visible to customers
 
 **Request Body:**
+
 ```json
 {
   "name": "Wireless Headphones",
@@ -1024,6 +1113,7 @@ GET /products?page=1&limit=10&category=507f...&search=headphones&minPrice=50&max
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1037,6 +1127,7 @@ GET /products?page=1&limit=10&category=507f...&search=headphones&minPrice=50&max
 ```
 
 **Workflow:**
+
 1. Seller fills product form
 2. System validates required fields
 3. Creates product with seller_id
@@ -1050,11 +1141,13 @@ GET /products?page=1&limit=10&category=507f...&search=headphones&minPrice=50&max
 **Auth:** Seller (owner only)
 
 **What it does:**
+
 - Seller updates their own product
 - Can change price, description, stock, images
 - Ownership check prevents editing others' products
 
 **Request Body:**
+
 ```json
 {
   "name": "Updated Headphones",
@@ -1064,6 +1157,7 @@ GET /products?page=1&limit=10&category=507f...&search=headphones&minPrice=50&max
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1085,11 +1179,13 @@ GET /products?page=1&limit=10&category=507f...&search=headphones&minPrice=50&max
 **Auth:** Seller (owner only)
 
 **Request:**
+
 ```
 DELETE /products/507f1f77bcf86cd799439011
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1105,6 +1201,7 @@ DELETE /products/507f1f77bcf86cd799439011
 **Auth:** Admin
 
 **What it does:**
+
 - Admin can update any product (moderation)
 - Used for content policy enforcement
 
@@ -1116,6 +1213,7 @@ DELETE /products/507f1f77bcf86cd799439011
 **Auth:** Admin
 
 **What it does:**
+
 - Admin can delete any product
 - Used for policy violations, recalls
 
@@ -1127,10 +1225,12 @@ DELETE /products/507f1f77bcf86cd799439011
 **Auth:** Seller
 
 **What it does:**
+
 - Generates pre-signed URL for direct image upload
 - Used for cloud storage (S3, Cloudinary, etc.)
 
 **Request Body:**
+
 ```json
 {
   "filename": "product-image.jpg",
@@ -1139,6 +1239,7 @@ DELETE /products/507f1f77bcf86cd799439011
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1150,6 +1251,7 @@ DELETE /products/507f1f77bcf86cd799439011
 ```
 
 **Workflow:**
+
 1. Seller requests upload URL
 2. System generates pre-signed URL (expires in 15 min)
 3. Frontend uploads directly to cloud storage
@@ -1163,15 +1265,76 @@ DELETE /products/507f1f77bcf86cd799439011
 **Auth:** Seller
 
 **What it does:**
+
 - Associates uploaded images with product
 - Updates product's images array
 
 **Request Body:**
+
 ```json
 {
   "imageUrl": "https://cdn.example.com/new-image.jpg"
 }
 ```
+
+---
+
+### 4.12 Get Best Sellers (Public)
+
+**Endpoint:** `GET /products/best-sellers`  
+**Auth:** Public
+
+**What it does:**
+
+- Returns top selling products based on order history
+- Calculates best sellers from completed orders (paid, shipped, delivered)
+- Only returns active, non-deleted products
+
+**Query Parameters:**
+
+```
+GET /products/best-sellers?limit=10
+```
+
+| Parameter | Type   | Description                                |
+| --------- | ------ | ------------------------------------------ |
+| `limit`   | number | Number of products to return (default: 10) |
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Best sellers retrieved successfully",
+  "data": [
+    {
+      "_id": "507f1f77bcf86cd799439011",
+      "title": "Wireless Headphones",
+      "description": "High-quality wireless headphones",
+      "price": 99.99,
+      "category_id": {
+        "_id": "507f1f77bcf86cd799439020",
+        "name": "Electronics"
+      },
+      "seller_id": {
+        "_id": "507f1f77bcf86cd799439030",
+        "name": "Tech Store"
+      },
+      "images": ["https://cdn.example.com/img1.jpg"],
+      "average_rating": 4.5,
+      "ratings_count": 120,
+      "stock_quantity": 50,
+      "is_active": true,
+      "total_sold": 150
+    }
+  ]
+}
+```
+
+**Note:**
+
+- `total_sold` field shows the total quantity sold across all completed orders
+- Products are sorted by `total_sold` in descending order
 
 ---
 
@@ -1183,11 +1346,13 @@ DELETE /products/507f1f77bcf86cd799439011
 **Auth:** Required
 
 **What it does:**
+
 - Creates order from user's cart items
 - Calculates totals (subtotal, tax, shipping, discounts)
 - Clears cart after successful order
 
 **Request Body:**
+
 ```json
 {
   "items": [
@@ -1208,6 +1373,7 @@ DELETE /products/507f1f77bcf86cd799439011
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1227,6 +1393,7 @@ DELETE /products/507f1f77bcf86cd799439011
 ```
 
 **Workflow:**
+
 1. User clicks "Checkout"
 2. System locks cart items (prevent race condition)
 3. Creates order with `pending` status
@@ -1241,10 +1408,12 @@ DELETE /products/507f1f77bcf86cd799439011
 **Auth:** Public
 
 **What it does:**
+
 - Allows checkout without account
 - Creates order with guest contact info
 
 **Request Body:**
+
 ```json
 {
   "items": [...],
@@ -1260,6 +1429,7 @@ DELETE /products/507f1f77bcf86cd799439011
 **Response:** Same as authenticated order
 
 **Use Case:**
+
 - First-time buyers who don't want to register
 - Still tracks order via email
 
@@ -1271,14 +1441,17 @@ DELETE /products/507f1f77bcf86cd799439011
 **Auth:** Required
 
 **What it does:**
+
 - Returns current user's order history
 
 **Query Parameters:**
+
 ```
 GET /orders/me?status=shipped&page=1&limit=10
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1306,6 +1479,7 @@ GET /orders/me?status=shipped&page=1&limit=10
 **Auth:** Required (owner or admin)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1355,15 +1529,18 @@ GET /orders/me?status=shipped&page=1&limit=10
 **Auth:** Seller
 
 **What it does:**
+
 - Returns orders containing seller's products
 - Seller can only see their own orders
 
 **Query Parameters:**
+
 ```
 GET /orders/seller?status=processing
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1398,6 +1575,7 @@ GET /orders/seller?status=processing
 **Auth:** Admin
 
 **What it does:**
+
 - Returns all orders (platform-wide)
 - Used for admin dashboard, analytics
 
@@ -1409,11 +1587,13 @@ GET /orders/seller?status=processing
 **Auth:** Admin
 
 **What it does:**
+
 - Admin updates order status
 - Triggers email notification to customer
 - Appends to status_timeline
 
 **Request Body:**
+
 ```json
 {
   "status": "shipped",
@@ -1422,10 +1602,12 @@ GET /orders/seller?status=processing
 ```
 
 **Allowed Statuses:**
+
 - `pending` → `paid` → `processing` → `shipped` → `delivered`
 - Or `cancelled` at any point before `delivered`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1445,10 +1627,12 @@ GET /orders/seller?status=processing
 **Auth:** Seller
 
 **What it does:**
+
 - Seller updates status for their own orders
 - Limited to: `shipped`, `delivered`, `cancelled`
 
 **Request Body:**
+
 ```json
 {
   "status": "shipped",
@@ -1468,10 +1652,12 @@ GET /orders/seller?status=processing
 **Auth:** Required
 
 **What it does:**
+
 - Creates Stripe Payment Intent for order
 - Returns client_secret for frontend Stripe.js
 
 **Request Body:**
+
 ```json
 {
   "orderId": "507f1f77bcf86cd799439100",
@@ -1481,6 +1667,7 @@ GET /orders/seller?status=processing
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1492,6 +1679,7 @@ GET /orders/seller?status=processing
 ```
 
 **Workflow:**
+
 1. User proceeds to checkout
 2. System creates Stripe Payment Intent
 3. Frontend uses client_secret with Stripe.js
@@ -1506,10 +1694,12 @@ GET /orders/seller?status=processing
 **Auth:** Required
 
 **What it does:**
+
 - Processes payment for order using various methods
 - Supports: stripe, paypal, cod, wallet
 
 **Request Body:**
+
 ```json
 {
   "orderId": "507f1f77bcf86cd799439100",
@@ -1520,14 +1710,15 @@ GET /orders/seller?status=processing
 
 **Payment Methods:**
 
-| Method | Description |
-|--------|-------------|
-| `stripe` | Credit/debit card via Stripe |
-| `paypal` | PayPal checkout |
-| `cod` | Cash on delivery (payment status: pending) |
-| `wallet` | Deduct from user's wallet balance |
+| Method   | Description                                |
+| -------- | ------------------------------------------ |
+| `stripe` | Credit/debit card via Stripe               |
+| `paypal` | PayPal checkout                            |
+| `cod`    | Cash on delivery (payment status: pending) |
+| `wallet` | Deduct from user's wallet balance          |
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1543,22 +1734,26 @@ GET /orders/seller?status=processing
 **Workflow by Method:**
 
 **Stripe:**
+
 1. Creates/uses Payment Intent
 2. Waits for Stripe webhook confirmation
 3. Marks order as `paid`
 
 **Wallet:**
+
 1. Checks user has sufficient balance
 2. Deducts amount from `wallet_balance`
 3. Marks order as `paid` immediately
 4. Records wallet transaction
 
 **COD:**
+
 1. Sets `payment_info.status = "pending_cod"`
 2. Order status = `pending`
 3. Payment collected on delivery
 
 **PayPal:**
+
 1. Redirects to PayPal
 2. PayPal callback updates order
 
@@ -1570,11 +1765,13 @@ GET /orders/seller?status=processing
 **Auth:** Public (Stripe signs requests)
 
 **What it does:**
+
 - Receives Stripe payment events
 - Updates order status on `payment_intent.succeeded`
 - Handles refunds, disputes
 
 **Events Handled:**
+
 - `payment_intent.succeeded` → Mark order `paid`
 - `payment_intent.payment_failed` → Notify user
 - `charge.refunded` → Process refund
@@ -1587,10 +1784,12 @@ GET /orders/seller?status=processing
 **Auth:** Required
 
 **What it does:**
+
 - Creates Stripe Payment Intent for checkout
 - Returns client secret for Stripe.js
 
 **Request Body:**
+
 ```json
 {
   "orderId": "507f1f77bcf86cd799439100"
@@ -1598,6 +1797,7 @@ GET /orders/seller?status=processing
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1618,11 +1818,13 @@ GET /orders/seller?status=processing
 **Auth:** Admin
 
 **Query Parameters:**
+
 ```
 GET /payments/admin?status=paid&startDate=2026-01-01&endDate=2026-02-28
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1644,10 +1846,12 @@ GET /payments/admin?status=paid&startDate=2026-01-01&endDate=2026-02-28
 **Auth:** Public
 
 **What it does:**
+
 - Returns all categories in tree structure
 - Supports nested subcategories
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1679,6 +1883,7 @@ GET /payments/admin?status=paid&startDate=2026-01-01&endDate=2026-02-28
 **Auth:** Public
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1699,6 +1904,7 @@ GET /payments/admin?status=paid&startDate=2026-01-01&endDate=2026-02-28
 **Auth:** Admin
 
 **Request Body:**
+
 ```json
 {
   "name": "Electronics",
@@ -1708,6 +1914,7 @@ GET /payments/admin?status=paid&startDate=2026-01-01&endDate=2026-02-28
 ```
 
 **For Subcategory:**
+
 ```json
 {
   "name": "Headphones",
@@ -1717,6 +1924,7 @@ GET /payments/admin?status=paid&startDate=2026-01-01&endDate=2026-02-28
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1736,6 +1944,7 @@ GET /payments/admin?status=paid&startDate=2026-01-01&endDate=2026-02-28
 **Auth:** Admin
 
 **Request Body:**
+
 ```json
 {
   "name": "Updated Electronics",
@@ -1762,10 +1971,12 @@ GET /payments/admin?status=paid&startDate=2026-01-01&endDate=2026-02-28
 **Auth:** Required
 
 **What it does:**
+
 - Validates coupon code against order total
 - Returns discount amount if valid
 
 **Request Body:**
+
 ```json
 {
   "code": "SUMMER25",
@@ -1774,12 +1985,13 @@ GET /payments/admin?status=paid&startDate=2026-01-01&endDate=2026-02-28
 ```
 
 **Success Response:**
+
 ```json
 {
   "success": true,
   "data": {
     "valid": true,
-    "discountAmount": 37.50,
+    "discountAmount": 37.5,
     "couponInfo": {
       "code": "SUMMER25",
       "type": "percentage",
@@ -1792,6 +2004,7 @@ GET /payments/admin?status=paid&startDate=2026-01-01&endDate=2026-02-28
 ```
 
 **Error Responses:**
+
 ```json
 {
   "success": false,
@@ -1801,14 +2014,14 @@ GET /payments/admin?status=paid&startDate=2026-01-01&endDate=2026-02-28
 }
 ```
 
-| Error Code | Meaning |
-|------------|---------|
-| `COUPON.NOT_FOUND` | Invalid code |
-| `COUPON.INACTIVE` | Coupon disabled by admin |
-| `COUPON.EXPIRED` | Past expiration date |
-| `COUPON.MIN_ORDER_NOT_MET` | Order below minimum amount |
-| `COUPON.USAGE_LIMIT_REACHED` | Global usage limit hit |
-| `COUPON.USER_LIMIT_REACHED` | User already used this coupon |
+| Error Code                   | Meaning                       |
+| ---------------------------- | ----------------------------- |
+| `COUPON.NOT_FOUND`           | Invalid code                  |
+| `COUPON.INACTIVE`            | Coupon disabled by admin      |
+| `COUPON.EXPIRED`             | Past expiration date          |
+| `COUPON.MIN_ORDER_NOT_MET`   | Order below minimum amount    |
+| `COUPON.USAGE_LIMIT_REACHED` | Global usage limit hit        |
+| `COUPON.USER_LIMIT_REACHED`  | User already used this coupon |
 
 ---
 
@@ -1818,6 +2031,7 @@ GET /payments/admin?status=paid&startDate=2026-01-01&endDate=2026-02-28
 **Auth:** Admin
 
 **Request Body:**
+
 ```json
 {
   "code": "SUMMER25",
@@ -1831,10 +2045,12 @@ GET /payments/admin?status=paid&startDate=2026-01-01&endDate=2026-02-28
 ```
 
 **Coupon Types:**
+
 - `percentage` - Percentage discount (e.g., 25 = 25% off)
 - `fixed` - Fixed amount discount (e.g., 25 = $25 off)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1854,11 +2070,13 @@ GET /payments/admin?status=paid&startDate=2026-01-01&endDate=2026-02-28
 **Auth:** Admin
 
 **Query Parameters:**
+
 ```
 GET /coupons?active=true&page=1&limit=10
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1884,6 +2102,7 @@ GET /coupons?active=true&page=1&limit=10
 **Auth:** Admin
 
 **Request Body:**
+
 ```json
 {
   "value": 30,
@@ -1912,16 +2131,19 @@ CMS for banners, homepage content, FAQs.
 **Auth:** Public
 
 **Query Parameters:**
+
 ```
 GET /content?section=homepage
 ```
 
 **Supported Sections:**
+
 - `homepage` - Homepage banners/hero
 - `banner` - Promotional banners
 - `faq` - FAQ content
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -1957,6 +2179,7 @@ GET /content?section=homepage
 **Auth:** Admin
 
 **Request Body:**
+
 ```json
 {
   "section": "homepage",
@@ -1969,6 +2192,7 @@ GET /content?section=homepage
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -2004,11 +2228,13 @@ GET /content?section=homepage
 **Auth:** Required
 
 **What it does:**
+
 - User creates review for a product
 - One review per user per product
 - Updates product's average rating
 
 **Request Body:**
+
 ```json
 {
   "productId": "507f1f77bcf86cd799439011",
@@ -2018,6 +2244,7 @@ GET /content?section=homepage
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -2033,6 +2260,7 @@ GET /content?section=homepage
 ```
 
 **Workflow:**
+
 1. User submits review
 2. System checks user hasn't reviewed before
 3. Creates review
@@ -2046,11 +2274,13 @@ GET /content?section=homepage
 **Auth:** Public
 
 **Query Parameters:**
+
 ```
 GET /reviews/product/507f1f77bcf86cd799439011?page=1&limit=10&sort=newest
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -2089,6 +2319,7 @@ GET /reviews/product/507f1f77bcf86cd799439011?page=1&limit=10&sort=newest
 **Auth:** Required (owner only)
 
 **Request Body:**
+
 ```json
 {
   "rating": 4,
@@ -2097,6 +2328,7 @@ GET /reviews/product/507f1f77bcf86cd799439011?page=1&limit=10&sort=newest
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -2117,6 +2349,7 @@ GET /reviews/product/507f1f77bcf86cd799439011?page=1&limit=10&sort=newest
 **Auth:** Required (owner only)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -2128,29 +2361,29 @@ GET /reviews/product/507f1f77bcf86cd799439011?page=1&limit=10&sort=newest
 
 ## Role-Based Access Control
 
-| Role | Permissions |
-|------|-------------|
-| **customer** | Browse products, manage profile/wishlist/cart/orders, leave reviews, apply referrals, use coupons |
-| **seller** | All customer permissions + create/update/delete own products, view seller orders, update order status, request payouts, become seller via onboarding |
-| **admin** | All permissions + manage categories, users (roles, restrictions, soft-delete, wallet), coupons, content, refunds, all orders, seller approvals, marketing broadcasts |
+| Role         | Permissions                                                                                                                                                          |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **customer** | Browse products, manage profile/wishlist/cart/orders, leave reviews, apply referrals, use coupons                                                                    |
+| **seller**   | All customer permissions + create/update/delete own products, view seller orders, update order status, request payouts, become seller via onboarding                 |
+| **admin**    | All permissions + manage categories, users (roles, restrictions, soft-delete, wallet), coupons, content, refunds, all orders, seller approvals, marketing broadcasts |
 
 ---
 
 ## Common Error Codes
 
-| Code | HTTP Status | Meaning |
-|------|-------------|---------|
-| `AUTH.INVALID_CREDENTIALS` | 401 | Wrong email/password |
-| `AUTH.EMAIL_NOT_VERIFIED` | 401 | Email not verified |
-| `AUTH.USER_RESTRICTED` | 403 | Admin restricted account |
-| `AUTH.USER_DELETED` | 403 | Account soft-deleted |
-| `AUTH.UNAUTHORIZED` | 401 | Missing/invalid JWT |
-| `AUTH.FORBIDDEN` | 403 | Insufficient role |
-| `USER.NOT_FOUND` | 404 | User doesn't exist |
-| `PRODUCT.NOT_FOUND` | 404 | Product doesn't exist |
-| `ORDER.NOT_FOUND` | 404 | Order doesn't exist |
-| `COUPON.*` | 400 | Various coupon errors |
-| `VALIDATION_ERROR` | 400 | Invalid request body |
+| Code                       | HTTP Status | Meaning                  |
+| -------------------------- | ----------- | ------------------------ |
+| `AUTH.INVALID_CREDENTIALS` | 401         | Wrong email/password     |
+| `AUTH.EMAIL_NOT_VERIFIED`  | 401         | Email not verified       |
+| `AUTH.USER_RESTRICTED`     | 403         | Admin restricted account |
+| `AUTH.USER_DELETED`        | 403         | Account soft-deleted     |
+| `AUTH.UNAUTHORIZED`        | 401         | Missing/invalid JWT      |
+| `AUTH.FORBIDDEN`           | 403         | Insufficient role        |
+| `USER.NOT_FOUND`           | 404         | User doesn't exist       |
+| `PRODUCT.NOT_FOUND`        | 404         | Product doesn't exist    |
+| `ORDER.NOT_FOUND`          | 404         | Order doesn't exist      |
+| `COUPON.*`                 | 400         | Various coupon errors    |
+| `VALIDATION_ERROR`         | 400         | Invalid request body     |
 
 ---
 
@@ -2159,10 +2392,11 @@ GET /reviews/product/507f1f77bcf86cd799439011?page=1&limit=10&sort=newest
 Import Postman collection: `MEAN_E-Commerce_API.postman_collection.json`
 
 Run tests:
+
 ```bash
 npm test
 ```
 
 ---
 
-*Generated: February 2026*
+_Generated: February 2026_
