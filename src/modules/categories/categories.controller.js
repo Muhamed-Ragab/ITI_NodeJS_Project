@@ -1,5 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import { sendSuccess } from "../../utils/response.js";
+import { listProducts } from "../products/products.service.js";
 import * as categoryService from "./categories.service.js";
 
 export const createCategory = async (req, res) => {
@@ -52,5 +53,17 @@ export const listCategories = async (req, res) => {
 		statusCode: StatusCodes.OK,
 		data: result,
 		message: "Categories retrieved successfully",
+	});
+};
+
+export const getProductsByCategory = async (req, res) => {
+	const { category_id } = req.query;
+
+	const result = await listProducts({ category_id });
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: result,
+		message: "Products retrieved successfully",
 	});
 };

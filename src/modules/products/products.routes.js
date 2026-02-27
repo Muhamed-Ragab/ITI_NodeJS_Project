@@ -28,6 +28,12 @@ productsRouter
 		validate({ body: productCreateSchema }),
 		productController.createProduct
 	)
+	.get("/best-sellers", productController.getBestSellers)
+	.get(
+		"/:id/related",
+		validate({ params: productIdSchema }),
+		productController.getRelatedProducts
+	)
 	.get(
 		"/:id",
 		validate({ params: productIdSchema }),

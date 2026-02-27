@@ -108,3 +108,26 @@ export const getProductImageUploadPayload = async (req, res) => {
 		message: "Upload payload generated successfully",
 	});
 };
+
+export const getBestSellers = async (req, res) => {
+	const limit = Number(req.query.limit) || 10;
+	const products = await productService.getBestSellers(limit);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: products,
+		message: "Best sellers retrieved successfully",
+	});
+};
+
+export const getRelatedProducts = async (req, res) => {
+	const productId = req.params.id;
+	const limit = Number(req.query.limit) || 6;
+	const products = await productService.getRelatedProducts(productId, limit);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: products,
+		message: "Related products retrieved successfully",
+	});
+};
