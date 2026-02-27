@@ -119,3 +119,15 @@ export const getBestSellers = async (req, res) => {
 		message: "Best sellers retrieved successfully",
 	});
 };
+
+export const getRelatedProducts = async (req, res) => {
+	const productId = req.params.id;
+	const limit = Number(req.query.limit) || 6;
+	const products = await productService.getRelatedProducts(productId, limit);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: products,
+		message: "Related products retrieved successfully",
+	});
+};

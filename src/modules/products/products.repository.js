@@ -143,3 +143,25 @@ export const getBestSellers = async (limit = 10) => {
 
 	return result;
 };
+
+export const getRelatedProducts = async (productId, limit = 6) => {
+	const product = await ProductModel.findOne({
+		_id: productId,
+		deletedAt: null,
+	}).select("category_id");
+
+	if (!product) {
+		return [];
+	}
+
+	return await ProductModel.find({
+		_id: { $ne: productId },
+		category_id: product.category_id,
+		is_active: true,
+		deletedAt: null,
+	})
+		.populate("seller_id", "name email")
+		.populate("category_id", "name slug")
+		.sort({ average_rating: -1 })
+		.limit(limit);
+};
