@@ -28,6 +28,7 @@ productsRouter
 		validate({ body: productCreateSchema }),
 		productController.createProduct
 	)
+	.get("/best-sellers", productController.getBestSellers)
 	.get(
 		"/:id",
 		validate({ params: productIdSchema }),

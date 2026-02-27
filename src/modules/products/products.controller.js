@@ -108,3 +108,14 @@ export const getProductImageUploadPayload = async (req, res) => {
 		message: "Upload payload generated successfully",
 	});
 };
+
+export const getBestSellers = async (req, res) => {
+	const limit = Number(req.query.limit) || 10;
+	const products = await productService.getBestSellers(limit);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: products,
+		message: "Best sellers retrieved successfully",
+	});
+};

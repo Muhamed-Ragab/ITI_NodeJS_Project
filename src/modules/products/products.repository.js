@@ -2,6 +2,7 @@ import {
 	buildPaginationMeta,
 	parsePagination,
 } from "../../utils/pagination.js";
+import OrderModel from "../orders/orders.model.js";
 import ProductModel from "./products.model.js";
 
 export const create = async (product) => {
@@ -96,4 +97,49 @@ export const updateRatingStats = async (id, stats) => {
 		},
 		{ new: true, runValidators: true }
 	);
+};
+
+export const getBestSellers = async (limit = 10) => {
+	const result = await OrderModel.aggregate([
+		{
+			$match: {
+				status: { $in: ["paid", "shipped", "delivered"] },
+			},
+		},
+		{ $unwind: "$items" },
+		{
+			$group: {
+				_id: "$items.product",
+				total_sold: { $sum: "$items.quantity" },
+			},
+		},
+		{ $sort: { total_sold: -1 } },
+		{ $limit: limit },
+		{
+			$lookup: {
+				from: "products",
+				let: { productId: "$_id" },
+				pipeline: [
+					{
+						$match: {
+							$expr: { $eq: ["$_id", "$$productId"] },
+							deletedAt: null,
+							is_active: true,
+						},
+					},
+				],
+				as: "product",
+			},
+		},
+		{ $unwind: "$product" },
+		{
+			$replaceRoot: {
+				newRoot: {
+					$mergeObjects: ["$product", { total_sold: "$total_sold" }],
+				},
+			},
+		},
+	]);
+
+	return result;
 };
