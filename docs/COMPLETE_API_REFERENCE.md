@@ -563,7 +563,337 @@ DELETE /users/cart/507f1f77bcf86cd799439011
 
 ---
 
-### 2.10 Add Address
+### 2.9 List Users (Admin)
+
+**Endpoint:** `GET /users`  
+**Auth:** Admin
+
+**What it does:**
+
+- Returns paginated list of all users
+- Used for admin dashboard user management
+
+**Query Parameters:**
+
+```
+GET /users?role=customer&page=1&limit=10&search=john
+```
+
+| Parameter | Type   | Description                           |
+| --------- | ------ | ------------------------------------- |
+| `page`    | number | Page number (default: 1)              |
+| `limit`   | number | Items per page (default: 10)          |
+| `role`    | string | Filter by role: customer/seller/admin |
+| `search`  | string | Search by name or email               |
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "users": [
+      {
+        "id": "507f1f77bcf86cd799439011",
+        "name": "John Doe",
+        "email": "john@example.com",
+        "role": "customer",
+        "phone": "+1234567890",
+        "isRestricted": false,
+        "isDeleted": false,
+        "createdAt": "2026-01-15T10:00:00Z"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 10,
+      "total": 150,
+      "pages": 15
+    }
+  }
+}
+```
+
+---
+
+### 2.10 Update User Role (Admin)
+
+**Endpoint:** `PUT /users/admin/:id/role`  
+**Auth:** Admin
+
+**What it does:**
+
+- Admin can change user's role (customer/seller)
+- Used for promoting customers to sellers
+
+**Request Body:**
+
+```json
+{
+  "role": "seller"
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "User role updated to seller",
+  "data": {
+    "id": "507f1f77bcf86cd799439011",
+    "role": "seller"
+  }
+}
+```
+
+---
+
+### 2.11 Restrict User (Admin)
+
+**Endpoint:** `PATCH /users/admin/:id/restriction`  
+**Auth:** Admin
+
+**What it does:**
+
+- Admin can restrict/unrestrict user accounts
+- Restricted users cannot login
+
+**Request Body:**
+
+```json
+{
+  "isRestricted": true
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "User has been restricted",
+  "data": {
+    "id": "507f1f77bcf86cd799439011",
+    "isRestricted": true
+  }
+}
+```
+
+---
+
+### 2.12 Delete User (Admin)
+
+**Endpoint:** `DELETE /users/admin/:id`  
+**Auth:** Admin
+
+**What it does:**
+
+- Admin can soft-delete user accounts
+- Deleted users cannot login or be recovered
+
+**Request:**
+
+```
+DELETE /users/admin/507f1f77bcf86cd799439011
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "User has been deleted"
+}
+```
+
+---
+
+### 2.13 Seller Onboarding
+
+**Endpoint:** `POST /users/seller/onboarding`  
+**Auth:** Required (customer)
+
+**What it does:**
+
+- Customer requests to become a seller
+- Creates seller profile with store details
+- Requires admin approval
+
+**Request Body:**
+
+```json
+{
+  "store_name": "Tech Store",
+  "bio": "Premium electronics seller",
+  "payout_method": "bank_transfer"
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Seller onboarding request submitted",
+  "data": {
+    "status": "pending",
+    "store_name": "Tech Store"
+  }
+}
+```
+
+---
+
+### 2.14 List Seller Requests (Admin)
+
+**Endpoint:** `GET /users/admin/seller-requests`  
+**Auth:** Admin
+
+**What it does:**
+
+- Returns list of pending seller approval requests
+
+**Query Parameters:**
+
+```
+GET /users/admin/seller-requests?status=pending&page=1&limit=10
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "requests": [
+      {
+        "id": "507f1f77bcf86cd799439080",
+        "user": {
+          "id": "507f1f77bcf86cd799439011",
+          "name": "John Doe",
+          "email": "john@example.com"
+        },
+        "store_name": "Tech Store",
+        "bio": "Premium electronics seller",
+        "payout_method": "bank_transfer",
+        "status": "pending",
+        "createdAt": "2026-02-20T10:00:00Z"
+      }
+    ],
+    "pagination": {...}
+  }
+}
+```
+
+---
+
+### 2.15 Review Seller Request (Admin)
+
+**Endpoint:** `PATCH /users/admin/seller-requests/:id`  
+**Auth:** Admin
+
+**What it does:**
+
+- Admin approves/rejects seller onboarding requests
+
+**Request Body:**
+
+```json
+{
+  "status": "approved",
+  "note": "All documents verified"
+}
+```
+
+**Allowed Statuses:** `approved`, `rejected`
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Seller request approved",
+  "data": {
+    "id": "507f1f77bcf86cd799439080",
+    "status": "approved"
+  }
+}
+```
+
+---
+
+### 2.16 Request Payout (Seller)
+
+**Endpoint:** `POST /users/seller/payouts`  
+**Auth:** Required (seller)
+
+**What it does:**
+
+- Seller requests payout from their earnings
+
+**Request Body:**
+
+```json
+{
+  "amount": 500,
+  "note": "Monthly payout"
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Payout requested",
+  "data": {
+    "id": "507f1f77bcf86cd799439090",
+    "amount": 500,
+    "status": "pending",
+    "createdAt": "2026-02-20T10:00:00Z"
+  }
+}
+```
+
+---
+
+### 2.17 Review Payout (Admin)
+
+**Endpoint:** `PATCH /users/admin/seller-payouts/:id/:payoutId`  
+**Auth:** Admin
+
+**What it does:**
+
+- Admin approves/rejects seller payout requests
+
+**Request Body:**
+
+```json
+{
+  "status": "approved",
+  "note": "Payment processed"
+}
+```
+
+**Allowed Statuses:** `approved`, `rejected`
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Payout approved",
+  "data": {
+    "id": "507f1f77bcf86cd799439090",
+    "status": "approved"
+  }
+}
+```
+
+---
+
+### 2.18 Add Address
 
 **Endpoint:** `POST /users/address`  
 **Auth:** Required
@@ -598,7 +928,7 @@ DELETE /users/cart/507f1f77bcf86cd799439011
 
 ---
 
-### 2.11 Update Address
+### 2.19 Update Address
 
 **Endpoint:** `PUT /users/address/:addressId`  
 **Auth:** Required
@@ -613,7 +943,7 @@ PUT /users/address/507f1f77bcf86cd799439012
 
 ---
 
-### 2.12 Delete Address
+### 2.20 Delete Address
 
 **Endpoint:** `DELETE /users/address/:addressId`  
 **Auth:** Required
@@ -635,7 +965,7 @@ DELETE /users/address/507f1f77bcf86cd799439012
 
 ---
 
-### 2.13 Get Payment Methods
+### 2.21 Get Payment Methods
 
 **Endpoint:** `GET /users/payment-methods`  
 **Auth:** Required
@@ -668,7 +998,7 @@ DELETE /users/address/507f1f77bcf86cd799439012
 
 ---
 
-### 2.14 Add Payment Method
+### 2.22 Add Payment Method
 
 **Endpoint:** `POST /users/payment-methods`  
 **Auth:** Required
@@ -702,7 +1032,7 @@ DELETE /users/address/507f1f77bcf86cd799439012
 
 ---
 
-### 2.15 Remove Payment Method
+### 2.23 Remove Payment Method
 
 **Endpoint:** `DELETE /users/payment-methods/:methodId`  
 **Auth:** Required
@@ -715,7 +1045,7 @@ DELETE /users/payment-methods/507f1f77bcf86cd799439013
 
 ---
 
-### 2.16 Set Default Payment Method
+### 2.24 Set Default Payment Method
 
 **Endpoint:** `PATCH /users/payment-methods/:methodId/default`  
 **Auth:** Required
@@ -1195,6 +1525,46 @@ DELETE /products/507f1f77bcf86cd799439011
 
 ---
 
+### 4.6 Create Product (Admin)
+
+**Endpoint:** `POST /products/admin`  
+**Auth:** Admin
+
+**What it does:**
+
+- Admin can create a product on behalf of a seller
+- Used for bulk imports or seller support
+
+**Request Body:**
+
+```json
+{
+  "name": "Wireless Headphones",
+  "description": "High-quality wireless headphones",
+  "price": 99.99,
+  "category": "507f1f77bcf86cd799439020",
+  "stock": 50,
+  "seller": "507f1f77bcf86cd799439030",
+  "images": ["https://cdn.example.com/img1.jpg"]
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Product created successfully",
+  "data": {
+    "id": "507f1f77bcf86cd799439011",
+    "name": "Wireless Headphones",
+    "seller_id": "507f1f77bcf86cd799439030"
+  }
+}
+```
+
+---
+
 ### 4.7 Admin Update Product
 
 **Endpoint:** `PUT /products/admin/:id`  
@@ -1207,7 +1577,7 @@ DELETE /products/507f1f77bcf86cd799439011
 
 ---
 
-### 4.9 Admin Delete Product
+### 4.8 Admin Delete Product
 
 **Endpoint:** `DELETE /products/admin/:id`  
 **Auth:** Admin
@@ -1219,7 +1589,7 @@ DELETE /products/507f1f77bcf86cd799439011
 
 ---
 
-### 4.10 Get Image Upload Payload (Seller)
+### 4.9 Get Image Upload Payload (Seller)
 
 **Endpoint:** `POST /products/images/upload-payload`  
 **Auth:** Seller
@@ -1259,7 +1629,7 @@ DELETE /products/507f1f77bcf86cd799439011
 
 ---
 
-### 4.11 Upload Product Images (Seller)
+### 4.10 Upload Product Images (Seller)
 
 **Endpoint:** `POST /products/:id/images/upload`  
 **Auth:** Seller
@@ -1279,7 +1649,7 @@ DELETE /products/507f1f77bcf86cd799439011
 
 ---
 
-### 4.12 Get Best Sellers (Public)
+### 4.11 Get Best Sellers (Public)
 
 **Endpoint:** `GET /products/best-sellers`  
 **Auth:** Public
@@ -1355,19 +1725,8 @@ GET /products/best-sellers?limit=10
 
 ```json
 {
-  "items": [
-    {
-      "productId": "507f1f77bcf86cd799439011",
-      "quantity": 2
-    }
-  ],
-  "shippingAddress": {
-    "street": "123 Main St",
-    "city": "New York",
-    "state": "NY",
-    "country": "USA",
-    "zip": "10001"
-  },
+  "shippingAddressIndex": 0,
+  "couponCode": "SUMMER25",
   "paymentMethod": "stripe"
 }
 ```
@@ -1416,13 +1775,25 @@ GET /products/best-sellers?limit=10
 
 ```json
 {
-  "items": [...],
-  "guestInfo": {
+  "guest_info": {
     "name": "Guest User",
     "email": "guest@example.com",
     "phone": "+1234567890"
   },
-  "shippingAddress": {...}
+  "shipping_address": {
+    "street": "123 Main St",
+    "city": "New York",
+    "country": "USA",
+    "zip": "10001"
+  },
+  "items": [
+    {
+      "product": "507f1f77bcf86cd799439011",
+      "quantity": 2
+    }
+  ],
+  "couponCode": "SUMMER25",
+  "paymentMethod": "stripe"
 }
 ```
 
@@ -1596,8 +1967,7 @@ GET /orders/seller?status=processing
 
 ```json
 {
-  "status": "shipped",
-  "note": "Shipped via FedEx, tracking: 1Z999AA10123456784"
+  "status": "shipped"
 }
 ```
 
@@ -1660,9 +2030,7 @@ GET /orders/seller?status=processing
 
 ```json
 {
-  "orderId": "507f1f77bcf86cd799439100",
-  "amount": 22597,
-  "currency": "usd"
+  "orderId": "507f1f77bcf86cd799439100"
 }
 ```
 
@@ -1778,41 +2146,7 @@ GET /orders/seller?status=processing
 
 ---
 
-### 6.4 Create Payment Intent
-
-**Endpoint:** `POST /payments/create-payment-intent`
-**Auth:** Required
-
-**What it does:**
-
-- Creates Stripe Payment Intent for checkout
-- Returns client secret for Stripe.js
-
-**Request Body:**
-
-```json
-{
-  "orderId": "507f1f77bcf86cd799439100"
-}
-```
-
-**Response:**
-
-```json
-{
-  "success": true,
-  "data": {
-    "clientSecret": "pi_1234567890_secret_abc123",
-    "paymentIntentId": "pi_1234567890",
-    "amount": 22597,
-    "currency": "usd"
-  }
-}
-```
-
----
-
-### 6.5 List Payments (Admin)
+### 6.4 List Payments (Admin)
 
 **Endpoint:** `GET /payments/admin`  
 **Auth:** Admin
@@ -1892,6 +2226,55 @@ GET /payments/admin?status=paid&startDate=2026-01-01&endDate=2026-02-28
     "name": "Electronics",
     "description": "Electronic devices and accessories",
     "productCount": 150
+  }
+}
+```
+
+---
+
+### 7.3 Get Category Products (Public)
+
+**Endpoint:** `GET /categories/:id/products`  
+**Auth:** Public
+
+**What it does:**
+
+- Returns products in a specific category
+- Supports pagination
+
+**Query Parameters:**
+
+```
+GET /categories/507f1f77bcf86cd799439020/products?page=1&limit=10
+```
+
+| Parameter | Type   | Description                  |
+| --------- | ------ | ---------------------------- |
+| `page`    | number | Page number (default: 1)     |
+| `limit`   | number | Items per page (default: 10) |
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "products": [
+      {
+        "id": "507f1f77bcf86cd799439011",
+        "name": "Wireless Headphones",
+        "price": 99.99,
+        "images": ["https://cdn.example.com/img1.jpg"],
+        "average_rating": 4.5,
+        "stock": 50
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 10,
+      "total": 150,
+      "pages": 15
+    }
   }
 }
 ```
