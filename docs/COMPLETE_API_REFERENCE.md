@@ -1708,6 +1708,60 @@ GET /products/best-sellers?limit=10
 
 ---
 
+### 4.13 Get Related Products (Public)
+
+**Endpoint:** `GET /products/:id/related`  
+**Auth:** Public
+
+**What it does:**
+
+- Returns products related to the specified product
+- Finds products in the same category
+- Excludes the current product from results
+- Sorts by average rating (highest rated first)
+
+**Query Parameters:**
+
+```
+GET /products/507f1f77bcf86cd799439011/related?limit=6
+```
+
+| Parameter | Type   | Description                               |
+| --------- | ------ | ----------------------------------------- |
+| `limit`   | number | Number of products to return (default: 6) |
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "message": "Related products retrieved successfully",
+  "data": [
+    {
+      "_id": "507f1f77bcf86cd799439012",
+      "title": "Similar Headphones",
+      "description": "Similar wireless headphones",
+      "price": 79.99,
+      "category_id": {
+        "_id": "507f1f77bcf86cd799439020",
+        "name": "Electronics"
+      },
+      "seller_id": {
+        "_id": "507f1f77bcf86cd799439030",
+        "name": "Tech Store"
+      },
+      "images": ["https://cdn.example.com/img1.jpg"],
+      "average_rating": 4.8,
+      "ratings_count": 85,
+      "stock_quantity": 30,
+      "is_active": true
+    }
+  ]
+}
+```
+
+---
+
 ## 5. Order Management Module (`/orders`)
 
 ### 5.1 Create Order (from Cart)
