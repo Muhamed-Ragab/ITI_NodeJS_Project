@@ -37,17 +37,33 @@ export const deleteById = async (id) => {
 };
 
 export const listWithFilters = async (filters = {}) => {
-	const { category_id, min_price, max_price, search, is_active } = filters;
+	const {
+		category_id,
+		min_price,
+		max_price,
+		search,
+		is_active,
+		min_rating,
+		seller_id,
+		in_stock,
+		min_rating_count,
+		sort,
+	} = filters;
 	const { page, limit, skip } = parsePagination(filters);
 
 	const query = { deletedAt: null };
 
+	// Category filter
 	if (category_id) {
 		query.category_id = category_id;
 	}
+
+	// Active status filter
 	if (is_active !== undefined) {
 		query.is_active = is_active;
 	}
+
+	// Price range filter
 	if (min_price || max_price) {
 		query.price = {};
 		if (min_price) {
@@ -57,6 +73,8 @@ export const listWithFilters = async (filters = {}) => {
 			query.price.$lte = Number.parseFloat(max_price);
 		}
 	}
+
+	// Search filter (title and description)
 	if (search) {
 		query.$or = [
 			{ title: { $regex: search, $options: "i" } },
@@ -64,11 +82,53 @@ export const listWithFilters = async (filters = {}) => {
 		];
 	}
 
+	// Minimum rating filter
+	if (min_rating) {
+		query.average_rating = { $gte: Number.parseFloat(min_rating) };
+	}
+
+	// Seller filter
+	if (seller_id) {
+		query.seller_id = seller_id;
+	}
+
+	// In stock filter
+	if (in_stock === "true") {
+		query.stock_quantity = { $gt: 0 };
+	}
+
+	// Minimum rating count filter
+	if (min_rating_count) {
+		query.ratings_count = { $gte: Number.parseInt(min_rating_count, 10) };
+	}
+
+	// Sort options
+	let sortOption = { createdAt: -1 }; // default: newest
+	if (sort) {
+		switch (sort) {
+			case "price_asc":
+				sortOption = { price: 1 };
+				break;
+			case "price_desc":
+				sortOption = { price: -1 };
+				break;
+			case "rating":
+				sortOption = { average_rating: -1 };
+				break;
+			case "popular":
+				sortOption = { ratings_count: -1 };
+				break;
+			default:
+				sortOption = { createdAt: -1 };
+				break;
+		}
+	}
+
 	const [products, total] = await Promise.all([
 		ProductModel.find(query)
 			.populate("seller_id", "name email")
 			.populate("category_id", "name slug")
-			.sort({ createdAt: -1 })
+			.sort(sortOption)
 			.skip(skip)
 			.limit(limit),
 		ProductModel.countDocuments(query),

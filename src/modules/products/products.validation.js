@@ -39,6 +39,11 @@ export const productQuerySchema = z.object({
 	is_active: z.string().optional(),
 	page: z.string().optional(),
 	limit: z.string().optional(),
+	min_rating: z.string().optional(),
+	seller_id: objectId.optional(),
+	in_stock: z.string().optional(),
+	min_rating_count: z.string().optional(),
+	sort: z.string().optional(),
 });
 
 export const imageUploadSchema = z.object({

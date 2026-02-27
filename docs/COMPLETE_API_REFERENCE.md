@@ -1331,19 +1331,22 @@ PATCH /users/payment-methods/507f1f77bcf86cd799439013/default
 **Query Parameters:**
 
 ```
-GET /products?page=1&limit=10&category=507f...&search=headphones&minPrice=50&maxPrice=200&rating=4&sort=price_asc
+GET /products?page=1&limit=10&category=507f...&search=headphones&minPrice=50&maxPrice=200&minRating=4&sellerId=507f...&inStock=true&minRatingCount=10&sort=price_asc
 ```
 
-| Parameter  | Type   | Description                                   |
-| ---------- | ------ | --------------------------------------------- |
-| `page`     | number | Page number (default: 1)                      |
-| `limit`    | number | Items per page (default: 10)                  |
-| `category` | string | Filter by category ID                         |
-| `search`   | string | Search in name/description                    |
-| `minPrice` | number | Minimum price filter                          |
-| `maxPrice` | number | Maximum price filter                          |
-| `rating`   | number | Minimum rating (1-5)                          |
-| `sort`     | string | `price_asc`, `price_desc`, `newest`, `rating` |
+| Parameter        | Type   | Description                                              |
+| ---------------- | ------ | -------------------------------------------------------- |
+| `page`           | number | Page number (default: 1)                                 |
+| `limit`          | number | Items per page (default: 10)                             |
+| `category`       | string | Filter by category ID                                    |
+| `search`         | string | Search in title/description                              |
+| `minPrice`       | number | Minimum price filter                                     |
+| `maxPrice`       | number | Maximum price filter                                     |
+| `minRating`      | number | Minimum rating (1-5)                                     |
+| `sellerId`       | string | Filter by seller ID                                      |
+| `inStock`        | string | Filter in-stock only (`true`/`false`)                    |
+| `minRatingCount` | number | Minimum number of ratings                                |
+| `sort`           | string | `newest`, `price_asc`, `price_desc`, `rating`, `popular` |
 
 **Response:**
 
