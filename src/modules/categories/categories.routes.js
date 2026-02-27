@@ -40,4 +40,6 @@ categoryRouter
 		categoryController.deleteCategory
 	);
 
+categoryRouter.route("/products").get(categoryController.getProductsByCategory);
+
 export default categoryRouter;
