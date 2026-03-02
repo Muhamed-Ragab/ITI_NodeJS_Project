@@ -147,3 +147,21 @@ export const getImageUploadPayload = (sellerId, options = {}) => {
 		folder: options.folder ?? "products",
 	});
 };
+
+export const getBestSellers = async (limit = 10) => {
+	return await productRepository.getBestSellers(limit);
+};
+
+export const getRelatedProducts = async (productId, limit = 6) => {
+	const product = await productRepository.findById(productId);
+
+	if (!product) {
+		throw ApiError.notFound({
+			code: "PRODUCT.NOT_FOUND",
+			message: "Product not found",
+			details: { id: productId },
+		});
+	}
+
+	return await productRepository.getRelatedProducts(productId, limit);
+};

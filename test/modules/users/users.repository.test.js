@@ -4,10 +4,8 @@ import * as userRepo from "../../../src/modules/users/users.repository.js";
 
 vi.mock("../../../src/modules/users/user.model.js", () => ({
 	default: {
-		findById: vi.fn(),
-		findByIdAndUpdate: vi.fn(),
-		findOneAndUpdate: vi.fn(),
 		findOne: vi.fn(),
+		findOneAndUpdate: vi.fn(),
 		find: vi.fn(),
 	},
 }));
@@ -17,15 +15,18 @@ describe("Users Repository", () => {
 		vi.clearAllMocks();
 	});
 
-	it("findById should call User.findById", async () => {
+	it("findById should query non-deleted user", async () => {
 		await userRepo.findById("123");
-		expect(User.findById).toHaveBeenCalledWith("123");
+		expect(User.findOne).toHaveBeenCalledWith({
+			_id: "123",
+			deletedAt: null,
+		});
 	});
 
-	it("addAddress should call User.findByIdAndUpdate with push", async () => {
+	it("addAddress should call User.findOneAndUpdate with push", async () => {
 		await userRepo.addAddress("u1", { street: "X" });
-		expect(User.findByIdAndUpdate).toHaveBeenCalledWith(
-			"u1",
+		expect(User.findOneAndUpdate).toHaveBeenCalledWith(
+			{ _id: "u1", deletedAt: null },
 			expect.objectContaining({ $push: { addresses: { street: "X" } } }),
 			expect.any(Object)
 		);

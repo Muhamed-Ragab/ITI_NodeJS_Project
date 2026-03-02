@@ -19,7 +19,7 @@ describe("role middleware", () => {
 		const middleware = requireRole("admin");
 		const next = vi.fn();
 
-		middleware({ user: { role: "member" } }, {}, next);
+		middleware({ user: { role: "customer" } }, {}, next);
 
 		const [error] = next.mock.calls[0];
 		expect(error).toBeInstanceOf(ApiError);

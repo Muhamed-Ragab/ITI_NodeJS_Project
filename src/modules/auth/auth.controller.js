@@ -1,4 +1,5 @@
 import { StatusCodes } from "http-status-codes";
+import { API_PREFIX } from "../../config/api-config.js";
 import { env } from "../../config/env.js";
 import { ApiError } from "../../utils/errors/api-error.js";
 import { logDevError } from "../../utils/logger.js";
@@ -150,7 +151,7 @@ export const register = async (req, res) => {
 	return sendSuccess(res, {
 		statusCode: StatusCodes.CREATED,
 		data: result,
-		message: "Registered successfully",
+		message: "Registered successfully. Please verify your email",
 	});
 };
 
@@ -163,10 +164,40 @@ export const login = async (req, res) => {
 	});
 };
 
+export const requestEmailOtp = async (req, res) => {
+	const result = await authService.requestEmailOtp(req.body);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: result,
+		message: "OTP sent successfully",
+	});
+};
+
+export const loginWithEmailOtp = async (req, res) => {
+	const result = await authService.loginWithEmailOtp(req.body);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: result,
+		message: "Logged in successfully",
+	});
+};
+
+export const logout = async (req, res) => {
+	const result = await authService.logoutUser(req.user);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: result,
+		message: "Logged out successfully",
+	});
+};
+
 export const googleStart = (_req, res) => {
 	const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth";
 	const options = {
-		redirect_uri: `http://localhost:${env.PORT}/api/auth/google/callback`,
+		redirect_uri: `http://localhost:${env.PORT}${API_PREFIX}/auth/google/callback`,
 		client_id: env.GOOGLE_CLIENT_ID,
 		access_type: "offline",
 		response_type: "code",
@@ -190,7 +221,7 @@ export const googleCallback = async (req, res) => {
 		});
 	}
 
-	const redirectUri = `http://localhost:${env.PORT}/api/auth/google/callback`;
+	const redirectUri = `http://localhost:${env.PORT}${API_PREFIX}/auth/google/callback`;
 
 	const profile =
 		env.NODE_ENV === "test"
@@ -209,9 +240,21 @@ export const googleCallback = async (req, res) => {
 				})();
 
 	const result = await authService.handleGoogleCallback(profile);
-	return sendSuccess(res, {
-		statusCode: StatusCodes.OK,
-		data: result,
-		message: "Google login successful",
-	});
+
+	// Redirect to Angular home page with JWT token
+	const frontendUrl = env.APP_BASE_URL || `http://localhost:${env.PORT}`;
+	const redirectUrl = `${frontendUrl}/home?token=${result.token}`;
+
+	return res.redirect(redirectUrl);
+};
+
+export const verifyEmail = async (req, res) => {
+	const { token } = req.query;
+	await authService.verifyEmailByToken(token);
+
+	// Redirect to Angular home page with verification success
+	const frontendUrl = env.APP_BASE_URL || `http://localhost:${env.PORT}`;
+	const redirectUrl = `${frontendUrl}/home?verified=true`;
+
+	return res.redirect(redirectUrl);
 };

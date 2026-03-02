@@ -86,6 +86,61 @@ describe("Auth Controller", () => {
 		});
 	});
 
+	describe("requestEmailOtp", () => {
+		it("should request email otp and return 200", async () => {
+			req.body = { email: "test@example.com" };
+			authService.requestEmailOtp.mockResolvedValue({ otpRequested: true });
+
+			await authController.requestEmailOtp(req, res);
+
+			expect(authService.requestEmailOtp).toHaveBeenCalledWith(req.body);
+			expect(sendSuccess).toHaveBeenCalledWith(
+				res,
+				expect.objectContaining({
+					statusCode: StatusCodes.OK,
+					data: { otpRequested: true },
+				})
+			);
+		});
+	});
+
+	describe("loginWithEmailOtp", () => {
+		it("should login with email otp and return 200", async () => {
+			req.body = { email: "test@example.com", otp: "123456" };
+			const mockResult = { user: { id: "u1" }, token: "mock_token" };
+			authService.loginWithEmailOtp.mockResolvedValue(mockResult);
+
+			await authController.loginWithEmailOtp(req, res);
+
+			expect(authService.loginWithEmailOtp).toHaveBeenCalledWith(req.body);
+			expect(sendSuccess).toHaveBeenCalledWith(
+				res,
+				expect.objectContaining({
+					statusCode: StatusCodes.OK,
+					data: mockResult,
+				})
+			);
+		});
+	});
+
+	describe("logout", () => {
+		it("should logout authenticated user and return 200", async () => {
+			req.user = { id: "u1", role: "customer" };
+			authService.logoutUser.mockResolvedValue({ loggedOut: true });
+
+			await authController.logout(req, res);
+
+			expect(authService.logoutUser).toHaveBeenCalledWith(req.user);
+			expect(sendSuccess).toHaveBeenCalledWith(
+				res,
+				expect.objectContaining({
+					statusCode: StatusCodes.OK,
+					data: { loggedOut: true },
+				})
+			);
+		});
+	});
+
 	describe("googleStart", () => {
 		it("should redirect to Google auth URL", () => {
 			authController.googleStart(req, res);
@@ -96,7 +151,7 @@ describe("Auth Controller", () => {
 	});
 
 	describe("googleCallback", () => {
-		it("should complete google login and return 200", async () => {
+		it("should complete google login and redirect to Angular home page", async () => {
 			req.query = { code: "mock_code" };
 			const mockResult = { user: { id: "1" }, token: "mock_token" };
 			authService.handleGoogleCallback.mockResolvedValue(mockResult);
@@ -104,12 +159,24 @@ describe("Auth Controller", () => {
 			await authController.googleCallback(req, res);
 
 			expect(authService.handleGoogleCallback).toHaveBeenCalled();
-			expect(sendSuccess).toHaveBeenCalledWith(
-				res,
-				expect.objectContaining({
-					statusCode: StatusCodes.OK,
-					data: mockResult,
-				})
+			expect(res.redirect).toHaveBeenCalledWith(
+				expect.stringContaining("/home?token=")
+			);
+		});
+	});
+
+	describe("verifyEmail", () => {
+		it("should verify email and redirect to Angular home page", async () => {
+			req.query = { token: "verification-token" };
+			authService.verifyEmailByToken.mockResolvedValue({ verified: true });
+
+			await authController.verifyEmail(req, res);
+
+			expect(authService.verifyEmailByToken).toHaveBeenCalledWith(
+				"verification-token"
+			);
+			expect(res.redirect).toHaveBeenCalledWith(
+				expect.stringContaining("/home?verified=true")
 			);
 		});
 	});

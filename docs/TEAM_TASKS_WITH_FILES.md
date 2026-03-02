@@ -19,21 +19,26 @@ Use this as the practical build/status checklist for the **current repository st
   - auth.routes.js
     - POST /api/auth/register
     - POST /api/auth/login
+    - POST /api/auth/logout
     - GET /api/auth/google
     - GET /api/auth/google/callback
   - auth.controller.js
     - register
     - login
+    - logout
     - googleStart
     - googleCallback
   - auth.service.js
     - registerUser
     - loginUser
+    - logoutUser
     - handleGoogleCallback
   - auth.repository.js
     - findUserByEmail
     - findUserByGoogleId
     - attachGoogleIdToUser
+    - findUserById
+    - incrementTokenVersion
     - createUser
   - auth.validation.js
     - registerSchema
@@ -77,6 +82,8 @@ Use this as the practical build/status checklist for the **current repository st
   - getCart, upsertCart, removeCartItemController
   - addAddress, updateAddress, removeAddress
   - listUsers, updateRole
+- notable schema fields
+  - `tokenVersion` used for JWT revocation on logout
 ```
 
 ## Categories (implemented)

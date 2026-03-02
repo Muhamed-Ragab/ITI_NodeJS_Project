@@ -54,6 +54,12 @@ const productSchema = new Schema(
 			default: 0,
 		},
 
+		ratings_count: {
+			type: Number,
+			min: 0,
+			default: 0,
+		},
+
 		is_active: {
 			type: Boolean,
 			default: true,
