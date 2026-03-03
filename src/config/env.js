@@ -16,11 +16,12 @@ const envSchema = z.object({
 	GOOGLE_CLIENT_SECRET: z.string().optional(),
 	APP_BASE_URL: z.string().url(),
 	BACKEND_API_URL: z.string().url().optional(),
+	RESEND_API_KEY: z.string().optional(),
+	MAIL_FROM: z.string().optional(),
 	SMTP_HOST: z.string().optional(),
 	SMTP_PORT: z.coerce.number().optional(),
 	SMTP_USER: z.string().optional(),
 	SMTP_PASS: z.string().optional(),
-	MAIL_FROM: z.string().optional(),
 	SMTP_FROM: z.string().optional(),
 });
 
