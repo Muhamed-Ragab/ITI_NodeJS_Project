@@ -42,10 +42,10 @@ export const sendMail = async ({ to, subject, text, html }) => {
 	}
 
 	const from = env.MAIL_FROM || env.SMTP_FROM || env.SMTP_USER;
-	
+
 	// Add timeout to prevent hanging
 	const timeoutPromise = new Promise((_, reject) => {
-		setTimeout(() => reject(new Error('Email send timeout')), 10_000); // 10 second timeout
+		setTimeout(() => reject(new Error("Email send timeout")), 10_000); // 10 second timeout
 	});
 
 	try {
@@ -58,13 +58,13 @@ export const sendMail = async ({ to, subject, text, html }) => {
 		});
 
 		const result = await Promise.race([sendPromise, timeoutPromise]);
-		
+
 		return {
 			sent: true,
 			messageId: result.messageId,
 		};
 	} catch (error) {
-		console.error('Email sending failed:', error);
+		console.error("Email sending failed:", error);
 		throw error; // Re-throw to let the calling function handle it
 	}
 };
