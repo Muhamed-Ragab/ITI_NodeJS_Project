@@ -1,29 +1,18 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import { env } from "../../config/env.js";
 import { logDevError } from "../../utils/logger.js";
 
-let transporter = null;
+let resend = null;
 
 const isMailerConfigured = () => {
-	return Boolean(
-		env.SMTP_HOST && env.SMTP_PORT && env.SMTP_USER && env.SMTP_PASS
-	);
+	return Boolean(env.RESEND_API_KEY);
 };
 
-const getTransporter = () => {
-	if (!transporter) {
-		transporter = nodemailer.createTransport({
-			host: env.SMTP_HOST,
-			port: env.SMTP_PORT,
-			secure: Number(env.SMTP_PORT) === 465,
-			auth: {
-				user: env.SMTP_USER,
-				pass: env.SMTP_PASS,
-			},
-		});
+const getResend = () => {
+	if (!resend && env.RESEND_API_KEY) {
+		resend = new Resend(env.RESEND_API_KEY);
 	}
-
-	return transporter;
+	return resend;
 };
 
 export const sendMail = async ({ to, subject, text, html }) => {
@@ -41,17 +30,31 @@ export const sendMail = async ({ to, subject, text, html }) => {
 		return { sent: true, simulated: true };
 	}
 
-	const from = env.MAIL_FROM || env.SMTP_FROM || env.SMTP_USER;
-	const result = await getTransporter().sendMail({
-		from,
-		to,
-		subject,
-		text,
-		html,
+	const from = env.MAIL_FROM || env.SMTP_FROM || "onboarding@resend.dev";
+
+	// Add timeout to prevent hanging
+	const timeoutPromise = new Promise((_, reject) => {
+		setTimeout(() => reject(new Error("Email send timeout")), 10_000); // 10 second timeout
 	});
 
-	return {
-		sent: true,
-		messageId: result.messageId,
-	};
+	try {
+		const resendInstance = getResend();
+		const sendPromise = resendInstance.emails.send({
+			from,
+			to,
+			subject,
+			text,
+			html,
+		});
+
+		const result = await Promise.race([sendPromise, timeoutPromise]);
+
+		return {
+			sent: true,
+			messageId: result.data?.id || result.id,
+		};
+	} catch (error) {
+		console.error("Email sending failed:", error);
+		throw error; // Re-throw to let the calling function handle it
+	}
 };

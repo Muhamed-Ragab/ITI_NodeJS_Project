@@ -5,13 +5,10 @@ import { sendMail } from "./mailer.js";
 
 const TRAILING_SLASH_REGEX = /\/$/;
 
-const buildBackendApiUrl = () => {
-	if (env.BACKEND_API_URL) {
-		return env.BACKEND_API_URL.replace(TRAILING_SLASH_REGEX, "");
-	}
-
-	return `http://localhost:${env.PORT}`;
-};
+const buildBackendApiUrl = () =>
+	env.BACKEND_API_URL
+		? env.BACKEND_API_URL.replace(TRAILING_SLASH_REGEX, "")
+		: `http://localhost:${env.PORT}`;
 
 export const generateEmailVerificationToken = () => {
 	const token = crypto.randomBytes(32).toString("hex");

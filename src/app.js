@@ -22,8 +22,7 @@ const appNodeEnv = env?.NODE_ENV ?? process.env.NODE_ENV ?? "development";
 app.use(morgan(appNodeEnv === "production" ? "combined" : "dev"));
 app.use(
 	cors({
-		origin:
-			appNodeEnv === "production" ? "https://your-frontend-domain.com" : "*",
+		origin: appNodeEnv === "production" ? env.APP_BASE_URL : "*",
 	})
 );
 
