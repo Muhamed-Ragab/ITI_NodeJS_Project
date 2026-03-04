@@ -1,5 +1,4 @@
 import { StatusCodes } from "http-status-codes";
-import { parsePagination } from "../../utils/pagination.js";
 import { sendSuccess } from "../../utils/response.js";
 import * as service from "./orders.service.js";
 
@@ -47,21 +46,21 @@ export const getOrderById = async (req, res) => {
 
 export const listMyOrders = async (req, res) => {
 	const userId = req.user.id;
-	const orders = await service.listOrdersByUser(userId);
+	const result = await service.listOrdersByUser(userId, req.query || {});
 	return sendSuccess(res, {
 		statusCode: StatusCodes.OK,
-		data: orders,
+		data: result,
 		message: "Orders retrieved successfully",
 	});
 };
 
 export const listSellerOrders = async (req, res) => {
 	const sellerId = req.user.id;
-	const orders = await service.listOrdersBySeller(sellerId);
+	const result = await service.listOrdersBySeller(sellerId, req.query || {});
 
 	return sendSuccess(res, {
 		statusCode: StatusCodes.OK,
-		data: orders,
+		data: result,
 		message: "Seller orders retrieved successfully",
 	});
 };
@@ -92,11 +91,10 @@ export const updateSellerOrderStatus = async (req, res) => {
 };
 
 export const listAllOrders = async (req, res) => {
-	const { skip, limit } = parsePagination(req.query);
-	const orders = await service.listOrdersAll(skip, limit);
+	const result = await service.listOrdersAll(req.query || {});
 	return sendSuccess(res, {
 		statusCode: StatusCodes.OK,
-		data: orders,
+		data: result,
 		message: "Orders retrieved successfully",
 	});
 };

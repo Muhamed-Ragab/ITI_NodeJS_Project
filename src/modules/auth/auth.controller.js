@@ -197,7 +197,7 @@ export const logout = async (req, res) => {
 export const googleStart = (_req, res) => {
 	const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth";
 	const options = {
-		redirect_uri: `http://localhost:${env.PORT}${API_PREFIX}/auth/google/callback`,
+		redirect_uri: `${env.BACKEND_API_URL}${API_PREFIX}/auth/google/callback`,
 		client_id: env.GOOGLE_CLIENT_ID,
 		access_type: "offline",
 		response_type: "code",
@@ -221,7 +221,7 @@ export const googleCallback = async (req, res) => {
 		});
 	}
 
-	const redirectUri = `http://localhost:${env.PORT}${API_PREFIX}/auth/google/callback`;
+	const redirectUri = `${env.BACKEND_API_URL}${API_PREFIX}/auth/google/callback`;
 
 	const profile =
 		env.NODE_ENV === "test"
@@ -242,7 +242,7 @@ export const googleCallback = async (req, res) => {
 	const result = await authService.handleGoogleCallback(profile);
 
 	// Redirect to Angular home page with JWT token
-	const frontendUrl = env.APP_BASE_URL || `http://localhost:${env.PORT}`;
+	const frontendUrl = env.APP_BASE_URL || env.BACKEND_API_URL;
 	const redirectUrl = `${frontendUrl}/home?token=${result.token}`;
 
 	return res.redirect(redirectUrl);
@@ -253,7 +253,7 @@ export const verifyEmail = async (req, res) => {
 	await authService.verifyEmailByToken(token);
 
 	// Redirect to Angular home page with verification success
-	const frontendUrl = env.APP_BASE_URL || `http://localhost:${env.PORT}`;
+	const frontendUrl = env.APP_BASE_URL || env.BACKEND_API_URL;
 	const redirectUrl = `${frontendUrl}/home?verified=true`;
 
 	return res.redirect(redirectUrl);
