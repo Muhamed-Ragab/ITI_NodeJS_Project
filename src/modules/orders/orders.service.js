@@ -445,6 +445,6 @@ export const updateStatusBySeller = async (orderId, status, sellerId) => {
 	return updatedOrder;
 };
 
-export const listOrdersAll = async (skip = 0, limit = 20) => {
-	return await ordersRepo.listAll(skip, limit);
+export const listOrdersAll = async (filters = {}) => {
+	return await ordersRepo.listAll(filters);
 };
