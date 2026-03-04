@@ -7,8 +7,8 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "node --watch src/server.js",
-    "lint": "biome check src --error-on-warnings",
-    "format": "biome format src --write",
+    "lint": "biome check --error-on-warnings",
+    "format": "biome format --write",
     "format:check": "biome check --reporter=summary",
     "build": "node esbuild.config.js",
     "build:watch": "node esbuild.config.js --watch",

@@ -9,6 +9,8 @@ vi.mock("../../../src/utils/response.js", () => ({
 	sendSuccess: vi.fn(),
 }));
 
+const GUEST_ID_REGEX = /^guest_\d+$/;
+
 describe("Coupons Controller", () => {
 	let req;
 	let res;
@@ -92,10 +94,10 @@ describe("Coupons Controller", () => {
 			discountAmount: 10,
 		});
 		req.user = null; // No authenticated user
-		req.body = { 
-			code: "SAVE10", 
+		req.body = {
+			code: "SAVE10",
 			subtotal_amount: 100,
-			email: "guest@example.com"
+			email: "guest@example.com",
 		};
 
 		await couponsController.validateCoupon(req, res);
@@ -123,9 +125,9 @@ describe("Coupons Controller", () => {
 			discountAmount: 10,
 		});
 		req.user = null; // No authenticated user
-		req.body = { 
-			code: "SAVE10", 
-			subtotal_amount: 100
+		req.body = {
+			code: "SAVE10",
+			subtotal_amount: 100,
 			// No email provided
 		};
 
@@ -134,7 +136,7 @@ describe("Coupons Controller", () => {
 		// Should use generated guest ID
 		expect(couponsService.validateCouponForOrder).toHaveBeenCalledWith({
 			code: "SAVE10",
-			userId: expect.stringMatching(/^guest_\d+$/), // Generated guest ID
+			userId: expect.stringMatching(GUEST_ID_REGEX), // Generated guest ID
 			subtotalAmount: 100,
 		});
 		expect(sendSuccess).toHaveBeenCalledWith(
