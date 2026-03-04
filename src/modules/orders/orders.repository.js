@@ -1,3 +1,7 @@
+import {
+	buildPaginationMeta,
+	parsePagination,
+} from "../../utils/pagination.js";
 import Order from "./orders.model.js";
 
 export const create = async (orderData) => {
@@ -8,14 +12,30 @@ export const findById = async (orderId) => {
 	return await Order.findById(orderId);
 };
 
-export const findByUser = async (userId) => {
-	return await Order.find({ user: userId }).sort({ createdAt: -1 });
+export const findByUser = async (userId, filters = {}) => {
+	const { page, limit, skip } = parsePagination(filters);
+	const query = { user: userId };
+	const [orders, total] = await Promise.all([
+		Order.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+		Order.countDocuments(query),
+	]);
+	return {
+		orders,
+		pagination: buildPaginationMeta({ page, limit, total }),
+	};
 };
 
-export const findBySeller = async (sellerId) => {
-	return await Order.find({ "items.seller_id": sellerId }).sort({
-		createdAt: -1,
-	});
+export const findBySeller = async (sellerId, filters = {}) => {
+	const { page, limit, skip } = parsePagination(filters);
+	const query = { "items.seller_id": sellerId };
+	const [orders, total] = await Promise.all([
+		Order.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+		Order.countDocuments(query),
+	]);
+	return {
+		orders,
+		pagination: buildPaginationMeta({ page, limit, total }),
+	};
 };
 
 export const updateStatusById = async (orderId, status, source = "admin") => {
@@ -53,10 +73,16 @@ export const appendStatusTimelineEvent = async (orderId, event) => {
 	);
 };
 
-export const listAll = async (skip = 0, limit = 20) => {
-	return await Order.find()
-		.sort({ createdAt: -1 })
-		.skip(skip)
-		.limit(limit)
-		.lean();
+export const listAll = async (filters = {}) => {
+	const { page, limit, skip } = parsePagination(filters);
+
+	const [orders, total] = await Promise.all([
+		Order.find().sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+		Order.countDocuments(),
+	]);
+
+	return {
+		orders,
+		pagination: buildPaginationMeta({ page, limit, total }),
+	};
 };
