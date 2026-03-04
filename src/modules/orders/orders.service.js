@@ -316,12 +316,12 @@ export const createGuestOrder = async ({
 	return order;
 };
 
-export const listOrdersByUser = async (userId) => {
-	return await ordersRepo.findByUser(userId);
+export const listOrdersByUser = async (userId, filters = {}) => {
+	return await ordersRepo.findByUser(userId, filters);
 };
 
-export const listOrdersBySeller = async (sellerId) => {
-	return await ordersRepo.findBySeller(sellerId);
+export const listOrdersBySeller = async (sellerId, filters = {}) => {
+	return await ordersRepo.findBySeller(sellerId, filters);
 };
 
 export const updateStatus = async (orderId, status, _userRole) => {

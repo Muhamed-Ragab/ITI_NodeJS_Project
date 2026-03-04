@@ -408,10 +408,10 @@ describe("Orders Service", () => {
 	describe("listOrdersByUser", () => {
 		it("should return orders for user", async () => {
 			const mockOrders = [{ _id: "order1", user: "user123" }];
-			vi.spyOn(ordersRepo, "findByUser").mockResolvedValue(mockOrders);
+			vi.spyOn(ordersRepo, "findByUser").mockResolvedValue({ orders: mockOrders, pagination: { page: 1, limit: 10, total: 1, pages: 1 } });
 
 			const result = await ordersService.listOrdersByUser("user123");
-			expect(result).toEqual(mockOrders);
+			expect(result).toEqual({ orders: mockOrders, pagination: { page: 1, limit: 10, total: 1, pages: 1 } });
 		});
 	});
 
@@ -420,11 +420,11 @@ describe("Orders Service", () => {
 			const mockOrders = [
 				{ _id: "order1", items: [{ seller_id: "seller123" }] },
 			];
-			vi.spyOn(ordersRepo, "findBySeller").mockResolvedValue(mockOrders);
+			vi.spyOn(ordersRepo, "findBySeller").mockResolvedValue({ orders: mockOrders, pagination: { page: 1, limit: 10, total: 1, pages: 1 } });
 
 			const result = await ordersService.listOrdersBySeller("seller123");
-			expect(result).toEqual(mockOrders);
-			expect(ordersRepo.findBySeller).toHaveBeenCalledWith("seller123");
+			expect(result).toEqual({ orders: mockOrders, pagination: { page: 1, limit: 10, total: 1, pages: 1 } });
+			expect(ordersRepo.findBySeller).toHaveBeenCalledWith("seller123", {});
 		});
 	});
 
