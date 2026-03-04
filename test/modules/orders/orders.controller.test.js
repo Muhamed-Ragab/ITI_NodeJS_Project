@@ -104,13 +104,19 @@ describe("Orders Controller", () => {
 			const mockOrders = [{ _id: "order1", user: "user123" }];
 			mockReq.user = { id: "user123" };
 
-			vi.spyOn(ordersService, "listOrdersByUser").mockResolvedValue({ orders: mockOrders, pagination: { page: 1, limit: 10, total: 1, pages: 1 } });
+			vi.spyOn(ordersService, "listOrdersByUser").mockResolvedValue({
+				orders: mockOrders,
+				pagination: { page: 1, limit: 10, total: 1, pages: 1 },
+			});
 
 			await ordersController.listMyOrders(mockReq, mockRes);
 
 			expect(sendSuccess).toHaveBeenCalledWith(mockRes, {
 				statusCode: StatusCodes.OK,
-				data: { orders: mockOrders, pagination: { page: 1, limit: 10, total: 1, pages: 1 } },
+				data: {
+					orders: mockOrders,
+					pagination: { page: 1, limit: 10, total: 1, pages: 1 },
+				},
 				message: "Orders retrieved successfully",
 			});
 		});
@@ -140,14 +146,23 @@ describe("Orders Controller", () => {
 			const mockOrders = [{ _id: "order1" }];
 			mockReq.user = { id: "seller-1", role: "seller" };
 
-			vi.spyOn(ordersService, "listOrdersBySeller").mockResolvedValue({ orders: mockOrders, pagination: { page: 1, limit: 10, total: 1, pages: 1 } });
+			vi.spyOn(ordersService, "listOrdersBySeller").mockResolvedValue({
+				orders: mockOrders,
+				pagination: { page: 1, limit: 10, total: 1, pages: 1 },
+			});
 
 			await ordersController.listSellerOrders(mockReq, mockRes);
 
-			expect(ordersService.listOrdersBySeller).toHaveBeenCalledWith("seller-1", {});
+			expect(ordersService.listOrdersBySeller).toHaveBeenCalledWith(
+				"seller-1",
+				{}
+			);
 			expect(sendSuccess).toHaveBeenCalledWith(mockRes, {
 				statusCode: StatusCodes.OK,
-				data: { orders: mockOrders, pagination: { page: 1, limit: 10, total: 1, pages: 1 } },
+				data: {
+					orders: mockOrders,
+					pagination: { page: 1, limit: 10, total: 1, pages: 1 },
+				},
 				message: "Seller orders retrieved successfully",
 			});
 		});
@@ -184,13 +199,19 @@ describe("Orders Controller", () => {
 			const mockOrders = [{ _id: "order1", user: "user123" }];
 			mockReq.query = { page: "1", limit: "20" };
 
-			vi.spyOn(ordersService, "listOrdersAll").mockResolvedValue({ orders: mockOrders, pagination: { page: 1, limit: 20, total: 1, pages: 1 } });
+			vi.spyOn(ordersService, "listOrdersAll").mockResolvedValue({
+				orders: mockOrders,
+				pagination: { page: 1, limit: 20, total: 1, pages: 1 },
+			});
 
 			await ordersController.listAllOrders(mockReq, mockRes);
 
 			expect(sendSuccess).toHaveBeenCalledWith(mockRes, {
 				statusCode: StatusCodes.OK,
-				data: { orders: mockOrders, pagination: { page: 1, limit: 20, total: 1, pages: 1 } },
+				data: {
+					orders: mockOrders,
+					pagination: { page: 1, limit: 20, total: 1, pages: 1 },
+				},
 				message: "Orders retrieved successfully",
 			});
 		});
