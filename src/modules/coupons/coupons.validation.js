@@ -55,4 +55,5 @@ export const couponListQuerySchema = z.object({
 export const couponValidateSchema = z.object({
 	code: z.string().trim().min(3).max(32),
 	subtotal_amount: z.number().min(0),
+	email: z.string().email().optional(),
 });

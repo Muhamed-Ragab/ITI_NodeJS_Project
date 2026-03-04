@@ -53,9 +53,12 @@ export const deleteCoupon = async (req, res) => {
 };
 
 export const validateCoupon = async (req, res) => {
+	// Determine user identifier: use authenticated user ID or email for guests
+	const userId = req.user?.id || req.body.email || `guest_${Date.now()}`;
+
 	const result = await couponsService.validateCouponForOrder({
 		code: req.body.code,
-		userId: req.user.id,
+		userId,
 		subtotalAmount: req.body.subtotal_amount,
 	});
 

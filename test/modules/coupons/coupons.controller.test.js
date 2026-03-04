@@ -59,4 +59,93 @@ describe("Coupons Controller", () => {
 			expect.objectContaining({ statusCode: StatusCodes.OK })
 		);
 	});
+
+	it("validates coupon for authenticated user", async () => {
+		couponsService.validateCouponForOrder.mockResolvedValue({
+			couponInfo: { code: "SAVE10" },
+			discountAmount: 10,
+		});
+		req.body = { code: "SAVE10", subtotal_amount: 100 };
+
+		await couponsController.validateCoupon(req, res);
+
+		expect(couponsService.validateCouponForOrder).toHaveBeenCalledWith({
+			code: "SAVE10",
+			userId: "u1", // Uses authenticated user ID
+			subtotalAmount: 100,
+		});
+		expect(sendSuccess).toHaveBeenCalledWith(
+			res,
+			expect.objectContaining({
+				statusCode: StatusCodes.OK,
+				data: {
+					coupon_info: { code: "SAVE10" },
+					discount_amount: 10,
+				},
+			})
+		);
+	});
+
+	it("validates coupon for guest with email", async () => {
+		couponsService.validateCouponForOrder.mockResolvedValue({
+			couponInfo: { code: "SAVE10" },
+			discountAmount: 10,
+		});
+		req.user = null; // No authenticated user
+		req.body = { 
+			code: "SAVE10", 
+			subtotal_amount: 100,
+			email: "guest@example.com"
+		};
+
+		await couponsController.validateCoupon(req, res);
+
+		expect(couponsService.validateCouponForOrder).toHaveBeenCalledWith({
+			code: "SAVE10",
+			userId: "guest@example.com", // Uses email as user ID
+			subtotalAmount: 100,
+		});
+		expect(sendSuccess).toHaveBeenCalledWith(
+			res,
+			expect.objectContaining({
+				statusCode: StatusCodes.OK,
+				data: {
+					coupon_info: { code: "SAVE10" },
+					discount_amount: 10,
+				},
+			})
+		);
+	});
+
+	it("validates coupon for guest without email", async () => {
+		couponsService.validateCouponForOrder.mockResolvedValue({
+			couponInfo: { code: "SAVE10" },
+			discountAmount: 10,
+		});
+		req.user = null; // No authenticated user
+		req.body = { 
+			code: "SAVE10", 
+			subtotal_amount: 100
+			// No email provided
+		};
+
+		await couponsController.validateCoupon(req, res);
+
+		// Should use generated guest ID
+		expect(couponsService.validateCouponForOrder).toHaveBeenCalledWith({
+			code: "SAVE10",
+			userId: expect.stringMatching(/^guest_\d+$/), // Generated guest ID
+			subtotalAmount: 100,
+		});
+		expect(sendSuccess).toHaveBeenCalledWith(
+			res,
+			expect.objectContaining({
+				statusCode: StatusCodes.OK,
+				data: {
+					coupon_info: { code: "SAVE10" },
+					discount_amount: 10,
+				},
+			})
+		);
+	});
 });

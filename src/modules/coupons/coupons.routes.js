@@ -15,7 +15,6 @@ const couponsRouter = Router();
 
 couponsRouter.post(
 	"/validate",
-	requireAuth,
 	validate({ body: couponValidateSchema }),
 	couponsController.validateCoupon
 );
