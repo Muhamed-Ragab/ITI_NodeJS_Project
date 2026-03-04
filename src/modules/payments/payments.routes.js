@@ -27,7 +27,6 @@ paymentRouter.post(
 
 paymentRouter.post(
 	"/checkout",
-	requireAuth,
 	validate({ body: paymentCheckoutSchema }),
 	controller.processCheckoutPayment
 );

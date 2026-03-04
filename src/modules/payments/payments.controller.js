@@ -26,13 +26,14 @@ export const createGuestPaymentIntent = async (req, res) => {
 };
 
 export const processCheckoutPayment = async (req, res) => {
-	const userId = req.user.id;
-	const { orderId, method, savedMethodId } = req.body;
+	const userId = req.user?.id || null;
+	const { orderId, method, savedMethodId, guestEmail } = req.body;
 	const result = await service.processCheckoutPayment(
 		orderId,
 		userId,
 		method,
-		savedMethodId
+		savedMethodId,
+		guestEmail
 	);
 
 	return sendSuccess(res, {

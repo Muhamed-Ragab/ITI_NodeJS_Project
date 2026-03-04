@@ -229,7 +229,8 @@ export const processCheckoutPayment = async (
 	orderId,
 	userId,
 	method,
-	savedMethodId
+	savedMethodId,
+	guestEmail
 ) => {
 	const order = await paymentsRepo.findOrderById(orderId);
 	if (!order) {
@@ -240,7 +241,9 @@ export const processCheckoutPayment = async (
 		});
 	}
 
-	const isOwner = String(order.user) === String(userId);
+	const isOwner = userId
+		? String(order.user) === String(userId)
+		: order.guest_email === guestEmail;
 	if (!isOwner) {
 		throw ApiError.forbidden({
 			code: "ORDER.FORBIDDEN",
