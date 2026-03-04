@@ -1,5 +1,4 @@
 import { StatusCodes } from "http-status-codes";
-import { parsePagination } from "../../utils/pagination.js";
 import { sendSuccess } from "../../utils/response.js";
 import * as service from "./orders.service.js";
 
@@ -92,11 +91,10 @@ export const updateSellerOrderStatus = async (req, res) => {
 };
 
 export const listAllOrders = async (req, res) => {
-	const { skip, limit } = parsePagination(req.query);
-	const orders = await service.listOrdersAll(skip, limit);
+	const result = await service.listOrdersAll(req.query);
 	return sendSuccess(res, {
 		statusCode: StatusCodes.OK,
-		data: orders,
+		data: result,
 		message: "Orders retrieved successfully",
 	});
 };

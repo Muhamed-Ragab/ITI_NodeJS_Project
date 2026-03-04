@@ -1,3 +1,7 @@
+import {
+	buildPaginationMeta,
+	parsePagination,
+} from "../../utils/pagination.js";
 import Order from "./orders.model.js";
 
 export const create = async (orderData) => {
@@ -53,10 +57,16 @@ export const appendStatusTimelineEvent = async (orderId, event) => {
 	);
 };
 
-export const listAll = async (skip = 0, limit = 20) => {
-	return await Order.find()
-		.sort({ createdAt: -1 })
-		.skip(skip)
-		.limit(limit)
-		.lean();
+export const listAll = async (filters = {}) => {
+	const { page, limit, skip } = parsePagination(filters);
+
+	const [orders, total] = await Promise.all([
+		Order.find().sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+		Order.countDocuments(),
+	]);
+
+	return {
+		orders,
+		pagination: buildPaginationMeta({ page, limit, total }),
+	};
 };
