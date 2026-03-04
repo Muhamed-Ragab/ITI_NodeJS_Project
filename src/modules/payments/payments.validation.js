@@ -11,6 +11,11 @@ export const paymentIntentSchema = z.object({
 	orderId: objectId,
 });
 
+export const guestPaymentIntentSchema = z.object({
+	orderId: objectId,
+	guestEmail: z.string().email("Invalid email format"),
+});
+
 export const paymentCheckoutSchema = z.object({
 	orderId: objectId,
 	method: z.enum(["stripe", "paypal", "cod", "wallet"]),

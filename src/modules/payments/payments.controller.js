@@ -6,11 +6,22 @@ import * as service from "./payments.service.js";
 export const createPaymentIntent = async (req, res) => {
 	const userId = req.user.id;
 	const { orderId } = req.body;
-	const result = await service.createPaymentIntent(orderId, userId);
+	const guestEmail = req.user.guestEmail || null; // Extract guest email if available
+	const result = await service.createPaymentIntent(orderId, userId, guestEmail);
 	return sendSuccess(res, {
 		statusCode: StatusCodes.OK,
 		data: result,
 		message: "Payment intent created successfully",
+	});
+};
+
+export const createGuestPaymentIntent = async (req, res) => {
+	const { orderId, guestEmail } = req.body;
+	const result = await service.createPaymentIntent(orderId, null, guestEmail);
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: result,
+		message: "Guest payment intent created successfully",
 	});
 };
 

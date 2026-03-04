@@ -48,7 +48,11 @@ function getStripeClient() {
 	return stripeClient;
 }
 
-export const createPaymentIntent = async (orderId, userId) => {
+export const createPaymentIntent = async (
+	orderId,
+	userId,
+	guestEmail = null
+) => {
 	const order = await paymentsRepo.findOrderById(orderId);
 	if (!order) {
 		throw ApiError.notFound({
@@ -58,12 +62,31 @@ export const createPaymentIntent = async (orderId, userId) => {
 		});
 	}
 
-	const isOwner = String(order.user) === String(userId);
-	if (!isOwner) {
-		throw ApiError.forbidden({
-			code: "ORDER.FORBIDDEN",
-			message: "You are not allowed to create payment for this order",
-		});
+	// Check if this is a guest order
+	if (order.user === null) {
+		// For guest orders, verify the guest email matches
+		if (!guestEmail) {
+			throw ApiError.unauthorized({
+				code: "PAYMENT.GUEST_EMAIL_REQUIRED",
+				message: "Guest email is required for guest orders",
+			});
+		}
+
+		if (!order.guest_info || order.guest_info.email !== guestEmail) {
+			throw ApiError.forbidden({
+				code: "ORDER.FORBIDDEN",
+				message: "You are not allowed to create payment for this guest order",
+			});
+		}
+	} else {
+		// For regular orders, verify the user owns the order
+		const isOwner = String(order.user) === String(userId);
+		if (!isOwner) {
+			throw ApiError.forbidden({
+				code: "ORDER.FORBIDDEN",
+				message: "You are not allowed to create payment for this order",
+			});
+		}
 	}
 
 	if (order.status !== "pending") {

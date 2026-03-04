@@ -4,6 +4,7 @@ import { requireRole } from "../../middlewares/role.middleware.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import * as controller from "./payments.controller.js";
 import {
+	guestPaymentIntentSchema,
 	paymentCheckoutSchema,
 	paymentIntentSchema,
 	paymentsAdminQuerySchema,
@@ -16,6 +17,13 @@ paymentRouter.post(
 	requireAuth,
 	validate({ body: paymentIntentSchema }),
 	controller.createPaymentIntent
+);
+
+// POST /api/payments/guest-payment-intent — create payment intent for guest orders [public]
+paymentRouter.post(
+	"/guest-payment-intent",
+	validate({ body: guestPaymentIntentSchema }),
+	controller.createGuestPaymentIntent
 );
 
 paymentRouter.post(
