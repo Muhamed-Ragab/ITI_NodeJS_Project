@@ -1,5 +1,6 @@
 import { createCdnProvider } from "../../services/cdn/index.js";
 import { ApiError } from "../../utils/errors/api-error.js";
+import * as reviewsRepository from "../reviews/reviews.repository.js";
 import * as productRepository from "./products.repository.js";
 
 const cdnProvider = createCdnProvider("cloudinary");
@@ -33,7 +34,16 @@ export const getProductById = async (id) => {
 		});
 	}
 
-	return product;
+	const reviews = await reviewsRepository.listByProduct(id, {
+		page: 1,
+		limit: 5,
+	});
+
+	return {
+		...product.toObject(),
+		reviews: reviews.reviews,
+		reviews_pagination: reviews.pagination,
+	};
 };
 
 export const updateProduct = async (id, productData, sellerId) => {
