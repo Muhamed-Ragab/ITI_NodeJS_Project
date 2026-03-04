@@ -4,9 +4,9 @@ import { sendSuccess } from "../../utils/response.js";
 import * as service from "./payments.service.js";
 
 export const createPaymentIntent = async (req, res) => {
-	const userId = req.user.id;
+	const userId = req.user?.id || null;
 	const { orderId } = req.body;
-	const guestEmail = req.user.guestEmail || null; // Extract guest email if available
+	const guestEmail = req.user?.guestEmail || req.body.guestEmail || null;
 	const result = await service.createPaymentIntent(orderId, userId, guestEmail);
 	return sendSuccess(res, {
 		statusCode: StatusCodes.OK,

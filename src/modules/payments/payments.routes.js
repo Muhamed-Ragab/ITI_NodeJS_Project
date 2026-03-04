@@ -14,7 +14,6 @@ const paymentRouter = Router();
 
 paymentRouter.post(
 	"/create-payment-intent",
-	requireAuth,
 	validate({ body: paymentIntentSchema }),
 	controller.createPaymentIntent
 );
