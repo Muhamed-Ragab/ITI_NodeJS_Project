@@ -15,6 +15,12 @@ export const findById = async (orderId) => {
 export const findByUser = async (userId, filters = {}) => {
 	const { page, limit, skip } = parsePagination(filters);
 	const query = { user: userId };
+
+	// Apply status filter if provided
+	if (filters.status && filters.status.trim() !== '') {
+		query.status = filters.status.trim();
+	}
+
 	const [orders, total] = await Promise.all([
 		Order.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
 		Order.countDocuments(query),
@@ -28,6 +34,12 @@ export const findByUser = async (userId, filters = {}) => {
 export const findBySeller = async (sellerId, filters = {}) => {
 	const { page, limit, skip } = parsePagination(filters);
 	const query = { "items.seller_id": sellerId };
+
+	// Apply status filter if provided
+	if (filters.status && filters.status.trim() !== '') {
+		query.status = filters.status.trim();
+	}
+
 	const [orders, total] = await Promise.all([
 		Order.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
 		Order.countDocuments(query),
@@ -75,10 +87,16 @@ export const appendStatusTimelineEvent = async (orderId, event) => {
 
 export const listAll = async (filters = {}) => {
 	const { page, limit, skip } = parsePagination(filters);
+	const query = {};
+
+	// Apply status filter if provided
+	if (filters.status && filters.status.trim() !== '') {
+		query.status = filters.status.trim();
+	}
 
 	const [orders, total] = await Promise.all([
-		Order.find().sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
-		Order.countDocuments(),
+		Order.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+		Order.countDocuments(query),
 	]);
 
 	return {
