@@ -48,11 +48,7 @@ function getStripeClient() {
 	return stripeClient;
 }
 
-export const createPaymentIntent = async (
-	orderId,
-	userId,
-	guestEmail = null,
-) => {
+const validateOrderForPayment = async (orderId, userId, guestEmail) => {
 	const order = await paymentsRepo.findOrderById(orderId);
 	if (!order) {
 		throw ApiError.notFound({
@@ -62,40 +58,35 @@ export const createPaymentIntent = async (
 		});
 	}
 
-	// Check if this is a guest order
-	if (order.user === null) {
-		// For guest orders, verify the guest email matches
-		if (!guestEmail) {
-			throw ApiError.unauthorized({
-				code: "PAYMENT.GUEST_EMAIL_REQUIRED",
-				message: "Guest email is required for guest orders",
-			});
-		}
+	const isOwner = userId
+		? String(order.user) === String(userId)
+		: order.guest_info?.email === guestEmail;
 
-		if (!order.guest_info || order.guest_info.email !== guestEmail) {
-			throw ApiError.forbidden({
-				code: "ORDER.FORBIDDEN",
-				message: "You are not allowed to create payment for this guest order",
-			});
-		}
-	} else {
-		// For regular orders, verify the user owns the order
-		const isOwner = String(order.user) === String(userId);
-		if (!isOwner) {
-			throw ApiError.forbidden({
-				code: "ORDER.FORBIDDEN",
-				message: "You are not allowed to create payment for this order",
-			});
-		}
+	if (!isOwner) {
+		throw ApiError.forbidden({
+			code: "ORDER.FORBIDDEN",
+			message: "You are not allowed to pay this order",
+			details: { userId, guestEmail, order_user: order.user },
+		});
 	}
 
 	if (order.status !== "pending") {
 		throw ApiError.badRequest({
 			code: "ORDER.INVALID_STATUS",
-			message: "Order is not in pending status",
+			message: "Only pending orders can be paid",
 			details: { currentStatus: order.status },
 		});
 	}
+
+	return order;
+};
+
+export const createPaymentIntent = async (
+	orderId,
+	userId,
+	guestEmail = null,
+) => {
+	const order = await validateOrderForPayment(orderId, userId, guestEmail);
 
 	const stripe = getStripeClient();
 	const amountInCents = Math.round(order.total_amount * 100);
@@ -232,33 +223,7 @@ export const processCheckoutPayment = async (
 	savedMethodId,
 	guestEmail,
 ) => {
-	const order = await paymentsRepo.findOrderById(orderId);
-	if (!order) {
-		throw ApiError.notFound({
-			code: "ORDER.NOT_FOUND",
-			message: "Order not found",
-			details: { orderId: String(orderId) },
-		});
-	}
-
-	const isOwner = userId
-		? String(order.user) === String(userId)
-		: order.guest_info.email === guestEmail;
-	if (!isOwner) {
-		throw ApiError.forbidden({
-			code: "ORDER.FORBIDDEN",
-			message: "You are not allowed to pay this order",
-			details: { userId, guestEmail, order_user: order.user },
-		});
-	}
-
-	if (order.status !== "pending") {
-		throw ApiError.badRequest({
-			code: "ORDER.INVALID_STATUS",
-			message: "Only pending orders can be paid",
-			details: { currentStatus: order.status },
-		});
-	}
+	const order = await validateOrderForPayment(orderId, userId, guestEmail);
 
 	const normalizedMethod = normalizeMethod(method);
 
