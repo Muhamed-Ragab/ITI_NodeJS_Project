@@ -13,7 +13,7 @@ export const paymentIntentSchema = z.object({
 
 export const guestPaymentIntentSchema = z.object({
 	orderId: objectId,
-	guestEmail: z.string().email("Invalid email format"),
+	guestEmail: z.email("Invalid email format"),
 });
 
 export const paymentCheckoutSchema = z.object({
@@ -22,8 +22,14 @@ export const paymentCheckoutSchema = z.object({
 	savedMethodId: objectId.optional(),
 });
 
-export const paymentsAdminQuerySchema = z.object({
-	status: z.string().optional(),
-	page: z.string().optional(),
-	limit: z.string().optional(),
+export const guestPaymentCheckoutSchema = z.object({
+	orderId: objectId,
+	guestEmail: z.email("Invalid email format"),
+	method: z.enum(["stripe", "paypal", "cod"]),
 });
+
+export const paymentsAdminQuerySchema = z.object({
+	status: z.string(),
+	page: z.string(),
+	limit: z.string(),
+}).optional();

@@ -248,6 +248,7 @@ export const processCheckoutPayment = async (
 		throw ApiError.forbidden({
 			code: "ORDER.FORBIDDEN",
 			message: "You are not allowed to pay this order",
+			details: { userId, guestEmail, order_user: order.user },
 		});
 	}
 
@@ -262,7 +263,7 @@ export const processCheckoutPayment = async (
 	const normalizedMethod = normalizeMethod(method);
 
 	if (normalizedMethod === "stripe") {
-		return await createPaymentIntent(orderId, userId);
+		return await createPaymentIntent(orderId, userId, guestEmail);
 	}
 
 	if (normalizedMethod === "wallet") {

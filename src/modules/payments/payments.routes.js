@@ -4,10 +4,11 @@ import { requireRole } from "../../middlewares/role.middleware.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import * as controller from "./payments.controller.js";
 import {
-	guestPaymentIntentSchema,
-	paymentCheckoutSchema,
-	paymentIntentSchema,
-	paymentsAdminQuerySchema,
+    guestPaymentCheckoutSchema,
+    guestPaymentIntentSchema,
+    paymentCheckoutSchema,
+    paymentIntentSchema,
+    paymentsAdminQuerySchema,
 } from "./payments.validation.js";
 
 const paymentRouter = Router();
@@ -34,7 +35,7 @@ paymentRouter.post(
 
 paymentRouter.post(
 	"/guest-checkout",
-	validate({ body: paymentCheckoutSchema }),
+	validate({ body: guestPaymentCheckoutSchema }),
 	controller.processGuestCheckoutPayment,
 );
 
