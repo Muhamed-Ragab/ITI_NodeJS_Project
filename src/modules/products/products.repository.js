@@ -1,6 +1,6 @@
 import {
-	buildPaginationMeta,
-	parsePagination,
+    buildPaginationMeta,
+    parsePagination,
 } from "../../utils/pagination.js";
 import OrderModel from "../orders/orders.model.js";
 import ProductModel from "./products.model.js";
@@ -11,6 +11,12 @@ export const create = async (product) => {
 
 export const findById = async (id) => {
 	return await ProductModel.findOne({ _id: id, deletedAt: null })
+		.populate("seller_id", "name email")
+		.populate("category_id", "name slug");
+};
+
+export const findByIds = async (ids) => {
+	return await ProductModel.find({ _id: { $in: ids }, deletedAt: null })
 		.populate("seller_id", "name email")
 		.populate("category_id", "name slug");
 };

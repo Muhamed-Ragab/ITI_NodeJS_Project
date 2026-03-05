@@ -131,3 +131,14 @@ export const getRelatedProducts = async (req, res) => {
 		message: "Related products retrieved successfully",
 	});
 };
+
+export const getProductsBatch = async (req, res) => {
+	const { ids } = req.body;
+	const products = await productService.getProductsByIds(ids);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: products,
+		message: "Batch products retrieved successfully",
+	});
+};

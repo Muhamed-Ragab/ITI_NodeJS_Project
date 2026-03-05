@@ -5,12 +5,13 @@ import { validate } from "../../middlewares/validate.middleware.js";
 import * as productController from "./products.controller.js";
 
 import {
-	imageUploadPayloadSchema,
-	imageUploadSchema,
-	productCreateSchema,
-	productIdSchema,
-	productQuerySchema,
-	productUpdateSchema,
+    imageUploadPayloadSchema,
+    imageUploadSchema,
+    productBatchQuerySchema,
+    productCreateSchema,
+    productIdSchema,
+    productQuerySchema,
+    productUpdateSchema,
 } from "./products.validation.js";
 
 const productsRouter = Router();
@@ -27,6 +28,11 @@ productsRouter
 		requireRole("seller"),
 		validate({ body: productCreateSchema }),
 		productController.createProduct,
+	)
+	.post(
+		"/batch",
+		validate({ body: productBatchQuerySchema }),
+		productController.getProductsBatch,
 	)
 	.get("/best-sellers", productController.getBestSellers)
 	.get(

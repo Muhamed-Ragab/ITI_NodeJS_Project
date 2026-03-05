@@ -53,3 +53,7 @@ export const imageUploadSchema = z.object({
 export const imageUploadPayloadSchema = z.object({
 	folder: z.string().min(1).max(150).optional(),
 });
+
+export const productBatchQuerySchema = z.object({
+	ids: z.array(objectId).min(1).max(100),
+});

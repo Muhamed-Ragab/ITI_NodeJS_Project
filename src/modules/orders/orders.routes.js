@@ -4,11 +4,11 @@ import { requireRole } from "../../middlewares/role.middleware.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import * as controller from "./orders.controller.js";
 import {
-	guestOrderCreateSchema,
-	orderCreateSchema,
-	orderIdSchema,
-	orderStatusSchema,
-	sellerOrderStatusSchema,
+    guestOrderCreateSchema,
+    orderCreateSchema,
+    orderIdSchema,
+    orderStatusSchema,
+    sellerOrderStatusSchema
 } from "./orders.validation.js";
 
 const orderRouter = Router();

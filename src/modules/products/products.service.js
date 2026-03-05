@@ -175,3 +175,8 @@ export const getRelatedProducts = async (productId, limit = 6) => {
 
 	return await productRepository.getRelatedProducts(productId, limit);
 };
+
+export const getProductsByIds = async (ids) => {
+	const products = await productRepository.findByIds(ids);
+	return products;
+};
