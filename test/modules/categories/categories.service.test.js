@@ -31,7 +31,7 @@ describe("Categories Service", () => {
 				expect.objectContaining({
 					name: "Electric Devices",
 					slug: "electric-devices",
-				}),
+				})
 			);
 			expect(result.slug).toBe("electric-devices");
 		});
@@ -39,7 +39,7 @@ describe("Categories Service", () => {
 		it("should handle special characters in slug generation", async () => {
 			const categoryData = { name: "Men's Fashion & Accessories!" };
 			categoryRepository.create.mockImplementation((data) =>
-				Promise.resolve(data),
+				Promise.resolve(data)
 			);
 
 			const result = await categoryService.createCategory(categoryData);
@@ -63,7 +63,7 @@ describe("Categories Service", () => {
 			const id = "1";
 			const updateData = { name: "Automotive Tools" };
 			categoryRepository.updateById.mockImplementation((id, data) =>
-				Promise.resolve({ id, ...data }),
+				Promise.resolve({ id, ...data })
 			);
 
 			const result = await categoryService.updateCategory(id, updateData);
@@ -73,7 +73,7 @@ describe("Categories Service", () => {
 				id,
 				expect.objectContaining({
 					slug: "automotive-tools",
-				}),
+				})
 			);
 		});
 
@@ -81,7 +81,7 @@ describe("Categories Service", () => {
 			const id = "1";
 			const updateData = { description: "Updated desc" };
 			categoryRepository.updateById.mockImplementation((id, data) =>
-				Promise.resolve({ id, ...data }),
+				Promise.resolve({ id, ...data })
 			);
 
 			const result = await categoryService.updateCategory(id, updateData);
@@ -89,7 +89,7 @@ describe("Categories Service", () => {
 			expect(result.slug).toBeUndefined();
 			expect(categoryRepository.updateById).toHaveBeenCalledWith(
 				id,
-				updateData,
+				updateData
 			);
 		});
 	});

@@ -31,7 +31,7 @@ const normalizePaymentMethod = (value) => {
 const buildPriceSnapshot = (
 	subtotalAmount,
 	discountAmount = 0,
-	couponInfo = null,
+	couponInfo = null
 ) => {
 	const shippingAmount = 0;
 	const taxAmount = 0;
@@ -126,7 +126,7 @@ export const createOrderFromCart = async (userId, options = {}) => {
 				}
 
 				const { items, totalAmount } = await validateAndFetchCartItems(
-					user.cart || [],
+					user.cart || []
 				);
 
 				let discountAmount = 0;
@@ -146,7 +146,7 @@ export const createOrderFromCart = async (userId, options = {}) => {
 				const pricingSnapshot = buildPriceSnapshot(
 					totalAmount,
 					discountAmount,
-					couponInfo,
+					couponInfo
 				);
 
 				const shippingAddressIndex = options.shippingAddressIndex ?? 0;
@@ -205,7 +205,7 @@ export const createOrderFromCart = async (userId, options = {}) => {
 
 				return order;
 			},
-			{ session },
+			{ session }
 		);
 	} finally {
 		await session.endSession();
@@ -270,7 +270,7 @@ export const createGuestOrder = async ({
 	const pricingSnapshot = buildPriceSnapshot(
 		totalAmount,
 		discountAmount,
-		couponInfo,
+		couponInfo
 	);
 
 	const order = await ordersRepo.create({
@@ -400,7 +400,7 @@ export const updateStatusBySeller = async (orderId, status, sellerId) => {
 	const updatedOrder = await ordersRepo.updateStatusById(
 		orderId,
 		status,
-		"seller",
+		"seller"
 	);
 
 	if (order.user) {

@@ -33,7 +33,7 @@ export const guestOrderCreateSchema = z.object({
 			z.object({
 				product: objectId,
 				quantity: z.number().int().positive(),
-			}),
+			})
 		)
 		.min(1),
 	couponCode: z.string().trim().min(3).max(32).optional(),

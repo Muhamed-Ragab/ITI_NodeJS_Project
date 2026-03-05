@@ -4,9 +4,9 @@ import { requireRole } from "../../middlewares/role.middleware.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import * as controller from "./payments.controller.js";
 import {
-    guestPaymentCheckoutSchema,
-    paymentCheckoutSchema,
-    paymentsAdminQuerySchema,
+	guestPaymentCheckoutSchema,
+	paymentCheckoutSchema,
+	paymentsAdminQuerySchema,
 } from "./payments.validation.js";
 
 const paymentRouter = Router();
@@ -15,13 +15,13 @@ paymentRouter.post(
 	"/checkout",
 	requireAuth,
 	validate({ body: paymentCheckoutSchema }),
-	controller.processCheckoutPayment,
+	controller.processCheckoutPayment
 );
 
 paymentRouter.post(
 	"/guest-checkout",
 	validate({ body: guestPaymentCheckoutSchema }),
-	controller.processGuestCheckoutPayment,
+	controller.processGuestCheckoutPayment
 );
 
 paymentRouter.get(
@@ -29,7 +29,7 @@ paymentRouter.get(
 	requireAuth,
 	requireRole("admin"),
 	validate({ query: paymentsAdminQuerySchema }),
-	controller.listPaymentsForAdmin,
+	controller.listPaymentsForAdmin
 );
 
 paymentRouter.post("/webhook", controller.stripeWebhook);

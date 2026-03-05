@@ -41,7 +41,7 @@ describe("Reviews Controller", () => {
 			expect.objectContaining({
 				statusCode: StatusCodes.CREATED,
 				data: review,
-			}),
+			})
 		);
 	});
 
@@ -58,7 +58,7 @@ describe("Reviews Controller", () => {
 			expect.objectContaining({
 				statusCode: StatusCodes.OK,
 				data: review,
-			}),
+			})
 		);
 	});
 
@@ -82,7 +82,7 @@ describe("Reviews Controller", () => {
 			expect.objectContaining({
 				statusCode: StatusCodes.OK,
 				data: payload,
-			}),
+			})
 		);
 	});
 
@@ -98,14 +98,14 @@ describe("Reviews Controller", () => {
 			"r1",
 			"u1",
 			"customer",
-			{ rating: 2 },
+			{ rating: 2 }
 		);
 		expect(sendSuccess).toHaveBeenCalledWith(
 			res,
 			expect.objectContaining({
 				statusCode: StatusCodes.OK,
 				data: review,
-			}),
+			})
 		);
 	});
 
@@ -119,14 +119,14 @@ describe("Reviews Controller", () => {
 		expect(reviewsService.deleteReview).toHaveBeenCalledWith(
 			"r1",
 			"u1",
-			"customer",
+			"customer"
 		);
 		expect(sendSuccess).toHaveBeenCalledWith(
 			res,
 			expect.objectContaining({
 				statusCode: StatusCodes.OK,
 				data: review,
-			}),
+			})
 		);
 	});
 });

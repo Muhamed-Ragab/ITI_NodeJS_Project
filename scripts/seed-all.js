@@ -417,7 +417,7 @@ async function seedAll() {
 		const seller1 = createdUsers.find((u) => u.email === "seller@example.com");
 		const seller2 = createdUsers.find((u) => u.email === "sarah@example.com");
 		const customer1 = createdUsers.find(
-			(u) => u.email === "customer@example.com",
+			(u) => u.email === "customer@example.com"
 		);
 		const customer2 = createdUsers.find((u) => u.email === "bob@example.com");
 		console.log(`✅ Created ${createdUsers.length} users\n`);
@@ -426,7 +426,7 @@ async function seedAll() {
 		console.log("📂 Seeding categories...");
 		const createdCategories = await Category.insertMany(categories);
 		const electronicsCat = createdCategories.find(
-			(c) => c.slug === "electronics",
+			(c) => c.slug === "electronics"
 		);
 		const clothingCat = createdCategories.find((c) => c.slug === "clothing");
 		const booksCat = createdCategories.find((c) => c.slug === "books");

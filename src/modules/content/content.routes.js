@@ -15,13 +15,13 @@ const contentRouter = Router();
 contentRouter.get(
 	"/",
 	validate({ query: contentListQuerySchema }),
-	controller.listContent,
+	controller.listContent
 );
 
 contentRouter.get(
 	"/:id",
 	validate({ params: contentIdSchema }),
-	controller.getContentById,
+	controller.getContentById
 );
 
 contentRouter.post(
@@ -29,7 +29,7 @@ contentRouter.post(
 	requireAuth,
 	requireRole("admin"),
 	validate({ body: contentCreateSchema }),
-	controller.createContent,
+	controller.createContent
 );
 
 contentRouter.put(
@@ -37,7 +37,7 @@ contentRouter.put(
 	requireAuth,
 	requireRole("admin"),
 	validate({ params: contentIdSchema, body: contentUpdateSchema }),
-	controller.updateContent,
+	controller.updateContent
 );
 
 contentRouter.delete(
@@ -45,7 +45,7 @@ contentRouter.delete(
 	requireAuth,
 	requireRole("admin"),
 	validate({ params: contentIdSchema }),
-	controller.deleteContent,
+	controller.deleteContent
 );
 
 export default contentRouter;

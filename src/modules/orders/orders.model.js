@@ -16,7 +16,7 @@ const orderItemSchema = new mongoose.Schema(
 		price: { type: Number, required: true, min: 0 },
 		quantity: { type: Number, required: true, min: 1 },
 	},
-	{ _id: false },
+	{ _id: false }
 );
 
 const shippingAddressSchema = new mongoose.Schema(
@@ -26,7 +26,7 @@ const shippingAddressSchema = new mongoose.Schema(
 		country: { type: String, trim: true },
 		zip: { type: String, trim: true },
 	},
-	{ _id: false },
+	{ _id: false }
 );
 
 const guestInfoSchema = new mongoose.Schema(
@@ -35,7 +35,7 @@ const guestInfoSchema = new mongoose.Schema(
 		email: { type: String, trim: true, lowercase: true },
 		phone: { type: String, trim: true },
 	},
-	{ _id: false },
+	{ _id: false }
 );
 
 const paymentInfoSchema = new mongoose.Schema(
@@ -44,7 +44,7 @@ const paymentInfoSchema = new mongoose.Schema(
 		status: { type: String },
 		method: { type: String },
 	},
-	{ _id: false },
+	{ _id: false }
 );
 
 const couponInfoSchema = new mongoose.Schema(
@@ -54,7 +54,7 @@ const couponInfoSchema = new mongoose.Schema(
 		value: { type: Number, min: 0 },
 		discount_amount: { type: Number, min: 0 },
 	},
-	{ _id: false },
+	{ _id: false }
 );
 
 const statusTimelineSchema = new mongoose.Schema(
@@ -78,7 +78,7 @@ const statusTimelineSchema = new mongoose.Schema(
 			default: "",
 		},
 	},
-	{ _id: false },
+	{ _id: false }
 );
 
 const orderSchema = new mongoose.Schema(
@@ -134,7 +134,7 @@ const orderSchema = new mongoose.Schema(
 		items: [orderItemSchema],
 		payment_info: paymentInfoSchema,
 	},
-	{ timestamps: true },
+	{ timestamps: true }
 );
 
 const Order = mongoose.model("Order", orderSchema);

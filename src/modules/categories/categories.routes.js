@@ -18,26 +18,26 @@ categoryRouter
 		requireAuth,
 		requireRole("admin"),
 		validate({ body: categoryCreateSchema }),
-		categoryController.createCategory,
+		categoryController.createCategory
 	);
 
 categoryRouter
 	.route("/:id")
 	.get(
 		validate({ params: categoryIdSchema }),
-		categoryController.getCategoryById,
+		categoryController.getCategoryById
 	)
 	.put(
 		requireAuth,
 		requireRole("admin"),
 		validate({ params: categoryIdSchema, body: categoryUpdateSchema }),
-		categoryController.updateCategory,
+		categoryController.updateCategory
 	)
 	.delete(
 		requireAuth,
 		requireRole("admin"),
 		validate({ params: categoryIdSchema }),
-		categoryController.deleteCategory,
+		categoryController.deleteCategory
 	);
 
 categoryRouter.route("/products").get(categoryController.getProductsByCategory);

@@ -48,7 +48,7 @@ describe("Auth Controller", () => {
 				expect.objectContaining({
 					statusCode: StatusCodes.CREATED,
 					data: mockResult,
-				}),
+				})
 			);
 		});
 
@@ -74,7 +74,7 @@ describe("Auth Controller", () => {
 				expect.objectContaining({
 					statusCode: StatusCodes.OK,
 					data: mockResult,
-				}),
+				})
 			);
 		});
 
@@ -99,7 +99,7 @@ describe("Auth Controller", () => {
 				expect.objectContaining({
 					statusCode: StatusCodes.OK,
 					data: { otpRequested: true },
-				}),
+				})
 			);
 		});
 	});
@@ -118,7 +118,7 @@ describe("Auth Controller", () => {
 				expect.objectContaining({
 					statusCode: StatusCodes.OK,
 					data: mockResult,
-				}),
+				})
 			);
 		});
 	});
@@ -136,7 +136,7 @@ describe("Auth Controller", () => {
 				expect.objectContaining({
 					statusCode: StatusCodes.OK,
 					data: { loggedOut: true },
-				}),
+				})
 			);
 		});
 	});
@@ -145,7 +145,7 @@ describe("Auth Controller", () => {
 		it("should redirect to Google auth URL", () => {
 			authController.googleStart(req, res);
 			expect(res.redirect).toHaveBeenCalledWith(
-				expect.stringContaining("accounts.google.com"),
+				expect.stringContaining("accounts.google.com")
 			);
 		});
 	});
@@ -160,7 +160,7 @@ describe("Auth Controller", () => {
 
 			expect(authService.handleGoogleCallback).toHaveBeenCalled();
 			expect(res.redirect).toHaveBeenCalledWith(
-				expect.stringContaining("/home?token="),
+				expect.stringContaining("/home?token=")
 			);
 		});
 	});
@@ -173,10 +173,10 @@ describe("Auth Controller", () => {
 			await authController.verifyEmail(req, res);
 
 			expect(authService.verifyEmailByToken).toHaveBeenCalledWith(
-				"verification-token",
+				"verification-token"
 			);
 			expect(res.redirect).toHaveBeenCalledWith(
-				expect.stringContaining("/home?verified=true"),
+				expect.stringContaining("/home?verified=true")
 			);
 		});
 	});

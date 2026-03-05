@@ -36,7 +36,7 @@ describe("Users Repository", () => {
 		expect(User.findOneAndUpdate).toHaveBeenCalledWith(
 			{ _id: "u1", deletedAt: null },
 			expect.objectContaining({ $push: { addresses: { street: "X" } } }),
-			expect.any(Object),
+			expect.any(Object)
 		);
 	});
 });

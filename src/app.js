@@ -23,7 +23,7 @@ app.use(morgan(appNodeEnv === "production" ? "combined" : "dev"));
 app.use(
 	cors({
 		origin: appNodeEnv === "production" ? env.APP_BASE_URL : "*",
-	}),
+	})
 );
 
 // Stripe webhook needs raw body, so we need to handle it specially

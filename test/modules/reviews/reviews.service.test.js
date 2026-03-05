@@ -16,12 +16,15 @@ vi.mock("../../../src/modules/reviews/reviews.repository.js", () => ({
 	calculateProductRatingStats: vi.fn(),
 }));
 
-const productsRepository =
-	await import("../../../src/modules/products/products.repository.js");
-const reviewsRepository =
-	await import("../../../src/modules/reviews/reviews.repository.js");
-const reviewsService =
-	await import("../../../src/modules/reviews/reviews.service.js");
+const productsRepository = await import(
+	"../../../src/modules/products/products.repository.js"
+);
+const reviewsRepository = await import(
+	"../../../src/modules/reviews/reviews.repository.js"
+);
+const reviewsService = await import(
+	"../../../src/modules/reviews/reviews.service.js"
+);
 
 describe("Reviews Service", () => {
 	beforeEach(() => {
@@ -69,7 +72,7 @@ describe("Reviews Service", () => {
 				reviewsService.createReview("u1", {
 					product_id: "missing",
 					rating: 4,
-				}),
+				})
 			).rejects.toMatchObject({ code: "REVIEW.PRODUCT_NOT_FOUND" });
 		});
 
@@ -81,7 +84,7 @@ describe("Reviews Service", () => {
 				reviewsService.createReview("u1", {
 					product_id: "p1",
 					rating: 4,
-				}),
+				})
 			).rejects.toMatchObject({ code: "REVIEW.ALREADY_EXISTS" });
 		});
 	});
@@ -138,7 +141,7 @@ describe("Reviews Service", () => {
 			});
 
 			await expect(
-				reviewsService.updateReview("r1", "u1", "customer", { rating: 1 }),
+				reviewsService.updateReview("r1", "u1", "customer", { rating: 1 })
 			).rejects.toBeInstanceOf(ApiError);
 		});
 	});

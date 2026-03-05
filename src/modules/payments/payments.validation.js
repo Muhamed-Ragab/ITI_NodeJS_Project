@@ -19,8 +19,10 @@ export const guestPaymentCheckoutSchema = z.object({
 	method: z.enum(["stripe", "paypal", "cod"]),
 });
 
-export const paymentsAdminQuerySchema = z.object({
-	status: z.string(),
-	page: z.string(),
-	limit: z.string(),
-}).optional();
+export const paymentsAdminQuerySchema = z
+	.object({
+		status: z.string(),
+		page: z.string(),
+		limit: z.string(),
+	})
+	.optional();

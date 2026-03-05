@@ -28,7 +28,7 @@ export const updateById = async (reviewId, reviewData) => {
 	return await ReviewModel.findOneAndUpdate(
 		{ _id: reviewId, deletedAt: null },
 		reviewData,
-		{ new: true, runValidators: true },
+		{ new: true, runValidators: true }
 	).populate("user_id", "name");
 };
 
@@ -36,7 +36,7 @@ export const softDeleteById = async (reviewId) => {
 	return await ReviewModel.findOneAndUpdate(
 		{ _id: reviewId, deletedAt: null },
 		{ deletedAt: new Date() },
-		{ new: true },
+		{ new: true }
 	).populate("user_id", "name");
 };
 

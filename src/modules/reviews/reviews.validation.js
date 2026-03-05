@@ -22,7 +22,7 @@ export const reviewUpdateSchema = z
 		(value) => value.rating !== undefined || value.comment !== undefined,
 		{
 			message: "At least one field is required",
-		},
+		}
 	);
 
 export const reviewIdSchema = z.object({

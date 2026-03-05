@@ -25,7 +25,7 @@ export const getReviewById = async (req, res) => {
 export const listProductReviews = async (req, res) => {
 	const result = await reviewsService.listReviewsByProduct(
 		req.params.productId,
-		req.query,
+		req.query
 	);
 
 	return sendSuccess(res, {
@@ -40,7 +40,7 @@ export const updateReview = async (req, res) => {
 		req.params.id,
 		req.user.id,
 		req.user.role,
-		req.body,
+		req.body
 	);
 
 	return sendSuccess(res, {
@@ -54,7 +54,7 @@ export const deleteReview = async (req, res) => {
 	const review = await reviewsService.deleteReview(
 		req.params.id,
 		req.user.id,
-		req.user.role,
+		req.user.role
 	);
 
 	return sendSuccess(res, {

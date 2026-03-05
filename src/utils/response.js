@@ -2,7 +2,7 @@ import { StatusCodes } from "http-status-codes";
 
 export const sendSuccess = (
 	res,
-	{ statusCode = StatusCodes.OK, data = null, message } = {},
+	{ statusCode = StatusCodes.OK, data = null, message } = {}
 ) =>
 	res.status(statusCode).json({
 		success: true,
@@ -17,7 +17,7 @@ export const sendError = (
 		code = "INTERNAL_SERVER_ERROR",
 		details,
 		message,
-	} = {},
+	} = {}
 ) =>
 	res.status(statusCode).json({
 		success: false,

@@ -38,7 +38,7 @@ describe("Coupons Controller", () => {
 			expect.objectContaining({
 				statusCode: StatusCodes.CREATED,
 				data: coupon,
-			}),
+			})
 		);
 	});
 
@@ -58,7 +58,7 @@ describe("Coupons Controller", () => {
 		});
 		expect(sendSuccess).toHaveBeenCalledWith(
 			res,
-			expect.objectContaining({ statusCode: StatusCodes.OK }),
+			expect.objectContaining({ statusCode: StatusCodes.OK })
 		);
 	});
 
@@ -84,7 +84,7 @@ describe("Coupons Controller", () => {
 					coupon_info: { code: "SAVE10" },
 					discount_amount: 10,
 				},
-			}),
+			})
 		);
 	});
 
@@ -115,7 +115,7 @@ describe("Coupons Controller", () => {
 					coupon_info: { code: "SAVE10" },
 					discount_amount: 10,
 				},
-			}),
+			})
 		);
 	});
 
@@ -147,7 +147,7 @@ describe("Coupons Controller", () => {
 					coupon_info: { code: "SAVE10" },
 					discount_amount: 10,
 				},
-			}),
+			})
 		);
 	});
 });

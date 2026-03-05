@@ -72,7 +72,7 @@ const productSchema = new Schema(
 	},
 	{
 		timestamps: true,
-	},
+	}
 );
 
 const ProductModel = model("Product", productSchema);

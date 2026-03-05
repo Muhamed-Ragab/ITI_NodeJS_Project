@@ -11,10 +11,12 @@ vi.mock("../../../src/modules/coupons/coupons.repository.js", () => ({
 	consumeUsage: vi.fn(),
 }));
 
-const couponsRepository =
-	await import("../../../src/modules/coupons/coupons.repository.js");
-const couponsService =
-	await import("../../../src/modules/coupons/coupons.service.js");
+const couponsRepository = await import(
+	"../../../src/modules/coupons/coupons.repository.js"
+);
+const couponsService = await import(
+	"../../../src/modules/coupons/coupons.service.js"
+);
 
 describe("Coupons Service", () => {
 	beforeEach(() => {
@@ -38,7 +40,7 @@ describe("Coupons Service", () => {
 		couponsRepository.findByCode.mockResolvedValue({ _id: "c1" });
 
 		await expect(
-			couponsService.createCoupon({ code: "SAVE10", type: "fixed", value: 10 }),
+			couponsService.createCoupon({ code: "SAVE10", type: "fixed", value: 10 })
 		).rejects.toBeInstanceOf(ApiError);
 	});
 
@@ -89,7 +91,7 @@ describe("Coupons Service", () => {
 				code: "SAVE10",
 				userId: "u1",
 				subtotalAmount: 100,
-			}),
+			})
 		).rejects.toMatchObject({ code: "COUPON.USER_LIMIT_REACHED" });
 	});
 });

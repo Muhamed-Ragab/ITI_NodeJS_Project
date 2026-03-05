@@ -59,7 +59,7 @@ describe("error middleware", () => {
 			}),
 			{},
 			res,
-			noop,
+			noop
 		);
 
 		expect(res.statusCode).toBe(StatusCodes.NOT_FOUND);
@@ -90,7 +90,7 @@ describe("error middleware", () => {
 			{ statusCode: 700, code: "   ", message: "Unknown failure" },
 			{},
 			res,
-			noop,
+			noop
 		);
 
 		expect(res.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
@@ -132,7 +132,7 @@ describe("error middleware", () => {
 			},
 			{},
 			res,
-			noop,
+			noop
 		);
 
 		expect(res.body).toEqual({

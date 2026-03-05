@@ -51,7 +51,7 @@ describe("Auth Repository", () => {
 		expect(User.findByIdAndUpdate).toHaveBeenCalledWith(
 			userId,
 			{ googleId },
-			{ new: true, runValidators: true },
+			{ new: true, runValidators: true }
 		);
 	});
 
@@ -73,7 +73,7 @@ describe("Auth Repository", () => {
 		expect(User.findByIdAndUpdate).toHaveBeenCalledWith(
 			"u1",
 			{ $inc: { tokenVersion: 1 } },
-			{ new: true },
+			{ new: true }
 		);
 	});
 
@@ -84,7 +84,7 @@ describe("Auth Repository", () => {
 		expect(User.findByIdAndUpdate).toHaveBeenCalledWith(
 			"u1",
 			{ emailOtpHash: "otp-hash", emailOtpExpiresAt: expiry },
-			{ new: true },
+			{ new: true }
 		);
 	});
 
@@ -97,7 +97,7 @@ describe("Auth Repository", () => {
 				emailOtpHash: null,
 				emailOtpExpiresAt: null,
 			},
-			{ new: true },
+			{ new: true }
 		);
 	});
 
@@ -111,7 +111,7 @@ describe("Auth Repository", () => {
 			emailVerificationTokenHash: "hash-123",
 		});
 		expect(mockSelect).toHaveBeenCalledWith(
-			"+emailVerificationTokenHash +emailVerificationTokenExpiresAt",
+			"+emailVerificationTokenHash +emailVerificationTokenExpiresAt"
 		);
 	});
 
@@ -125,7 +125,7 @@ describe("Auth Repository", () => {
 				emailVerificationTokenHash: null,
 				emailVerificationTokenExpiresAt: null,
 			},
-			{ new: true },
+			{ new: true }
 		);
 	});
 });

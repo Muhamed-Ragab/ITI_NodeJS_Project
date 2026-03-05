@@ -40,7 +40,7 @@ describe("Categories Controller", () => {
 				expect.objectContaining({
 					statusCode: StatusCodes.CREATED,
 					data: mockCategory,
-				}),
+				})
 			);
 		});
 
@@ -51,7 +51,7 @@ describe("Categories Controller", () => {
 			categoryService.createCategory.mockRejectedValue(error);
 
 			await expect(categoryController.createCategory(req, res)).rejects.toBe(
-				error,
+				error
 			);
 		});
 
@@ -60,7 +60,7 @@ describe("Categories Controller", () => {
 			categoryService.createCategory.mockRejectedValue(error);
 
 			await expect(categoryController.createCategory(req, res)).rejects.toBe(
-				error,
+				error
 			);
 		});
 	});
@@ -77,7 +77,7 @@ describe("Categories Controller", () => {
 				res,
 				expect.objectContaining({
 					data: mockCategory,
-				}),
+				})
 			);
 		});
 
@@ -90,7 +90,7 @@ describe("Categories Controller", () => {
 			categoryService.getCategoryById.mockRejectedValue(error);
 
 			await expect(categoryController.getCategoryById(req, res)).rejects.toBe(
-				error,
+				error
 			);
 		});
 
@@ -101,7 +101,7 @@ describe("Categories Controller", () => {
 			categoryService.getCategoryById.mockRejectedValue(error);
 
 			await expect(categoryController.getCategoryById(req, res)).rejects.toBe(
-				error,
+				error
 			);
 		});
 
@@ -110,7 +110,7 @@ describe("Categories Controller", () => {
 			categoryService.getCategoryById.mockRejectedValue(error);
 
 			await expect(categoryController.getCategoryById(req, res)).rejects.toBe(
-				error,
+				error
 			);
 		});
 	});
@@ -128,7 +128,7 @@ describe("Categories Controller", () => {
 				res,
 				expect.objectContaining({
 					data: mockCategory,
-				}),
+				})
 			);
 		});
 
@@ -141,7 +141,7 @@ describe("Categories Controller", () => {
 			categoryService.updateCategory.mockRejectedValue(error);
 
 			await expect(categoryController.updateCategory(req, res)).rejects.toBe(
-				error,
+				error
 			);
 		});
 
@@ -152,7 +152,7 @@ describe("Categories Controller", () => {
 			categoryService.updateCategory.mockRejectedValue(error);
 
 			await expect(categoryController.updateCategory(req, res)).rejects.toBe(
-				error,
+				error
 			);
 		});
 
@@ -163,7 +163,7 @@ describe("Categories Controller", () => {
 			categoryService.updateCategory.mockRejectedValue(error);
 
 			await expect(categoryController.updateCategory(req, res)).rejects.toBe(
-				error,
+				error
 			);
 		});
 
@@ -172,7 +172,7 @@ describe("Categories Controller", () => {
 			categoryService.updateCategory.mockRejectedValue(error);
 
 			await expect(categoryController.updateCategory(req, res)).rejects.toBe(
-				error,
+				error
 			);
 		});
 	});
@@ -188,7 +188,7 @@ describe("Categories Controller", () => {
 				res,
 				expect.objectContaining({
 					statusCode: StatusCodes.OK,
-				}),
+				})
 			);
 		});
 
@@ -201,7 +201,7 @@ describe("Categories Controller", () => {
 			categoryService.deleteCategory.mockRejectedValue(error);
 
 			await expect(categoryController.deleteCategory(req, res)).rejects.toBe(
-				error,
+				error
 			);
 		});
 
@@ -212,7 +212,7 @@ describe("Categories Controller", () => {
 			categoryService.deleteCategory.mockRejectedValue(error);
 
 			await expect(categoryController.deleteCategory(req, res)).rejects.toBe(
-				error,
+				error
 			);
 		});
 
@@ -221,7 +221,7 @@ describe("Categories Controller", () => {
 			categoryService.deleteCategory.mockRejectedValue(error);
 
 			await expect(categoryController.deleteCategory(req, res)).rejects.toBe(
-				error,
+				error
 			);
 		});
 	});
@@ -237,7 +237,7 @@ describe("Categories Controller", () => {
 				res,
 				expect.objectContaining({
 					data: mockCategories,
-				}),
+				})
 			);
 		});
 
@@ -246,7 +246,7 @@ describe("Categories Controller", () => {
 			categoryService.listCategories.mockRejectedValue(error);
 
 			await expect(categoryController.listCategories(req, res)).rejects.toBe(
-				error,
+				error
 			);
 		});
 	});

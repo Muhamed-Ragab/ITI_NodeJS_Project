@@ -11,7 +11,7 @@ export const processCheckoutPayment = async (req, res) => {
 		userId,
 		method,
 		savedMethodId,
-		guestEmail,
+		guestEmail
 	);
 
 	return sendSuccess(res, {
@@ -28,7 +28,7 @@ export const processGuestCheckoutPayment = async (req, res) => {
 		null,
 		method,
 		null,
-		guestEmail,
+		guestEmail
 	);
 
 	return sendSuccess(res, {

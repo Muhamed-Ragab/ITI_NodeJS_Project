@@ -28,7 +28,7 @@ const savedPaymentMethodSchema = new mongoose.Schema(
 			default: false,
 		},
 	},
-	{ _id: true },
+	{ _id: true }
 );
 
 const payoutRequestSchema = new mongoose.Schema(
@@ -43,7 +43,7 @@ const payoutRequestSchema = new mongoose.Schema(
 		requested_at: { type: Date, default: Date.now },
 		reviewed_at: { type: Date, default: null },
 	},
-	{ _id: true },
+	{ _id: true }
 );
 
 const sellerProfileSchema = new mongoose.Schema(
@@ -64,7 +64,7 @@ const sellerProfileSchema = new mongoose.Schema(
 			default: [],
 		},
 	},
-	{ _id: false },
+	{ _id: false }
 );
 
 const marketingPreferencesSchema = new mongoose.Schema(
@@ -82,7 +82,7 @@ const marketingPreferencesSchema = new mongoose.Schema(
 			default: true,
 		},
 	},
-	{ _id: false },
+	{ _id: false }
 );
 
 const userSchema = new mongoose.Schema(
@@ -231,7 +231,7 @@ const userSchema = new mongoose.Schema(
 	},
 	{
 		timestamps: true,
-	},
+	}
 );
 
 userSchema.pre("save", async function () {

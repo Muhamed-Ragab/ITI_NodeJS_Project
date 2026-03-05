@@ -26,7 +26,7 @@ export const getCategoryById = async (req, res) => {
 export const updateCategory = async (req, res) => {
 	const category = await categoryService.updateCategory(
 		req.params.id,
-		req.body,
+		req.body
 	);
 
 	return sendSuccess(res, {

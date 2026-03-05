@@ -13,7 +13,7 @@ describe("Payments Service", () => {
 			vi.spyOn(paymentsRepo, "findOrderById").mockResolvedValue(null);
 
 			await expect(
-				paymentsService.createPaymentIntent("order123", "user123"),
+				paymentsService.createPaymentIntent("order123", "user123")
 			).rejects.toThrow(ApiError);
 		});
 
@@ -27,7 +27,7 @@ describe("Payments Service", () => {
 			vi.spyOn(paymentsRepo, "findOrderById").mockResolvedValue(mockOrder);
 
 			await expect(
-				paymentsService.createPaymentIntent("order123", "user123"),
+				paymentsService.createPaymentIntent("order123", "user123")
 			).rejects.toThrow(ApiError);
 		});
 
@@ -41,7 +41,7 @@ describe("Payments Service", () => {
 			vi.spyOn(paymentsRepo, "findOrderById").mockResolvedValue(mockOrder);
 
 			await expect(
-				paymentsService.createPaymentIntent("order123", "user123"),
+				paymentsService.createPaymentIntent("order123", "user123")
 			).rejects.toThrow(ApiError);
 		});
 	});
@@ -50,7 +50,7 @@ describe("Payments Service", () => {
 		it("should throw error for invalid webhook signature", async () => {
 			// Test that the service handles invalid signature errors properly
 			await expect(
-				paymentsService.handleStripeWebhook("invalid_sig", "raw_body"),
+				paymentsService.handleStripeWebhook("invalid_sig", "raw_body")
 			).rejects.toThrow(ApiError);
 		});
 	});
@@ -62,7 +62,7 @@ describe("Payments Service", () => {
 				pagination: { page: 1, limit: 10, total: 1, pages: 1 },
 			};
 			vi.spyOn(paymentsRepo, "listPaymentsForAdmin").mockResolvedValue(
-				mockResult,
+				mockResult
 			);
 
 			const result = await paymentsService.listPaymentsForAdmin({
@@ -88,17 +88,17 @@ describe("Payments Service", () => {
 			const result = await paymentsService.processCheckoutPayment(
 				"order123",
 				"user123",
-				"cod",
+				"cod"
 			);
 
 			expect(result).toEqual(
-				expect.objectContaining({ method: "cod", status: "pending" }),
+				expect.objectContaining({ method: "cod", status: "pending" })
 			);
 			expect(paymentsRepo.updateOrderPaymentStatus).toHaveBeenCalledWith(
 				"order123",
 				expect.objectContaining({
 					payment_info: expect.objectContaining({ method: "cod" }),
-				}),
+				})
 			);
 		});
 
@@ -113,8 +113,9 @@ describe("Payments Service", () => {
 				_id: "order123",
 			});
 
-			const usersRepo =
-				await import("../../../src/modules/users/users.repository.js");
+			const usersRepo = await import(
+				"../../../src/modules/users/users.repository.js"
+			);
 			vi.spyOn(usersRepo, "findById")
 				.mockResolvedValueOnce({
 					_id: "user123",
@@ -130,11 +131,11 @@ describe("Payments Service", () => {
 			const result = await paymentsService.processCheckoutPayment(
 				"order123",
 				"user123",
-				"wallet",
+				"wallet"
 			);
 
 			expect(result).toEqual(
-				expect.objectContaining({ method: "wallet", status: "paid" }),
+				expect.objectContaining({ method: "wallet", status: "paid" })
 			);
 			expect(usersRepo.updateById).toHaveBeenCalledWith("user123", {
 				wallet_balance: 60,
@@ -149,15 +150,16 @@ describe("Payments Service", () => {
 				total_amount: 400,
 			});
 
-			const usersRepo =
-				await import("../../../src/modules/users/users.repository.js");
+			const usersRepo = await import(
+				"../../../src/modules/users/users.repository.js"
+			);
 			vi.spyOn(usersRepo, "findById").mockResolvedValue({
 				_id: "user123",
 				wallet_balance: 100,
 			});
 
 			await expect(
-				paymentsService.processCheckoutPayment("order123", "user123", "wallet"),
+				paymentsService.processCheckoutPayment("order123", "user123", "wallet")
 			).rejects.toThrow(ApiError);
 		});
 	});

@@ -1,6 +1,6 @@
 import {
-    buildPaginationMeta,
-    parsePagination,
+	buildPaginationMeta,
+	parsePagination,
 } from "../../utils/pagination.js";
 import OrderModel from "../orders/orders.model.js";
 import ProductModel from "./products.model.js";
@@ -28,7 +28,7 @@ export const updateById = async (id, product) => {
 		{
 			new: true,
 			runValidators: true,
-		},
+		}
 	)
 		.populate("seller_id", "name email")
 		.populate("category_id", "name slug");
@@ -38,7 +38,7 @@ export const deleteById = async (id) => {
 	return await ProductModel.findOneAndUpdate(
 		{ _id: id, deletedAt: null },
 		{ deletedAt: new Date(), is_active: false },
-		{ new: true },
+		{ new: true }
 	);
 };
 
@@ -150,7 +150,7 @@ export const appendImages = async (id, images) => {
 	return await ProductModel.findOneAndUpdate(
 		{ _id: id, deletedAt: null },
 		{ $push: { images: { $each: images } } },
-		{ new: true, runValidators: true },
+		{ new: true, runValidators: true }
 	);
 };
 
@@ -161,7 +161,7 @@ export const updateRatingStats = async (id, stats) => {
 			average_rating: stats.average_rating,
 			ratings_count: stats.ratings_count,
 		},
-		{ new: true, runValidators: true },
+		{ new: true, runValidators: true }
 	);
 };
 

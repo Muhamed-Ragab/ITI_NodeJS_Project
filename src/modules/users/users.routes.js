@@ -4,26 +4,27 @@ import { requireRole } from "../../middlewares/role.middleware.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import * as controller from "./users.controller.js";
 import {
-    addressIdSchema,
-    addressSchema,
-    cartItemSchema,
-    loyaltyGrantSchema,
-    marketingBroadcastSchema,
-    marketingPreferencesSchema,
-    payoutRequestCreateSchema,
-    payoutRequestIdSchema,
-    payoutReviewSchema,
-    preferredLanguageSchema,
-    productIdSchema,
-    profileUpdateSchema,
-    referralApplySchema,
-    restrictionUpdateSchema,
-    roleUpdateSchema,
-    savedPaymentMethodCreateSchema,
-    savedPaymentMethodIdSchema,
-    sellerApprovalSchema,
-    sellerOnboardingRequestSchema,
-    userIdSchema
+	addressIdSchema,
+	addressSchema,
+	cartItemSchema,
+	loyaltyGrantSchema,
+	marketingBroadcastSchema,
+	marketingPreferencesSchema,
+	payoutRequestCreateSchema,
+	payoutRequestIdSchema,
+	payoutReviewSchema,
+	preferredLanguageSchema,
+	productIdSchema,
+	profileUpdateSchema,
+	referralApplySchema,
+	restrictionUpdateSchema,
+	roleUpdateSchema,
+	savedPaymentMethodCreateSchema,
+	savedPaymentMethodIdSchema,
+	sellerApprovalSchema,
+	sellerOnboardingRequestSchema,
+	syncGuestDataSchema,
+	userIdSchema,
 } from "./users.validation.js";
 
 const userRouter = Router();
@@ -34,13 +35,13 @@ userRouter.put(
 	"/profile",
 	requireAuth,
 	validate({ body: profileUpdateSchema }),
-	controller.updateProfile,
+	controller.updateProfile
 );
 userRouter.post(
 	"/sync-guest-data",
 	requireAuth,
 	validate({ body: syncGuestDataSchema }),
-	controller.syncGuestData,
+	controller.syncGuestData
 );
 
 // Wishlist
@@ -49,13 +50,13 @@ userRouter.post(
 	"/wishlist",
 	requireAuth,
 	validate({ body: productIdSchema }),
-	controller.addWishlistItem,
+	controller.addWishlistItem
 );
 userRouter.delete(
 	"/wishlist/:productId",
 	requireAuth,
 	validate({ params: productIdSchema }),
-	controller.removeWishlistItem,
+	controller.removeWishlistItem
 );
 
 // Cart
@@ -64,13 +65,13 @@ userRouter.put(
 	"/cart",
 	requireAuth,
 	validate({ body: cartItemSchema }),
-	controller.upsertCart,
+	controller.upsertCart
 );
 userRouter.delete(
 	"/cart/:productId",
 	requireAuth,
 	validate({ params: productIdSchema }),
-	controller.removeCartItemController,
+	controller.removeCartItemController
 );
 
 // Addresses
@@ -78,19 +79,19 @@ userRouter.post(
 	"/address",
 	requireAuth,
 	validate({ body: addressSchema }),
-	controller.addAddress,
+	controller.addAddress
 );
 userRouter.put(
 	"/address/:addressId",
 	requireAuth,
 	validate({ params: addressIdSchema, body: addressSchema }),
-	controller.updateAddress,
+	controller.updateAddress
 );
 userRouter.delete(
 	"/address/:addressId",
 	requireAuth,
 	validate({ params: addressIdSchema }),
-	controller.removeAddress,
+	controller.removeAddress
 );
 
 // Admin
@@ -100,46 +101,46 @@ userRouter.put(
 	requireAuth,
 	requireRole("admin"),
 	validate({ params: userIdSchema, body: roleUpdateSchema }),
-	controller.updateRole,
+	controller.updateRole
 );
 userRouter.patch(
 	"/admin/:id/restriction",
 	requireAuth,
 	requireRole("admin"),
 	validate({ params: userIdSchema, body: restrictionUpdateSchema }),
-	controller.setUserRestriction,
+	controller.setUserRestriction
 );
 userRouter.delete(
 	"/admin/:id",
 	requireAuth,
 	requireRole("admin"),
 	validate({ params: userIdSchema }),
-	controller.softDeleteUser,
+	controller.softDeleteUser
 );
 
 // Saved payment methods
 userRouter.get(
 	"/payment-methods",
 	requireAuth,
-	controller.listSavedPaymentMethods,
+	controller.listSavedPaymentMethods
 );
 userRouter.post(
 	"/payment-methods",
 	requireAuth,
 	validate({ body: savedPaymentMethodCreateSchema }),
-	controller.addSavedPaymentMethod,
+	controller.addSavedPaymentMethod
 );
 userRouter.delete(
 	"/payment-methods/:methodId",
 	requireAuth,
 	validate({ params: savedPaymentMethodIdSchema }),
-	controller.removeSavedPaymentMethod,
+	controller.removeSavedPaymentMethod
 );
 userRouter.patch(
 	"/payment-methods/:methodId/default",
 	requireAuth,
 	validate({ params: savedPaymentMethodIdSchema }),
-	controller.setDefaultSavedPaymentMethod,
+	controller.setDefaultSavedPaymentMethod
 );
 
 // Seller onboarding
@@ -147,20 +148,20 @@ userRouter.post(
 	"/seller/onboarding",
 	requireAuth,
 	validate({ body: sellerOnboardingRequestSchema }),
-	controller.requestSellerOnboarding,
+	controller.requestSellerOnboarding
 );
 userRouter.get(
 	"/admin/seller-requests",
 	requireAuth,
 	requireRole("admin"),
-	controller.listPendingSellerRequests,
+	controller.listPendingSellerRequests
 );
 userRouter.patch(
 	"/admin/seller-requests/:id",
 	requireAuth,
 	requireRole("admin"),
 	validate({ params: userIdSchema, body: sellerApprovalSchema }),
-	controller.reviewSellerOnboarding,
+	controller.reviewSellerOnboarding
 );
 
 // Seller payouts
@@ -168,7 +169,7 @@ userRouter.post(
 	"/seller/payouts",
 	requireAuth,
 	validate({ body: payoutRequestCreateSchema }),
-	controller.createSellerPayoutRequest,
+	controller.createSellerPayoutRequest
 );
 userRouter.patch(
 	"/admin/seller-payouts/:id/:payoutId",
@@ -178,7 +179,7 @@ userRouter.patch(
 		params: userIdSchema.merge(payoutRequestIdSchema),
 		body: payoutReviewSchema,
 	}),
-	controller.reviewSellerPayoutRequest,
+	controller.reviewSellerPayoutRequest
 );
 
 // Marketing & engagement (Phase 4)
@@ -186,20 +187,20 @@ userRouter.patch(
 	"/preferences/marketing",
 	requireAuth,
 	validate({ body: marketingPreferencesSchema }),
-	controller.updateMarketingPreferences,
+	controller.updateMarketingPreferences
 );
 userRouter.patch(
 	"/preferences/language",
 	requireAuth,
 	validate({ body: preferredLanguageSchema }),
-	controller.updatePreferredLanguage,
+	controller.updatePreferredLanguage
 );
 userRouter.get("/loyalty", requireAuth, controller.getLoyaltySummary);
 userRouter.post(
 	"/referrals/apply",
 	requireAuth,
 	validate({ body: referralApplySchema }),
-	controller.applyReferralCode,
+	controller.applyReferralCode
 );
 userRouter.get("/referrals", requireAuth, controller.getReferralSummary);
 userRouter.patch(
@@ -207,14 +208,14 @@ userRouter.patch(
 	requireAuth,
 	requireRole("admin"),
 	validate({ params: userIdSchema, body: loyaltyGrantSchema }),
-	controller.grantLoyaltyPoints,
+	controller.grantLoyaltyPoints
 );
 userRouter.post(
 	"/admin/marketing/broadcast",
 	requireAuth,
 	requireRole("admin"),
 	validate({ body: marketingBroadcastSchema }),
-	controller.broadcastMarketingMessage,
+	controller.broadcastMarketingMessage
 );
 
 export default userRouter;

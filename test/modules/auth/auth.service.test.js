@@ -55,13 +55,13 @@ describe("Auth Service", () => {
 					email: userData.email,
 					isEmailVerified: false,
 					emailVerificationTokenHash: "hashed-token",
-				}),
+				})
 			);
 			expect(emailProvider.sendVerificationEmail).toHaveBeenCalledWith(
 				expect.objectContaining({
 					email: userData.email,
 					token: "plain-token",
-				}),
+				})
 			);
 			expect(result.requiresEmailVerification).toBe(true);
 			expect(result.user.password).toBeUndefined();
@@ -70,7 +70,7 @@ describe("Auth Service", () => {
 		it("should throw error if email exists", async () => {
 			authRepository.findUserByEmail.mockResolvedValue({ _id: "1" });
 			await expect(
-				authService.registerUser({ email: "test@example.com" }),
+				authService.registerUser({ email: "test@example.com" })
 			).rejects.toThrow(ApiError);
 		});
 	});
@@ -105,7 +105,7 @@ describe("Auth Service", () => {
 		it("should throw error for invalid credentials", async () => {
 			authRepository.findUserByEmail.mockResolvedValue(null);
 			await expect(
-				authService.loginUser({ email: "wrong@test.com", password: "any" }),
+				authService.loginUser({ email: "wrong@test.com", password: "any" })
 			).rejects.toThrow(ApiError);
 		});
 
@@ -127,7 +127,7 @@ describe("Auth Service", () => {
 				authService.loginUser({
 					email: "test@example.com",
 					password: "password",
-				}),
+				})
 			).rejects.toMatchObject({
 				code: "AUTH.EMAIL_NOT_VERIFIED",
 			});
@@ -151,7 +151,7 @@ describe("Auth Service", () => {
 				authService.loginUser({
 					email: "test@example.com",
 					password: "password",
-				}),
+				})
 			).rejects.toMatchObject({
 				code: "AUTH.USER_RESTRICTED",
 			});
@@ -175,7 +175,7 @@ describe("Auth Service", () => {
 				authService.loginUser({
 					email: "test@example.com",
 					password: "password",
-				}),
+				})
 			).rejects.toMatchObject({
 				code: "AUTH.USER_DELETED",
 			});
@@ -198,7 +198,7 @@ describe("Auth Service", () => {
 			const result = await authService.verifyEmailByToken("plain-token");
 
 			expect(emailProvider.hashVerificationToken).toHaveBeenCalledWith(
-				"plain-token",
+				"plain-token"
 			);
 			expect(authRepository.verifyUserEmail).toHaveBeenCalledWith("u1");
 			expect(result).toMatchObject({ verified: true });
@@ -207,11 +207,11 @@ describe("Auth Service", () => {
 		it("should throw for invalid token", async () => {
 			emailProvider.hashVerificationToken.mockReturnValue("token-hash");
 			authRepository.findUserByEmailVerificationTokenHash.mockResolvedValue(
-				null,
+				null
 			);
 
 			await expect(
-				authService.verifyEmailByToken("invalid-token"),
+				authService.verifyEmailByToken("invalid-token")
 			).rejects.toMatchObject({
 				code: "AUTH.INVALID_VERIFICATION_TOKEN",
 			});
@@ -225,7 +225,7 @@ describe("Auth Service", () => {
 			});
 
 			await expect(
-				authService.verifyEmailByToken("expired-token"),
+				authService.verifyEmailByToken("expired-token")
 			).rejects.toMatchObject({
 				code: "AUTH.VERIFICATION_TOKEN_EXPIRED",
 			});
@@ -256,10 +256,10 @@ describe("Auth Service", () => {
 			expect(authRepository.setEmailOtp).toHaveBeenCalledWith(
 				"u1",
 				"otp-hash",
-				expect.any(Date),
+				expect.any(Date)
 			);
 			expect(emailProvider.sendEmailOtp).toHaveBeenCalledWith(
-				expect.objectContaining({ email: "test@example.com", otp: "123456" }),
+				expect.objectContaining({ email: "test@example.com", otp: "123456" })
 			);
 			expect(result.otpRequested).toBe(true);
 		});
@@ -268,7 +268,7 @@ describe("Auth Service", () => {
 			authRepository.findUserByEmail.mockResolvedValue(null);
 
 			await expect(
-				authService.requestEmailOtp({ email: "missing@example.com" }),
+				authService.requestEmailOtp({ email: "missing@example.com" })
 			).rejects.toMatchObject({
 				code: "AUTH.INVALID_EMAIL_OTP",
 			});
@@ -328,7 +328,7 @@ describe("Auth Service", () => {
 				authService.loginWithEmailOtp({
 					email: "test@example.com",
 					otp: "111111",
-				}),
+				})
 			).rejects.toMatchObject({
 				code: "AUTH.INVALID_EMAIL_OTP",
 			});
@@ -354,7 +354,7 @@ describe("Auth Service", () => {
 			authRepository.findUserById.mockResolvedValue(null);
 
 			await expect(
-				authService.logoutUser({ id: "missing" }),
+				authService.logoutUser({ id: "missing" })
 			).rejects.toMatchObject({
 				code: "AUTH.USER_NOT_FOUND",
 			});
@@ -423,7 +423,7 @@ describe("Auth Service", () => {
 			expect(authRepository.createUser).not.toHaveBeenCalled();
 			expect(authRepository.attachGoogleIdToUser).toHaveBeenCalledWith(
 				existingUser._id,
-				"google-new",
+				"google-new"
 			);
 			expect(result.token).toBe("linked-token");
 		});
@@ -465,7 +465,7 @@ describe("Auth Service", () => {
 			authRepository.findUserByGoogleId.mockResolvedValue(null);
 
 			await expect(
-				authService.handleGoogleCallback(profile),
+				authService.handleGoogleCallback(profile)
 			).rejects.toMatchObject({
 				code: "AUTH.GOOGLE_EMAIL_MISSING",
 			});
@@ -483,7 +483,7 @@ describe("Auth Service", () => {
 			authRepository.createUser.mockRejectedValue({ code: 11_000 });
 
 			await expect(
-				authService.handleGoogleCallback(profile),
+				authService.handleGoogleCallback(profile)
 			).rejects.toMatchObject({
 				code: "AUTH.GOOGLE_ACCOUNT_CONFLICT",
 			});
@@ -504,7 +504,7 @@ describe("Auth Service", () => {
 			});
 
 			await expect(
-				authService.handleGoogleCallback(profile),
+				authService.handleGoogleCallback(profile)
 			).rejects.toMatchObject({
 				code: "AUTH.GOOGLE_USER_VALIDATION_FAILED",
 			});
@@ -525,7 +525,7 @@ describe("Auth Service", () => {
 			});
 
 			await expect(
-				authService.handleGoogleCallback(profile),
+				authService.handleGoogleCallback(profile)
 			).rejects.toMatchObject({
 				code: "AUTH.GOOGLE_USER_INVALID_DATA",
 			});

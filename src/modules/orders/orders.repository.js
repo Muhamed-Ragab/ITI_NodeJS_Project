@@ -52,7 +52,7 @@ export const updateStatusById = async (orderId, status, source = "admin") => {
 				},
 			},
 		},
-		{ new: true, runValidators: true },
+		{ new: true, runValidators: true }
 	);
 };
 
@@ -69,7 +69,7 @@ export const appendStatusTimelineEvent = async (orderId, event) => {
 				},
 			},
 		},
-		{ new: true, runValidators: true },
+		{ new: true, runValidators: true }
 	);
 };
 

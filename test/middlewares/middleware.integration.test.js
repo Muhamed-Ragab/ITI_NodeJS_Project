@@ -25,7 +25,7 @@ app.post(
 			data: req.body,
 			message: "User validated",
 		});
-	},
+	}
 );
 
 app.get("/boom", (_req, _res, next) => {
@@ -46,7 +46,7 @@ app.get(
 		next();
 	},
 	requireRole("admin"),
-	(_req, res) => sendSuccess(res, { data: { allowed: true } }),
+	(_req, res) => sendSuccess(res, { data: { allowed: true } })
 );
 
 app.use(errorHandler);

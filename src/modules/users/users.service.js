@@ -138,11 +138,13 @@ export const syncGuestData = async (userId, { cart = [], wishlist = [] }) => {
 
 	// 1. Sync Wishlist
 	if (wishlist.length > 0) {
-		const currentWishlistIds = (user.wishlist || []).map(p => String(p._id));
-		const newIds = wishlist.filter(id => !currentWishlistIds.includes(String(id)));
+		const currentWishlistIds = (user.wishlist || []).map((p) => String(p._id));
+		const newIds = wishlist.filter(
+			(id) => !currentWishlistIds.includes(String(id))
+		);
 		if (newIds.length > 0) {
 			await repo.updateById(userId, {
-				$addToSet: { wishlist: { $each: newIds } }
+				$addToSet: { wishlist: { $each: newIds } },
 			});
 		}
 	}
@@ -153,8 +155,11 @@ export const syncGuestData = async (userId, { cart = [], wishlist = [] }) => {
 			const itemExists = await repo.findCartItem(userId, item.product);
 			if (itemExists) {
 				// We can either sum the quantity or ignore. Usually summing is better.
-				const currentItem = itemExists.cart.find(c => String(c.product) === String(item.product));
-				const newQuantity = (currentItem ? currentItem.quantity : 0) + item.quantity;
+				const currentItem = itemExists.cart.find(
+					(c) => String(c.product) === String(item.product)
+				);
+				const newQuantity =
+					(currentItem ? currentItem.quantity : 0) + item.quantity;
 				await repo.updateCartItem(userId, item.product, newQuantity);
 			} else {
 				await repo.addCartItem(userId, item.product, item.quantity);
@@ -375,7 +380,7 @@ export const reviewSellerPayoutRequest = async (
 	userId,
 	payoutId,
 	status,
-	note,
+	note
 ) => {
 	const user = await repo.findById(userId);
 	if (!user) {
@@ -387,7 +392,7 @@ export const reviewSellerPayoutRequest = async (
 
 	const requests = [...(user.seller_profile?.payout_requests || [])];
 	const index = requests.findIndex(
-		(item) => String(item._id) === String(payoutId),
+		(item) => String(item._id) === String(payoutId)
 	);
 	if (index === -1) {
 		throw ApiError.notFound({
@@ -407,7 +412,7 @@ export const reviewSellerPayoutRequest = async (
 	if (status === "paid") {
 		nextWalletBalance = Math.max(
 			0,
-			nextWalletBalance - Number(requests[index].amount),
+			nextWalletBalance - Number(requests[index].amount)
 		);
 	}
 

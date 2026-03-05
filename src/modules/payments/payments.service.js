@@ -84,7 +84,7 @@ const validateOrderForPayment = async (orderId, userId, guestEmail) => {
 export const createPaymentIntent = async (
 	orderId,
 	userId,
-	guestEmail = null,
+	guestEmail = null
 ) => {
 	const order = await validateOrderForPayment(orderId, userId, guestEmail);
 
@@ -142,7 +142,7 @@ export const handleStripeWebhook = async (stripeSignature, rawBody) => {
 		event = stripe.webhooks.constructEvent(
 			rawBody,
 			stripeSignature,
-			webhookSecret,
+			webhookSecret
 		);
 	} catch (error) {
 		throw ApiError.badRequest({
@@ -221,7 +221,7 @@ export const processCheckoutPayment = async (
 	userId,
 	method,
 	savedMethodId,
-	guestEmail,
+	guestEmail
 ) => {
 	const order = await validateOrderForPayment(orderId, userId, guestEmail);
 
