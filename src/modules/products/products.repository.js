@@ -51,7 +51,6 @@ export const listWithFilters = async (filters = {}) => {
 		is_active,
 		min_rating,
 		seller_id,
-		in_stock,
 		min_rating_count,
 		sort,
 	} = filters;
@@ -96,11 +95,6 @@ export const listWithFilters = async (filters = {}) => {
 	// Seller filter
 	if (seller_id) {
 		query.seller_id = seller_id;
-	}
-
-	// In stock filter
-	if (in_stock === "true") {
-		query.stock_quantity = { $gt: 0 };
 	}
 
 	// Minimum rating count filter

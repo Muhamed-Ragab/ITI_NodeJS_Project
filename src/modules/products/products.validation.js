@@ -41,7 +41,6 @@ export const productQuerySchema = z.object({
 	limit: z.string().optional(),
 	min_rating: z.string().optional(),
 	seller_id: objectId.optional(),
-	in_stock: z.string().optional(),
 	min_rating_count: z.string().optional(),
 	sort: z.string().optional(),
 });
