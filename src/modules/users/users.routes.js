@@ -4,26 +4,26 @@ import { requireRole } from "../../middlewares/role.middleware.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import * as controller from "./users.controller.js";
 import {
-	addressIdSchema,
-	addressSchema,
-	cartItemSchema,
-	loyaltyGrantSchema,
-	marketingBroadcastSchema,
-	marketingPreferencesSchema,
-	payoutRequestCreateSchema,
-	payoutRequestIdSchema,
-	payoutReviewSchema,
-	preferredLanguageSchema,
-	productIdSchema,
-	profileUpdateSchema,
-	referralApplySchema,
-	restrictionUpdateSchema,
-	roleUpdateSchema,
-	savedPaymentMethodCreateSchema,
-	savedPaymentMethodIdSchema,
-	sellerApprovalSchema,
-	sellerOnboardingRequestSchema,
-	userIdSchema,
+    addressIdSchema,
+    addressSchema,
+    cartItemSchema,
+    loyaltyGrantSchema,
+    marketingBroadcastSchema,
+    marketingPreferencesSchema,
+    payoutRequestCreateSchema,
+    payoutRequestIdSchema,
+    payoutReviewSchema,
+    preferredLanguageSchema,
+    productIdSchema,
+    profileUpdateSchema,
+    referralApplySchema,
+    restrictionUpdateSchema,
+    roleUpdateSchema,
+    savedPaymentMethodCreateSchema,
+    savedPaymentMethodIdSchema,
+    sellerApprovalSchema,
+    sellerOnboardingRequestSchema,
+    userIdSchema
 } from "./users.validation.js";
 
 const userRouter = Router();
@@ -35,6 +35,12 @@ userRouter.put(
 	requireAuth,
 	validate({ body: profileUpdateSchema }),
 	controller.updateProfile,
+);
+userRouter.post(
+	"/sync-guest-data",
+	requireAuth,
+	validate({ body: syncGuestDataSchema }),
+	controller.syncGuestData,
 );
 
 // Wishlist

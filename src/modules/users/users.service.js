@@ -127,6 +127,49 @@ export const removeCartItem = async (userId, productId) => {
 	return formatCart(result.cart);
 };
 
+export const syncGuestData = async (userId, { cart = [], wishlist = [] }) => {
+	const user = await repo.findById(userId);
+	if (!user) {
+		throw ApiError.notFound({
+			code: "USER.NOT_FOUND",
+			message: "User not found",
+		});
+	}
+
+	// 1. Sync Wishlist
+	if (wishlist.length > 0) {
+		const currentWishlistIds = (user.wishlist || []).map(p => String(p._id));
+		const newIds = wishlist.filter(id => !currentWishlistIds.includes(String(id)));
+		if (newIds.length > 0) {
+			await repo.updateById(userId, {
+				$addToSet: { wishlist: { $each: newIds } }
+			});
+		}
+	}
+
+	// 2. Sync Cart
+	if (cart.length > 0) {
+		for (const item of cart) {
+			const itemExists = await repo.findCartItem(userId, item.product);
+			if (itemExists) {
+				// We can either sum the quantity or ignore. Usually summing is better.
+				const currentItem = itemExists.cart.find(c => String(c.product) === String(item.product));
+				const newQuantity = (currentItem ? currentItem.quantity : 0) + item.quantity;
+				await repo.updateCartItem(userId, item.product, newQuantity);
+			} else {
+				await repo.addCartItem(userId, item.product, item.quantity);
+			}
+		}
+	}
+
+	// Fetch fresh user data after sync
+	const updatedUser = await repo.findById(userId);
+	return {
+		cart: formatCart(updatedUser.cart),
+		wishlist: (updatedUser.wishlist || []).map(formatWishlistItem),
+	};
+};
+
 export const addAddress = async (id, address) => {
 	const result = await repo.addAddress(id, address);
 	if (!result) {

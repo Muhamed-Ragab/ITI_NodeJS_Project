@@ -82,6 +82,15 @@ export const removeCartItemController = async (req, res) => {
 	});
 };
 
+export const syncGuestData = async (req, res) => {
+	const result = await service.syncGuestData(req.user.id, req.body);
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: result,
+		message: "Guest data synced successfully",
+	});
+};
+
 export const addAddress = async (req, res) => {
 	const updated = await service.addAddress(req.user.id, req.body);
 	return sendSuccess(res, {

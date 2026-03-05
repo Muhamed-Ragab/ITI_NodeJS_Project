@@ -33,6 +33,11 @@ export const cartItemSchema = z.object({
 	quantity: z.number().int().positive().default(1),
 });
 
+export const syncGuestDataSchema = z.object({
+	cart: z.array(cartItemSchema).max(100).optional(),
+	wishlist: z.array(objectId).max(100).optional(),
+});
+
 export const roleUpdateSchema = z.object({
 	role: z.enum(["customer", "seller", "admin"]),
 });
