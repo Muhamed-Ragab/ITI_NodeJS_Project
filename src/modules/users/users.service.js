@@ -1,6 +1,39 @@
 import { ApiError } from "../../utils/errors/api-error.js";
 import * as repo from "./users.repository.js";
 
+const formatWishlistItem = (product) => ({
+	productId: product._id,
+	name: product.title,
+	price: product.price,
+	image: product.images?.[0] || "",
+	addedAt: product.createdAt, // Fallback to product creation date
+});
+
+const formatCart = (cartItems = []) => {
+	const items = cartItems
+		.filter((item) => item.product) // Ensure product is populated
+		.map((item) => ({
+			productId: item.product._id,
+			name: item.product.title,
+			price: item.product.price,
+			quantity: item.quantity,
+			subtotal: item.quantity * item.product.price,
+			image: item.product.images?.[0] || "",
+		}));
+
+	const subtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
+	const tax = subtotal * 0.14; // 14% VAT example
+	const shipping = subtotal > 0 ? 50 : 0; // Flat shipping if not empty
+
+	return {
+		items,
+		subtotal,
+		tax,
+		shipping,
+		total: subtotal + tax + shipping,
+	};
+};
+
 export const getUserById = async (id) => {
 	const user = await repo.findById(id);
 	if (!user) {
@@ -31,7 +64,7 @@ export const getUserWishlist = async (id) => {
 			message: "User not found",
 		});
 	}
-	return user.wishlist || [];
+	return (user.wishlist || []).map(formatWishlistItem);
 };
 
 export const addProductToWishlist = async (id, productId) => {
@@ -42,7 +75,7 @@ export const addProductToWishlist = async (id, productId) => {
 			message: "User not found",
 		});
 	}
-	return result.wishlist;
+	return (result.wishlist || []).map(formatWishlistItem);
 };
 
 export const removeProductFromWishlist = async (id, productId) => {
@@ -53,7 +86,7 @@ export const removeProductFromWishlist = async (id, productId) => {
 			message: "User not found",
 		});
 	}
-	return result.wishlist;
+	return (result.wishlist || []).map(formatWishlistItem);
 };
 
 export const getUserCart = async (id) => {
@@ -64,7 +97,7 @@ export const getUserCart = async (id) => {
 			message: "User not found",
 		});
 	}
-	return user.cart || [];
+	return formatCart(user.cart);
 };
 
 export const upsertCartItem = async (userId, productId, quantity) => {
@@ -80,7 +113,7 @@ export const upsertCartItem = async (userId, productId, quantity) => {
 			message: "User not found",
 		});
 	}
-	return result.cart;
+	return formatCart(result.cart);
 };
 
 export const removeCartItem = async (userId, productId) => {
@@ -91,7 +124,7 @@ export const removeCartItem = async (userId, productId) => {
 			message: "User not found",
 		});
 	}
-	return result.cart;
+	return formatCart(result.cart);
 };
 
 export const addAddress = async (id, address) => {

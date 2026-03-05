@@ -1,7 +1,9 @@
 import User from "./user.model.js";
 
 export const findById = async (id) => {
-	return await User.findOne({ _id: id, deletedAt: null });
+	return await User.findOne({ _id: id, deletedAt: null })
+		.populate("wishlist")
+		.populate("cart.product");
 };
 
 export const list = async () => {
@@ -20,7 +22,7 @@ export const addWishlist = async (userId, productId) => {
 		{ _id: userId, deletedAt: null },
 		{ $addToSet: { wishlist: productId } },
 		{ new: true }
-	);
+	).populate("wishlist");
 };
 
 export const removeWishlist = async (userId, productId) => {
@@ -28,7 +30,7 @@ export const removeWishlist = async (userId, productId) => {
 		{ _id: userId, deletedAt: null },
 		{ $pull: { wishlist: productId } },
 		{ new: true }
-	);
+	).populate("wishlist");
 };
 
 export const findCartItem = async (userId, productId) => {
@@ -44,7 +46,7 @@ export const updateCartItem = async (userId, productId, quantity) => {
 		{ _id: userId, deletedAt: null, "cart.product": productId },
 		{ $set: { "cart.$.quantity": quantity } },
 		{ new: true }
-	);
+	).populate("cart.product");
 };
 
 export const addCartItem = async (userId, productId, quantity) => {
@@ -52,7 +54,7 @@ export const addCartItem = async (userId, productId, quantity) => {
 		{ _id: userId, deletedAt: null },
 		{ $push: { cart: { product: productId, quantity } } },
 		{ new: true }
-	);
+	).populate("cart.product");
 };
 
 export const removeCartItem = async (userId, productId) => {
@@ -60,7 +62,7 @@ export const removeCartItem = async (userId, productId) => {
 		{ _id: userId, deletedAt: null },
 		{ $pull: { cart: { product: productId } } },
 		{ new: true }
-	);
+	).populate("cart.product");
 };
 
 export const addAddress = async (userId, address) => {
