@@ -1,0 +1,98 @@
+- [x] Phase 0 — Workflow & Deliverables Foundations
+  - [x] Create tracking issue board (GitHub Projects) for all features.
+  - [x] Enforce one branch per feature using allowed prefixes (`feature/*`, `fix/*`, ...).
+  - [x] Add PR template checklist for tests/docs/quality gates.
+  - [x] Create `docs/demo-walkthrough.md` (demo script + API flow).
+  - [x] Create `docs/presentation/README.md` (slide outline + tech stack talking points).
+
+- [x] Phase 1 — MVP Gaps (Core Commerce Completeness)
+  - [x] **Email verification** after registration.
+    - Branch: `feature/auth-email-verification`
+    - Files: `src/modules/auth/*`, `src/modules/users/user.model.js`, `src/services/` (mailer), tests in `test/modules/auth/*`
+  - [x] **Role model alignment** to `customer | seller | admin` (remove inconsistency with `member`).
+    - Branch: `fix/auth-role-alignment`
+    - Files: `src/modules/users/user.model.js`, `src/modules/users/users.validation.js`, guards/routes/tests touching role checks
+  - [x] **Reviews & ratings module** (CRUD + product rating aggregation).
+    - Branch: `feature/reviews-ratings`
+    - Files: `src/modules/reviews/*` (new), integration with `src/modules/products/*`, tests in `test/modules/reviews/*`
+  - [x] **Order price breakdown snapshot** (`subtotal`, `discount`, `shipping`, `tax`, `total`).
+    - Branch: `feature/orders-price-breakdown`
+    - Files: `src/modules/orders/orders.model.js`, `orders.service.js`, `orders.validation.js`, tests in `test/modules/orders/*`
+  - [x] **Promo codes / discounts / coupons** end-to-end.
+    - Branch: `feature/coupons-discounts`
+    - Files: `src/modules/coupons/*` (new), integrate with orders/payments, tests + docs
+  - [x] **Order tracking timeline + events** (not only one status field).
+    - Branch: `feature/order-tracking-timeline`
+    - Files: `src/modules/orders/*`, tests in `test/modules/orders/*`
+  - [x] **Order email notifications** (placed/paid/shipped/delivered).
+    - Branch: `feature/order-email-notifications`
+    - Files: `src/services/notifications/*` (new), hook from orders/payments services, tests
+  - [x] **Admin user restrict/soft delete**.
+    - Branch: `feature/admin-user-restrictions`
+    - Files: `src/modules/users/*`, auth middleware checks, tests in `test/modules/users/*`
+
+- [x] Phase 2 — Checkout & Payments Expansion
+  - [x] **Email auth/login (OTP)**.
+    - Branch: `feature/auth-email-otp`
+    - Files: `src/modules/auth/*`, `src/modules/users/user.model.js`, provider service, tests
+  - [x] **Guest checkout** flow.
+    - Branch: `feature/guest-checkout`
+    - Files: `src/modules/orders/*`, optionally guest profile model, tests
+  - [x] **Multi-payment methods** (PayPal, COD, Wallet) with strategy pattern.
+    - Branch: `feature/payment-methods-expansion`
+    - Files: `src/modules/payments/*`, orders payment metadata, tests
+  - [x] **Saved payment methods** (bonus) via secure provider tokenization.
+    - Branch: `feature/saved-payment-methods`
+    - Files: `src/modules/payments/*`, user payment profile schema, tests
+
+- [x] Phase 3 — Admin & Seller Business Features
+  - [x] **Admin discounts/promo management APIs**.
+    - Branch: `feature/admin-promotions-management`
+    - Files: `src/modules/coupons/*`, admin routes/tests/docs
+  - [x] **Homepage/banner content management**.
+    - Branch: `feature/admin-content-management`
+    - Files: `src/modules/content/*` (new), tests/docs
+  - [x] **Seller registration/profile setup + approval workflow**.
+    - Branch: `feature/seller-onboarding`
+    - Files: `src/modules/sellers/*` (new) or `users/*` extension, tests/docs
+  - [x] **Seller order processing/status updates** (bonus).
+    - Branch: `feature/seller-order-processing`
+    - Files: `src/modules/orders/*`, seller-scoped routes/tests
+  - [x] **Seller earnings & payouts** (bonus).
+    - Branch: `feature/seller-payouts`
+    - Files: `src/modules/payouts/*` (new), tests/docs
+
+- [x] Phase 4 — Engagement, Growth, and Localization (Bonus)
+  - [x] Push notifications for promotions/updates.
+    - Branch: `feature/push-notifications`
+  - [x] Email marketing/newsletters.
+    - Branch: `feature/email-marketing`
+  - [x] Loyalty points & rewards.
+    - Branch: `feature/loyalty-rewards`
+  - [x] Referrals + social sharing bonuses.
+    - Branch: `feature/referral-program`
+  - [x] Multi-language/i18n support.
+    - Branch: `feature/i18n-support`
+
+- [x] Phase 5 — Presentation & Final Demo Readiness
+  - [x] Build slide deck under `docs/presentation/` covering:
+    - [x] Product problem & solution
+    - [x] Architecture (Controller-Service-Repository, MongoDB)
+    - [x] Security/auth/roles
+    - [x] Payments/order flow
+    - [x] Admin/seller capabilities
+    - [x] Testing + quality gates
+  - [x] Prepare demo script with realistic end-to-end scenarios:
+    - [x] Customer journey (browse → cart → checkout → order tracking)
+    - [x] Seller journey (list/update inventory)
+    - [x] Admin journey (manage users/orders/categories/products/promos)
+  - [x] Record/prepare codebase walkthrough path by module.
+
+- [x] Quality gate checklist (run per feature branch before PR)
+  - [x] `npm run format`
+  - [x] `npm run lint`
+  - [x] `npm run build`
+  - [x] `npm test -- --run`
+
+## Pending Fixes
+- [x] Fix formatting issues reported by Biome in 22 files.
