@@ -22,7 +22,7 @@ const generateToken = (user) =>
 			tokenVersion: user.tokenVersion ?? 0,
 		},
 		env.JWT_SECRET,
-		{ expiresIn: "7d" }
+		{ expiresIn: "7d" },
 	);
 
 const stripPassword = (user) => {
@@ -182,7 +182,7 @@ export const requestEmailOtp = async ({ email }) => {
 	await authRepository.setEmailOtp(
 		user._id,
 		otpData.otpHash,
-		otpData.expiresAt
+		otpData.expiresAt,
 	);
 	await sendEmailOtp({ email: user.email, name: user.name, otp: otpData.otp });
 
@@ -309,7 +309,7 @@ export const handleGoogleCallback = async (profile) => {
 				if (existingUserByEmail) {
 					user = await authRepository.attachGoogleIdToUser(
 						existingUserByEmail._id,
-						profile.id
+						profile.id,
 					);
 				} else {
 					user = await authRepository.createUser({

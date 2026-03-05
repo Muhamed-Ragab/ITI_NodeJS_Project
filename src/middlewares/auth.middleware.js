@@ -20,7 +20,7 @@ export const requireAuth = async (req, _res, next) => {
 				ApiError.internal({
 					code: "SERVER_MISCONFIG",
 					message: "JWT secret is not configured",
-				})
+				}),
 			);
 		}
 
@@ -30,7 +30,7 @@ export const requireAuth = async (req, _res, next) => {
 			return next(
 				ApiError.unauthorized({
 					message: "Missing or invalid authorization token",
-				})
+				}),
 			);
 		}
 
@@ -42,7 +42,7 @@ export const requireAuth = async (req, _res, next) => {
 				ApiError.unauthorized({
 					code: "AUTH.USER_NOT_FOUND",
 					message: "User not found",
-				})
+				}),
 			);
 		}
 
@@ -51,7 +51,7 @@ export const requireAuth = async (req, _res, next) => {
 				ApiError.unauthorized({
 					code: "AUTH.USER_DELETED",
 					message: "User account is no longer available",
-				})
+				}),
 			);
 		}
 
@@ -60,7 +60,7 @@ export const requireAuth = async (req, _res, next) => {
 				ApiError.forbidden({
 					code: "AUTH.USER_RESTRICTED",
 					message: "Your account is restricted",
-				})
+				}),
 			);
 		}
 
@@ -70,7 +70,7 @@ export const requireAuth = async (req, _res, next) => {
 				ApiError.unauthorized({
 					code: "AUTH.TOKEN_REVOKED",
 					message: "Token has been revoked",
-				})
+				}),
 			);
 		}
 

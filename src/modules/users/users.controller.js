@@ -31,7 +31,7 @@ export const getWishlist = async (req, res) => {
 export const addWishlistItem = async (req, res) => {
 	const updated = await service.addProductToWishlist(
 		req.user.id,
-		req.body.productId
+		req.body.productId,
 	);
 	return sendSuccess(res, {
 		statusCode: StatusCodes.OK,
@@ -43,7 +43,7 @@ export const addWishlistItem = async (req, res) => {
 export const removeWishlistItem = async (req, res) => {
 	const updated = await service.removeProductFromWishlist(
 		req.user.id,
-		req.params.productId
+		req.params.productId,
 	);
 	return sendSuccess(res, {
 		statusCode: StatusCodes.OK,
@@ -73,7 +73,7 @@ export const upsertCart = async (req, res) => {
 export const removeCartItemController = async (req, res) => {
 	const updated = await service.removeCartItem(
 		req.user.id,
-		req.params.productId
+		req.params.productId,
 	);
 	return sendSuccess(res, {
 		statusCode: StatusCodes.OK,
@@ -95,7 +95,7 @@ export const updateAddress = async (req, res) => {
 	const updated = await service.updateAddress(
 		req.user.id,
 		req.params.addressId,
-		req.body
+		req.body,
 	);
 	return sendSuccess(res, {
 		statusCode: StatusCodes.OK,
@@ -107,7 +107,7 @@ export const updateAddress = async (req, res) => {
 export const removeAddress = async (req, res) => {
 	const updated = await service.removeAddress(
 		req.user.id,
-		req.params.addressId
+		req.params.addressId,
 	);
 	return sendSuccess(res, {
 		statusCode: StatusCodes.OK,
@@ -136,7 +136,7 @@ export const updateRole = async (req, res) => {
 export const setUserRestriction = async (req, res) => {
 	const updated = await service.setUserRestriction(
 		req.params.id,
-		req.body.isRestricted
+		req.body.isRestricted,
 	);
 
 	return sendSuccess(res, {
@@ -179,7 +179,7 @@ export const addSavedPaymentMethod = async (req, res) => {
 export const removeSavedPaymentMethod = async (req, res) => {
 	const methods = await service.removeSavedPaymentMethod(
 		req.user.id,
-		req.params.methodId
+		req.params.methodId,
 	);
 
 	return sendSuccess(res, {
@@ -192,7 +192,7 @@ export const removeSavedPaymentMethod = async (req, res) => {
 export const setDefaultSavedPaymentMethod = async (req, res) => {
 	const methods = await service.setDefaultSavedPaymentMethod(
 		req.user.id,
-		req.params.methodId
+		req.params.methodId,
 	);
 
 	return sendSuccess(res, {
@@ -226,7 +226,7 @@ export const reviewSellerOnboarding = async (req, res) => {
 	const reviewed = await service.reviewSellerOnboarding(
 		req.params.id,
 		req.body.status,
-		req.body.note
+		req.body.note,
 	);
 
 	return sendSuccess(res, {
@@ -239,7 +239,7 @@ export const reviewSellerOnboarding = async (req, res) => {
 export const createSellerPayoutRequest = async (req, res) => {
 	const payouts = await service.createSellerPayoutRequest(
 		req.user.id,
-		req.body
+		req.body,
 	);
 
 	return sendSuccess(res, {
@@ -254,7 +254,7 @@ export const reviewSellerPayoutRequest = async (req, res) => {
 		req.params.id,
 		req.params.payoutId,
 		req.body.status,
-		req.body.note
+		req.body.note,
 	);
 
 	return sendSuccess(res, {
@@ -267,7 +267,7 @@ export const reviewSellerPayoutRequest = async (req, res) => {
 export const updateMarketingPreferences = async (req, res) => {
 	const preferences = await service.updateMarketingPreferences(
 		req.user.id,
-		req.body
+		req.body,
 	);
 
 	return sendSuccess(res, {
@@ -280,7 +280,7 @@ export const updateMarketingPreferences = async (req, res) => {
 export const updatePreferredLanguage = async (req, res) => {
 	const result = await service.updatePreferredLanguage(
 		req.user.id,
-		req.body.language
+		req.body.language,
 	);
 
 	return sendSuccess(res, {
@@ -324,7 +324,7 @@ export const grantLoyaltyPoints = async (req, res) => {
 	const result = await service.grantLoyaltyPoints(
 		req.params.id,
 		req.body.points,
-		req.body.reason
+		req.body.reason,
 	);
 
 	return sendSuccess(res, {

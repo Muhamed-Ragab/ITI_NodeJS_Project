@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema(
 		loyalty_points: { type: Number, default: 0 },
 		referral_code: String,
 	},
-	{ timestamps: true }
+	{ timestamps: true },
 );
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);

@@ -38,7 +38,7 @@ describe("auth middleware", () => {
 	it("attaches decoded user and calls next with no args when token is valid", async () => {
 		const token = jwt.sign(
 			{ id: "user-1", role: "admin", tokenVersion: 0 },
-			process.env.JWT_SECRET
+			process.env.JWT_SECRET,
 		);
 		const req = { headers: { authorization: `Bearer ${token}` } };
 		authRepository.findUserById.mockResolvedValue({
@@ -55,14 +55,14 @@ describe("auth middleware", () => {
 	it("returns unauthorized when user does not exist in database", async () => {
 		const token = jwt.sign(
 			{ id: "missing-user", role: "customer", tokenVersion: 0 },
-			process.env.JWT_SECRET
+			process.env.JWT_SECRET,
 		);
 		authRepository.findUserById.mockResolvedValue(null);
 
 		await requireAuth(
 			{ headers: { authorization: `Bearer ${token}` } },
 			{},
-			next
+			next,
 		);
 
 		const [error] = next.mock.calls[0];
@@ -74,7 +74,7 @@ describe("auth middleware", () => {
 	it("returns unauthorized when token version is revoked", async () => {
 		const token = jwt.sign(
 			{ id: "user-1", role: "customer", tokenVersion: 0 },
-			process.env.JWT_SECRET
+			process.env.JWT_SECRET,
 		);
 		authRepository.findUserById.mockResolvedValue({
 			_id: "user-1",
@@ -84,7 +84,7 @@ describe("auth middleware", () => {
 		await requireAuth(
 			{ headers: { authorization: `Bearer ${token}` } },
 			{},
-			next
+			next,
 		);
 
 		const [error] = next.mock.calls[0];
@@ -96,7 +96,7 @@ describe("auth middleware", () => {
 	it("returns unauthorized when user is soft deleted", async () => {
 		const token = jwt.sign(
 			{ id: "user-1", role: "customer", tokenVersion: 0 },
-			process.env.JWT_SECRET
+			process.env.JWT_SECRET,
 		);
 		authRepository.findUserById.mockResolvedValue({
 			_id: "user-1",
@@ -107,7 +107,7 @@ describe("auth middleware", () => {
 		await requireAuth(
 			{ headers: { authorization: `Bearer ${token}` } },
 			{},
-			next
+			next,
 		);
 
 		const [error] = next.mock.calls[0];
@@ -119,7 +119,7 @@ describe("auth middleware", () => {
 	it("returns forbidden when user is restricted", async () => {
 		const token = jwt.sign(
 			{ id: "user-1", role: "customer", tokenVersion: 0 },
-			process.env.JWT_SECRET
+			process.env.JWT_SECRET,
 		);
 		authRepository.findUserById.mockResolvedValue({
 			_id: "user-1",
@@ -130,7 +130,7 @@ describe("auth middleware", () => {
 		await requireAuth(
 			{ headers: { authorization: `Bearer ${token}` } },
 			{},
-			next
+			next,
 		);
 
 		const [error] = next.mock.calls[0];

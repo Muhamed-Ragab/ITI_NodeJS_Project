@@ -28,7 +28,7 @@ describe("Orders Controller", () => {
 			mockReq.body = { shippingAddressIndex: 0 };
 
 			vi.spyOn(ordersService, "createOrderFromCart").mockResolvedValue(
-				mockOrder
+				mockOrder,
 			);
 
 			await ordersController.createOrder(mockReq, mockRes);
@@ -46,7 +46,7 @@ describe("Orders Controller", () => {
 			mockReq.body = { paymentMethod: "wallet" };
 
 			vi.spyOn(ordersService, "createOrderFromCart").mockResolvedValue(
-				mockOrder
+				mockOrder,
 			);
 
 			await ordersController.createOrder(mockReq, mockRes);
@@ -55,7 +55,7 @@ describe("Orders Controller", () => {
 				"user123",
 				{
 					paymentMethod: "wallet",
-				}
+				},
 			);
 		});
 	});
@@ -155,7 +155,7 @@ describe("Orders Controller", () => {
 
 			expect(ordersService.listOrdersBySeller).toHaveBeenCalledWith(
 				"seller-1",
-				{}
+				{},
 			);
 			expect(sendSuccess).toHaveBeenCalledWith(mockRes, {
 				statusCode: StatusCodes.OK,
@@ -176,7 +176,7 @@ describe("Orders Controller", () => {
 			mockReq.user = { id: "seller-1", role: "seller" };
 
 			vi.spyOn(ordersService, "updateStatusBySeller").mockResolvedValue(
-				mockOrder
+				mockOrder,
 			);
 
 			await ordersController.updateSellerOrderStatus(mockReq, mockRes);
@@ -184,7 +184,7 @@ describe("Orders Controller", () => {
 			expect(ordersService.updateStatusBySeller).toHaveBeenCalledWith(
 				"order1",
 				"shipped",
-				"seller-1"
+				"seller-1",
 			);
 			expect(sendSuccess).toHaveBeenCalledWith(mockRes, {
 				statusCode: StatusCodes.OK,

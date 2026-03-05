@@ -32,7 +32,7 @@ describe("Payments Controller", () => {
 			mockReq.body = { orderId: "order123" };
 
 			vi.spyOn(paymentsService, "createPaymentIntent").mockResolvedValue(
-				mockResult
+				mockResult,
 			);
 
 			await paymentsController.createPaymentIntent(mockReq, mockRes);
@@ -53,7 +53,7 @@ describe("Payments Controller", () => {
 			mockReq.body = "raw_body";
 
 			vi.spyOn(paymentsService, "handleStripeWebhook").mockResolvedValue(
-				mockResult
+				mockResult,
 			);
 
 			await paymentsController.stripeWebhook(mockReq, mockRes);
@@ -70,7 +70,7 @@ describe("Payments Controller", () => {
 			mockReq.body = "raw_body";
 
 			await expect(
-				paymentsController.stripeWebhook(mockReq, mockRes)
+				paymentsController.stripeWebhook(mockReq, mockRes),
 			).rejects.toThrow();
 		});
 	});
@@ -84,7 +84,7 @@ describe("Payments Controller", () => {
 
 			mockReq.query = { page: "1", limit: "10" };
 			vi.spyOn(paymentsService, "listPaymentsForAdmin").mockResolvedValue(
-				mockResult
+				mockResult,
 			);
 
 			await paymentsController.listPaymentsForAdmin(mockReq, mockRes);

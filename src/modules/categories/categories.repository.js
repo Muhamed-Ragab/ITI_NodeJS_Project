@@ -19,7 +19,7 @@ export const updateById = async (id, category) => {
 		{
 			new: true,
 			runValidators: true,
-		}
+		},
 	);
 };
 
@@ -27,7 +27,7 @@ export const deleteById = async (id) => {
 	return await CategoryModel.findOneAndUpdate(
 		{ _id: id, deletedAt: null },
 		{ deletedAt: new Date() },
-		{ new: true }
+		{ new: true },
 	);
 };
 

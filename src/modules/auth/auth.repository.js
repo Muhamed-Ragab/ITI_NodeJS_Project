@@ -6,7 +6,7 @@ export const findUserByEmail = async (email) => {
 
 export const findUserByEmailWithOtp = async (email) => {
 	return await User.findOne({ email }).select(
-		"+emailOtpHash +emailOtpExpiresAt"
+		"+emailOtpHash +emailOtpExpiresAt",
 	);
 };
 
@@ -18,7 +18,7 @@ export const attachGoogleIdToUser = async (userId, googleId) => {
 	return await User.findByIdAndUpdate(
 		userId,
 		{ googleId },
-		{ new: true, runValidators: true }
+		{ new: true, runValidators: true },
 	);
 };
 
@@ -34,7 +34,7 @@ export const incrementTokenVersion = async (userId) => {
 	return await User.findByIdAndUpdate(
 		userId,
 		{ $inc: { tokenVersion: 1 } },
-		{ new: true }
+		{ new: true },
 	);
 };
 
@@ -42,7 +42,7 @@ export const setEmailOtp = async (userId, otpHash, otpExpiresAt) => {
 	return await User.findByIdAndUpdate(
 		userId,
 		{ emailOtpHash: otpHash, emailOtpExpiresAt: otpExpiresAt },
-		{ new: true }
+		{ new: true },
 	);
 };
 
@@ -53,7 +53,7 @@ export const consumeEmailOtp = async (userId) => {
 			emailOtpHash: null,
 			emailOtpExpiresAt: null,
 		},
-		{ new: true }
+		{ new: true },
 	);
 };
 
@@ -71,6 +71,6 @@ export const verifyUserEmail = async (userId) => {
 			emailVerificationTokenHash: null,
 			emailVerificationTokenExpiresAt: null,
 		},
-		{ new: true }
+		{ new: true },
 	);
 };

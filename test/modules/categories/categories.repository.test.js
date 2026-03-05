@@ -61,7 +61,7 @@ describe("Categories Repository", () => {
 			expect(CategoryModel.findOneAndUpdate).toHaveBeenCalledWith(
 				{ _id: id, deletedAt: null },
 				updateData,
-				expect.objectContaining({ new: true, runValidators: true })
+				expect.objectContaining({ new: true, runValidators: true }),
 			);
 			expect(result.name).toBe("New Name");
 		});
@@ -77,7 +77,7 @@ describe("Categories Repository", () => {
 			expect(CategoryModel.findOneAndUpdate).toHaveBeenCalledWith(
 				{ _id: id, deletedAt: null },
 				expect.objectContaining({ deletedAt: expect.any(Date) }),
-				expect.objectContaining({ new: true })
+				expect.objectContaining({ new: true }),
 			);
 			expect(result._id).toBe(id);
 		});

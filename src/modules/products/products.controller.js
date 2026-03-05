@@ -26,7 +26,7 @@ export const updateProduct = async (req, res) => {
 	const product = await productService.updateProduct(
 		req.params.id,
 		req.body,
-		req.user.id
+		req.user.id,
 	);
 
 	return sendSuccess(res, {
@@ -39,7 +39,7 @@ export const updateProduct = async (req, res) => {
 export const deleteProduct = async (req, res) => {
 	const product = await productService.deleteProduct(
 		req.params.id,
-		req.user.id
+		req.user.id,
 	);
 
 	return sendSuccess(res, {
@@ -52,7 +52,7 @@ export const deleteProduct = async (req, res) => {
 export const adminUpdateProduct = async (req, res) => {
 	const product = await productService.adminUpdateProduct(
 		req.params.id,
-		req.body
+		req.body,
 	);
 
 	return sendSuccess(res, {
@@ -86,7 +86,7 @@ export const uploadProductImages = async (req, res) => {
 	const product = await productService.uploadImages(
 		req.params.id,
 		req.body.images,
-		req.user.id
+		req.user.id,
 	);
 
 	return sendSuccess(res, {
@@ -99,7 +99,7 @@ export const uploadProductImages = async (req, res) => {
 export const getProductImageUploadPayload = async (req, res) => {
 	const payload = await productService.getImageUploadPayload(
 		req.user.id,
-		req.body
+		req.body,
 	);
 
 	return sendSuccess(res, {

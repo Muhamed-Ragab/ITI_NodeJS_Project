@@ -22,13 +22,13 @@ reviewsRouter.post(
 	"/",
 	requireAuth,
 	validate({ body: reviewCreateSchema }),
-	createReview
+	createReview,
 );
 
 reviewsRouter.get(
 	"/product/:productId",
 	validate({ params: productIdSchema, query: productReviewsQuerySchema }),
-	listProductReviews
+	listProductReviews,
 );
 
 reviewsRouter.get("/:id", validate({ params: reviewIdSchema }), getReviewById);
@@ -37,14 +37,14 @@ reviewsRouter.put(
 	"/:id",
 	requireAuth,
 	validate({ params: reviewIdSchema, body: reviewUpdateSchema }),
-	updateReview
+	updateReview,
 );
 
 reviewsRouter.delete(
 	"/:id",
 	requireAuth,
 	validate({ params: reviewIdSchema }),
-	deleteReview
+	deleteReview,
 );
 
 export default reviewsRouter;

@@ -16,7 +16,7 @@ const couponsRouter = Router();
 couponsRouter.post(
 	"/validate",
 	validate({ body: couponValidateSchema }),
-	couponsController.validateCoupon
+	couponsController.validateCoupon,
 );
 
 couponsRouter.post(
@@ -24,7 +24,7 @@ couponsRouter.post(
 	requireAuth,
 	requireRole("admin"),
 	validate({ body: couponCreateSchema }),
-	couponsController.createCoupon
+	couponsController.createCoupon,
 );
 
 couponsRouter.get(
@@ -32,7 +32,7 @@ couponsRouter.get(
 	requireAuth,
 	requireRole("admin"),
 	validate({ query: couponListQuerySchema }),
-	couponsController.listCoupons
+	couponsController.listCoupons,
 );
 
 couponsRouter.get(
@@ -40,7 +40,7 @@ couponsRouter.get(
 	requireAuth,
 	requireRole("admin"),
 	validate({ params: couponIdSchema }),
-	couponsController.getCouponById
+	couponsController.getCouponById,
 );
 
 couponsRouter.put(
@@ -48,7 +48,7 @@ couponsRouter.put(
 	requireAuth,
 	requireRole("admin"),
 	validate({ params: couponIdSchema, body: couponUpdateSchema }),
-	couponsController.updateCoupon
+	couponsController.updateCoupon,
 );
 
 couponsRouter.delete(
@@ -56,7 +56,7 @@ couponsRouter.delete(
 	requireAuth,
 	requireRole("admin"),
 	validate({ params: couponIdSchema }),
-	couponsController.deleteCoupon
+	couponsController.deleteCoupon,
 );
 
 export default couponsRouter;

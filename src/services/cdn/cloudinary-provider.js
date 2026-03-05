@@ -93,7 +93,7 @@ export class CloudinaryProvider extends CdnProvider {
 		const paramsToSign = { folder, timestamp };
 		const signature = cloudinary.utils.api_sign_request(
 			paramsToSign,
-			credentials.apiSecret
+			credentials.apiSecret,
 		);
 
 		return {

@@ -24,7 +24,7 @@ describe("Content Service", () => {
 		contentRepo.findBySlug.mockResolvedValue({ _id: "existing" });
 
 		await expect(
-			contentService.createContent({ slug: "home-banner" })
+			contentService.createContent({ slug: "home-banner" }),
 		).rejects.toThrow(ApiError);
 	});
 
@@ -32,7 +32,7 @@ describe("Content Service", () => {
 		contentRepo.findById.mockResolvedValue(null);
 
 		await expect(contentService.getContentById("id-1")).rejects.toThrow(
-			ApiError
+			ApiError,
 		);
 	});
 });

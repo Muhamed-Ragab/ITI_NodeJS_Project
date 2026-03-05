@@ -124,7 +124,7 @@ describe("Orders Service", () => {
 					shipping_amount: 0,
 					tax_amount: 0,
 					total_amount: 250,
-				})
+				}),
 			);
 			expect(usersRepo.updateById).toHaveBeenCalledWith("user123", {
 				cart: [],
@@ -135,7 +135,7 @@ describe("Orders Service", () => {
 			vi.spyOn(usersRepo, "findById").mockResolvedValue(null);
 
 			await expect(
-				ordersService.createOrderFromCart("user123")
+				ordersService.createOrderFromCart("user123"),
 			).rejects.toThrow(ApiError);
 		});
 
@@ -144,7 +144,7 @@ describe("Orders Service", () => {
 			vi.spyOn(usersRepo, "findById").mockResolvedValue(mockUser);
 
 			await expect(
-				ordersService.createOrderFromCart("user123")
+				ordersService.createOrderFromCart("user123"),
 			).rejects.toThrow(ApiError);
 		});
 
@@ -158,7 +158,7 @@ describe("Orders Service", () => {
 			setProductFindResult([]);
 
 			await expect(
-				ordersService.createOrderFromCart("user123")
+				ordersService.createOrderFromCart("user123"),
 			).rejects.toThrow(ApiError);
 		});
 
@@ -181,7 +181,7 @@ describe("Orders Service", () => {
 			setProductFindResult(mockProducts);
 
 			await expect(
-				ordersService.createOrderFromCart("user123")
+				ordersService.createOrderFromCart("user123"),
 			).rejects.toThrow(ApiError);
 		});
 
@@ -239,11 +239,11 @@ describe("Orders Service", () => {
 					status_timeline: [
 						expect.objectContaining({ status: "pending", source: "system" }),
 					],
-				})
+				}),
 			);
 			expect(couponsService.consumeCouponUsage).toHaveBeenCalledWith(
 				"coupon1",
-				"user123"
+				"user123",
 			);
 		});
 
@@ -280,7 +280,7 @@ describe("Orders Service", () => {
 			expect(ordersRepo.create).toHaveBeenCalledWith(
 				expect.objectContaining({
 					payment_info: expect.objectContaining({ method: "cod" }),
-				})
+				}),
 			);
 		});
 
@@ -305,7 +305,7 @@ describe("Orders Service", () => {
 			await expect(
 				ordersService.createOrderFromCart("user123", {
 					paymentMethod: "bank-transfer",
-				})
+				}),
 			).rejects.toThrow(ApiError);
 		});
 	});
@@ -340,15 +340,15 @@ describe("Orders Service", () => {
 					user: null,
 					guest_info: expect.objectContaining({ email: "guest@test.com" }),
 					payment_info: expect.objectContaining({ method: "paypal" }),
-				})
+				}),
 			);
 			expect(
-				orderNotifications.sendOrderStatusNotification
+				orderNotifications.sendOrderStatusNotification,
 			).toHaveBeenCalledWith(
 				expect.objectContaining({
 					email: "guest@test.com",
 					status: "pending",
-				})
+				}),
 			);
 		});
 	});
@@ -361,7 +361,7 @@ describe("Orders Service", () => {
 			const result = await ordersService.getOrderById(
 				"order123",
 				"user123",
-				"customer"
+				"customer",
 			);
 			expect(result).toEqual(mockOrder);
 		});
@@ -373,7 +373,7 @@ describe("Orders Service", () => {
 			const result = await ordersService.getOrderById(
 				"order123",
 				"adminuser",
-				"admin"
+				"admin",
 			);
 			expect(result).toEqual(mockOrder);
 		});
@@ -383,7 +383,7 @@ describe("Orders Service", () => {
 			vi.spyOn(ordersRepo, "findById").mockResolvedValue(mockOrder);
 
 			await expect(
-				ordersService.getOrderById("order123", "differentuser", "customer")
+				ordersService.getOrderById("order123", "differentuser", "customer"),
 			).rejects.toThrow(ApiError);
 		});
 
@@ -398,7 +398,7 @@ describe("Orders Service", () => {
 			const result = await ordersService.getOrderById(
 				"order123",
 				"seller-1",
-				"seller"
+				"seller",
 			);
 
 			expect(result).toEqual(mockOrder);
@@ -458,7 +458,7 @@ describe("Orders Service", () => {
 			const result = await ordersService.updateStatus(
 				"order123",
 				"paid",
-				"admin"
+				"admin",
 			);
 			expect(result.status).toBe("paid");
 			expect(orderNotifications.sendOrderStatusNotification).toHaveBeenCalled();
@@ -469,7 +469,7 @@ describe("Orders Service", () => {
 			vi.spyOn(ordersRepo, "findById").mockResolvedValue(mockOrder);
 
 			await expect(
-				ordersService.updateStatus("order123", "invalid", "admin")
+				ordersService.updateStatus("order123", "invalid", "admin"),
 			).rejects.toThrow(ApiError);
 		});
 	});
@@ -494,14 +494,14 @@ describe("Orders Service", () => {
 			const result = await ordersService.updateStatusBySeller(
 				"order123",
 				"shipped",
-				"seller-1"
+				"seller-1",
 			);
 
 			expect(result.status).toBe("shipped");
 			expect(ordersRepo.updateStatusById).toHaveBeenCalledWith(
 				"order123",
 				"shipped",
-				"seller"
+				"seller",
 			);
 			expect(orderNotifications.sendOrderStatusNotification).toHaveBeenCalled();
 		});
@@ -513,7 +513,7 @@ describe("Orders Service", () => {
 			});
 
 			await expect(
-				ordersService.updateStatusBySeller("order123", "shipped", "seller-1")
+				ordersService.updateStatusBySeller("order123", "shipped", "seller-1"),
 			).rejects.toThrow(ApiError);
 		});
 	});

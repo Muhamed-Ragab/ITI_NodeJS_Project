@@ -63,7 +63,7 @@ const couponSchema = new Schema(
 			default: null,
 		},
 	},
-	{ timestamps: true }
+	{ timestamps: true },
 );
 
 const CouponModel = model("Coupon", couponSchema);

@@ -19,67 +19,67 @@ productsRouter
 	.get(
 		"/",
 		validate({ query: productQuerySchema }),
-		productController.listProducts
+		productController.listProducts,
 	)
 	.post(
 		"/",
 		requireAuth,
 		requireRole("seller"),
 		validate({ body: productCreateSchema }),
-		productController.createProduct
+		productController.createProduct,
 	)
 	.get("/best-sellers", productController.getBestSellers)
 	.get(
 		"/:id/related",
 		validate({ params: productIdSchema }),
-		productController.getRelatedProducts
+		productController.getRelatedProducts,
 	)
 	.get(
 		"/:id",
 		validate({ params: productIdSchema }),
-		productController.getProductById
+		productController.getProductById,
 	)
 	.put(
 		"/admin/:id",
 		requireAuth,
 		requireRole("admin"),
 		validate({ params: productIdSchema, body: productUpdateSchema }),
-		productController.adminUpdateProduct
+		productController.adminUpdateProduct,
 	)
 	.delete(
 		"/admin/:id",
 		requireAuth,
 		requireRole("admin"),
 		validate({ params: productIdSchema }),
-		productController.adminDeleteProduct
+		productController.adminDeleteProduct,
 	)
 	.put(
 		"/:id",
 		requireAuth,
 		requireRole("seller"),
 		validate({ params: productIdSchema, body: productUpdateSchema }),
-		productController.updateProduct
+		productController.updateProduct,
 	)
 	.delete(
 		"/:id",
 		requireAuth,
 		requireRole("seller"),
 		validate({ params: productIdSchema }),
-		productController.deleteProduct
+		productController.deleteProduct,
 	)
 	.post(
 		"/images/upload-payload",
 		requireAuth,
 		requireRole("seller"),
 		validate({ body: imageUploadPayloadSchema }),
-		productController.getProductImageUploadPayload
+		productController.getProductImageUploadPayload,
 	)
 	.post(
 		"/:id/images/upload",
 		requireAuth,
 		requireRole("seller"),
 		validate({ params: productIdSchema, body: imageUploadSchema }),
-		productController.uploadProductImages
+		productController.uploadProductImages,
 	);
 
 export default productsRouter;

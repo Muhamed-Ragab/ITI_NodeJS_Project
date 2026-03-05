@@ -36,7 +36,7 @@ export const validate = (schemaMap) => async (req, _res, next) => {
 						message: issue.message,
 						code: issue.code,
 					})),
-				})
+				}),
 			);
 		}
 		next(error);

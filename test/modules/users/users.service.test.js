@@ -144,7 +144,7 @@ describe("Users Service", () => {
 			});
 
 			await expect(
-				userService.applyReferralCode("u1", "REF-1234")
+				userService.applyReferralCode("u1", "REF-1234"),
 			).rejects.toThrow(ApiError);
 		});
 
@@ -170,7 +170,7 @@ describe("Users Service", () => {
 			});
 
 			const result = await userService.getReferralSummary(
-				"507f1f77bcf86cd799439011"
+				"507f1f77bcf86cd799439011",
 			);
 
 			expect(result.referral_code).toBe("REF-439011");

@@ -51,7 +51,7 @@ function getStripeClient() {
 export const createPaymentIntent = async (
 	orderId,
 	userId,
-	guestEmail = null
+	guestEmail = null,
 ) => {
 	const order = await paymentsRepo.findOrderById(orderId);
 	if (!order) {
@@ -151,7 +151,7 @@ export const handleStripeWebhook = async (stripeSignature, rawBody) => {
 		event = stripe.webhooks.constructEvent(
 			rawBody,
 			stripeSignature,
-			webhookSecret
+			webhookSecret,
 		);
 	} catch (error) {
 		throw ApiError.badRequest({
@@ -230,7 +230,7 @@ export const processCheckoutPayment = async (
 	userId,
 	method,
 	savedMethodId,
-	guestEmail
+	guestEmail,
 ) => {
 	const order = await paymentsRepo.findOrderById(orderId);
 	if (!order) {
@@ -243,7 +243,7 @@ export const processCheckoutPayment = async (
 
 	const isOwner = userId
 		? String(order.user) === String(userId)
-		: order.guest_email === guestEmail;
+		: order.guest_info.email === guestEmail;
 	if (!isOwner) {
 		throw ApiError.forbidden({
 			code: "ORDER.FORBIDDEN",

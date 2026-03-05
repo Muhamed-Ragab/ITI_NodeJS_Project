@@ -15,20 +15,27 @@ const paymentRouter = Router();
 paymentRouter.post(
 	"/create-payment-intent",
 	validate({ body: paymentIntentSchema }),
-	controller.createPaymentIntent
+	controller.createPaymentIntent,
 );
 
 // POST /api/payments/guest-payment-intent — create payment intent for guest orders [public]
 paymentRouter.post(
 	"/guest-payment-intent",
 	validate({ body: guestPaymentIntentSchema }),
-	controller.createGuestPaymentIntent
+	controller.createGuestPaymentIntent,
 );
 
 paymentRouter.post(
 	"/checkout",
+	requireAuth,
 	validate({ body: paymentCheckoutSchema }),
-	controller.processCheckoutPayment
+	controller.processCheckoutPayment,
+);
+
+paymentRouter.post(
+	"/guest-checkout",
+	validate({ body: paymentCheckoutSchema }),
+	controller.processGuestCheckoutPayment,
 );
 
 paymentRouter.get(
@@ -36,7 +43,7 @@ paymentRouter.get(
 	requireAuth,
 	requireRole("admin"),
 	validate({ query: paymentsAdminQuerySchema }),
-	controller.listPaymentsForAdmin
+	controller.listPaymentsForAdmin,
 );
 
 paymentRouter.post("/webhook", controller.stripeWebhook);

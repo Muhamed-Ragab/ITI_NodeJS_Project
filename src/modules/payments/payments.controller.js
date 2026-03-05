@@ -33,13 +33,30 @@ export const processCheckoutPayment = async (req, res) => {
 		userId,
 		method,
 		savedMethodId,
-		guestEmail
+		guestEmail,
 	);
 
 	return sendSuccess(res, {
 		statusCode: StatusCodes.OK,
 		data: result,
 		message: "Checkout payment processed successfully",
+	});
+};
+
+export const processGuestCheckoutPayment = async (req, res) => {
+	const { orderId, method, guestEmail } = req.body;
+	const result = await service.processCheckoutPayment(
+		orderId,
+		null,
+		method,
+		null,
+		guestEmail,
+	);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: result,
+		message: "Guest checkout payment processed successfully",
 	});
 };
 

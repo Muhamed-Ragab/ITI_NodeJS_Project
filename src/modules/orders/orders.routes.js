@@ -18,14 +18,14 @@ orderRouter.post(
 	"/",
 	requireAuth,
 	validate({ body: orderCreateSchema }),
-	controller.createOrder
+	controller.createOrder,
 );
 
 // POST /api/orders/guest — create guest order [public]
 orderRouter.post(
 	"/guest",
 	validate({ body: guestOrderCreateSchema }),
-	controller.createGuestOrder
+	controller.createGuestOrder,
 );
 
 // GET /api/orders/me — list current user's orders [auth]
@@ -36,7 +36,7 @@ orderRouter.get(
 	"/seller",
 	requireAuth,
 	requireRole("seller"),
-	controller.listSellerOrders
+	controller.listSellerOrders,
 );
 
 // GET /api/orders — list all orders [admin]
@@ -44,7 +44,7 @@ orderRouter.get(
 	"/",
 	requireAuth,
 	requireRole("admin"),
-	controller.listAllOrders
+	controller.listAllOrders,
 );
 
 // GET /api/orders/:id — get order by id [auth, owner or admin]
@@ -52,7 +52,7 @@ orderRouter.get(
 	"/:id",
 	requireAuth,
 	validate({ params: orderIdSchema }),
-	controller.getOrderById
+	controller.getOrderById,
 );
 
 // PUT /api/orders/:id/status — update order status [admin]
@@ -61,7 +61,7 @@ orderRouter.put(
 	requireAuth,
 	requireRole("admin"),
 	validate({ params: orderIdSchema, body: orderStatusSchema }),
-	controller.updateOrderStatus
+	controller.updateOrderStatus,
 );
 
 // PUT /api/orders/:id/seller-status — update order status [seller]
@@ -70,7 +70,7 @@ orderRouter.put(
 	requireAuth,
 	requireRole("seller"),
 	validate({ params: orderIdSchema, body: sellerOrderStatusSchema }),
-	controller.updateSellerOrderStatus
+	controller.updateSellerOrderStatus,
 );
 
 export default orderRouter;

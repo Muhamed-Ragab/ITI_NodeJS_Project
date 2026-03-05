@@ -90,7 +90,7 @@ const fetchGoogleProfile = async (accessToken) => {
 				headers: {
 					Authorization: `Bearer ${accessToken}`,
 				},
-			}
+			},
 		);
 	} catch (error) {
 		logDevError({
@@ -234,7 +234,7 @@ export const googleCallback = async (req, res) => {
 					ensureGoogleConfig();
 					const accessToken = await exchangeCodeForAccessToken(
 						code,
-						redirectUri
+						redirectUri,
 					);
 					return await fetchGoogleProfile(accessToken);
 				})();

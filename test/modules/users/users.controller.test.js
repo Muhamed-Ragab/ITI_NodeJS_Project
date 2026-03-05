@@ -36,7 +36,7 @@ describe("Users Controller", () => {
 			expect(userService.getUserById).toHaveBeenCalledWith("user123");
 			expect(sendSuccess).toHaveBeenCalledWith(
 				res,
-				expect.objectContaining({ data: mockUser })
+				expect.objectContaining({ data: mockUser }),
 			);
 		});
 	});
@@ -51,11 +51,11 @@ describe("Users Controller", () => {
 
 			expect(userService.updateUserProfile).toHaveBeenCalledWith(
 				"user123",
-				req.body
+				req.body,
 			);
 			expect(sendSuccess).toHaveBeenCalledWith(
 				res,
-				expect.objectContaining({ message: "Profile updated successfully" })
+				expect.objectContaining({ message: "Profile updated successfully" }),
 			);
 		});
 	});
@@ -69,7 +69,7 @@ describe("Users Controller", () => {
 
 			expect(userService.addProductToWishlist).toHaveBeenCalledWith(
 				"user123",
-				"prod123"
+				"prod123",
 			);
 			expect(sendSuccess).toHaveBeenCalled();
 		});
@@ -86,7 +86,7 @@ describe("Users Controller", () => {
 
 			expect(userService.updateMarketingPreferences).toHaveBeenCalledWith(
 				"user123",
-				req.body
+				req.body,
 			);
 			expect(sendSuccess).toHaveBeenCalled();
 		});
@@ -99,7 +99,7 @@ describe("Users Controller", () => {
 
 			expect(userService.applyReferralCode).toHaveBeenCalledWith(
 				"user123",
-				"REF-1234"
+				"REF-1234",
 			);
 			expect(sendSuccess).toHaveBeenCalled();
 		});
@@ -117,7 +117,7 @@ describe("Users Controller", () => {
 			expect(userService.grantLoyaltyPoints).toHaveBeenCalledWith(
 				"u1",
 				50,
-				"campaign"
+				"campaign",
 			);
 			expect(sendSuccess).toHaveBeenCalled();
 		});

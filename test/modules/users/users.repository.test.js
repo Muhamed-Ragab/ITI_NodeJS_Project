@@ -2,11 +2,19 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import User from "../../../src/modules/users/user.model.js";
 import * as userRepo from "../../../src/modules/users/users.repository.js";
 
+const mockQuery = {
+	populate: vi.fn().mockReturnThis(),
+	select: vi.fn().mockReturnThis(),
+	sort: vi.fn().mockReturnThis(),
+	exec: vi.fn().mockResolvedValue({}),
+};
+
 vi.mock("../../../src/modules/users/user.model.js", () => ({
 	default: {
-		findOne: vi.fn(),
-		findOneAndUpdate: vi.fn(),
-		find: vi.fn(),
+		findOne: vi.fn(() => mockQuery),
+		findOneAndUpdate: vi.fn(() => mockQuery),
+		find: vi.fn(() => mockQuery),
+		updateOne: vi.fn().mockResolvedValue({}),
 	},
 }));
 
@@ -28,7 +36,7 @@ describe("Users Repository", () => {
 		expect(User.findOneAndUpdate).toHaveBeenCalledWith(
 			{ _id: "u1", deletedAt: null },
 			expect.objectContaining({ $push: { addresses: { street: "X" } } }),
-			expect.any(Object)
+			expect.any(Object),
 		);
 	});
 });

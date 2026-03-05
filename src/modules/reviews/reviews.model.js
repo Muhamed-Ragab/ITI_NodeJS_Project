@@ -31,12 +31,12 @@ const reviewSchema = new Schema(
 	},
 	{
 		timestamps: true,
-	}
+	},
 );
 
 reviewSchema.index(
 	{ product_id: 1, user_id: 1, deletedAt: 1 },
-	{ unique: true }
+	{ unique: true },
 );
 
 const ReviewModel = model("Review", reviewSchema);

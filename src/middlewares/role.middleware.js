@@ -7,7 +7,7 @@ export const requireRole =
 			return next(
 				ApiError.unauthorized({
 					message: "Authentication required",
-				})
+				}),
 			);
 		}
 
@@ -15,7 +15,7 @@ export const requireRole =
 			return next(
 				ApiError.forbidden({
 					message: "You are not allowed to access this resource",
-				})
+				}),
 			);
 		}
 

@@ -23,12 +23,10 @@ vi.mock("../../../src/services/cdn/index.js", () => ({
 	})),
 }));
 
-const repository = await import(
-	"../../../src/modules/products/products.repository.js"
-);
-const service = await import(
-	"../../../src/modules/products/products.service.js"
-);
+const repository =
+	await import("../../../src/modules/products/products.repository.js");
+const service =
+	await import("../../../src/modules/products/products.service.js");
 
 describe("Products Service", () => {
 	beforeEach(() => vi.clearAllMocks());
@@ -37,21 +35,21 @@ describe("Products Service", () => {
 		repository.create.mockResolvedValue({ _id: "p1" });
 		await service.createProduct({ title: "Phone" }, "seller1");
 		expect(repository.create).toHaveBeenCalledWith(
-			expect.objectContaining({ seller_id: "seller1", title: "Phone" })
+			expect.objectContaining({ seller_id: "seller1", title: "Phone" }),
 		);
 	});
 
 	it("throws ApiError on duplicate create", async () => {
 		repository.create.mockRejectedValue({ code: 11_000 });
 		await expect(
-			service.createProduct({ title: "Phone" }, "seller1")
+			service.createProduct({ title: "Phone" }, "seller1"),
 		).rejects.toBeInstanceOf(ApiError);
 	});
 
 	it("throws not found when update target missing", async () => {
 		repository.findById.mockResolvedValue(null);
 		await expect(service.updateProduct("p1", {}, "s1")).rejects.toBeInstanceOf(
-			ApiError
+			ApiError,
 		);
 	});
 
@@ -60,7 +58,7 @@ describe("Products Service", () => {
 			seller_id: { _id: "s2", toString: () => "s2" },
 		});
 		await expect(service.updateProduct("p1", {}, "s1")).rejects.toBeInstanceOf(
-			ApiError
+			ApiError,
 		);
 	});
 
@@ -107,7 +105,7 @@ describe("Products Service", () => {
 			expect.objectContaining({
 				uploadUrl: expect.stringContaining("cloudinary.com"),
 				folder: "products/custom",
-			})
+			}),
 		);
 	});
 

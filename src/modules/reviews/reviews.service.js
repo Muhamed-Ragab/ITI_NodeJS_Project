@@ -40,7 +40,7 @@ export const createReview = async (userId, reviewData) => {
 
 	const existingReview = await reviewsRepository.findByProductAndUser(
 		reviewData.product_id,
-		userId
+		userId,
 	);
 	if (existingReview) {
 		throw ApiError.badRequest({
