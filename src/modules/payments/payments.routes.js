@@ -4,34 +4,38 @@ import { requireRole } from "../../middlewares/role.middleware.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import * as controller from "./payments.controller.js";
 import {
-	guestPaymentCheckoutSchema,
-	paymentCheckoutSchema,
-	paymentsAdminQuerySchema,
+  guestPaymentCheckoutSchema,
+  paymentCheckoutSchema,
+  paymentsAdminQuerySchema,
 } from "./payments.validation.js";
 
-const paymentRouter = Router();
+const paymentsRouter = Router();
 
-paymentRouter.post(
-	"/checkout",
-	requireAuth,
-	validate({ body: paymentCheckoutSchema }),
-	controller.processCheckoutPayment
+// POST /api/payments/checkout — process checkout payment [auth]
+paymentsRouter.post(
+  "/checkout",
+  requireAuth,
+  validate({ body: paymentCheckoutSchema }),
+  controller.processCheckoutPayment
 );
 
-paymentRouter.post(
-	"/guest-checkout",
-	validate({ body: guestPaymentCheckoutSchema }),
-	controller.processGuestCheckoutPayment
+// POST /api/payments/guest-checkout — process guest checkout payment [public]
+paymentsRouter.post(
+  "/guest-checkout",
+  validate({ body: guestPaymentCheckoutSchema }),
+  controller.processGuestCheckoutPayment
 );
 
-paymentRouter.get(
-	"/admin",
-	requireAuth,
-	requireRole("admin"),
-	validate({ query: paymentsAdminQuerySchema }),
-	controller.listPaymentsForAdmin
+// POST /api/payments/stripe/webhook — Stripe webhook handler [public]
+paymentsRouter.post("/stripe/webhook", controller.stripeWebhook);
+
+// GET /api/payments — list all payments [admin]
+paymentsRouter.get(
+  "/",
+  requireAuth,
+  requireRole("admin"),
+  validate({ query: paymentsAdminQuerySchema }),
+  controller.listPaymentsForAdmin
 );
 
-paymentRouter.post("/webhook", controller.stripeWebhook);
-
-export default paymentRouter;
+export default paymentsRouter;
