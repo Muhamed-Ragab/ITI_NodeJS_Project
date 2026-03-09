@@ -1,7 +1,9 @@
 import User from "../users/user.model.js";
 
 export const findUserByEmail = async (email) => {
-	return await User.findOne({ email }).select("+password");
+	return await User.findOne({ email }).select(
+		"+password +emailVerificationTokenHash +emailVerificationTokenExpiresAt"
+	);
 };
 
 export const findUserByEmailWithOtp = async (email) => {
@@ -70,6 +72,21 @@ export const verifyUserEmail = async (userId) => {
 			isEmailVerified: true,
 			emailVerificationTokenHash: null,
 			emailVerificationTokenExpiresAt: null,
+		},
+		{ new: true }
+	);
+};
+
+export const updateEmailVerificationToken = async (
+	userId,
+	tokenHash,
+	expiresAt
+) => {
+	return await User.findByIdAndUpdate(
+		userId,
+		{
+			emailVerificationTokenHash: tokenHash,
+			emailVerificationTokenExpiresAt: expiresAt,
 		},
 		{ new: true }
 	);

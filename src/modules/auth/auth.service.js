@@ -144,6 +144,35 @@ export const loginUser = async ({ email, password }) => {
 	}
 
 	if (!user.isEmailVerified) {
+		// Check if verification token is expired or missing
+		const needsNewToken =
+			!(
+				user.emailVerificationTokenHash && user.emailVerificationTokenExpiresAt
+			) || new Date(user.emailVerificationTokenExpiresAt) < new Date();
+
+		if (needsNewToken) {
+			// Generate and send new verification email
+			const verification = generateEmailVerificationToken();
+
+			await authRepository.updateEmailVerificationToken(
+				user._id,
+				verification.tokenHash,
+				verification.expiresAt
+			);
+
+			await sendVerificationEmail({
+				email: user.email,
+				name: user.name,
+				token: verification.token,
+			});
+
+			throw ApiError.unauthorized({
+				code: "AUTH.EMAIL_NOT_VERIFIED",
+				message:
+					"Please verify your email before login. A new verification email has been sent",
+			});
+		}
+
 		throw ApiError.unauthorized({
 			code: "AUTH.EMAIL_NOT_VERIFIED",
 			message: "Please verify your email before login",
