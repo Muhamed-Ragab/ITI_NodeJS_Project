@@ -17,7 +17,7 @@ export const findByUser = async (userId, filters = {}) => {
 	const query = { user: userId };
 
 	// Apply status filter if provided
-	if (filters.status && filters.status.trim() !== '') {
+	if (filters.status && filters.status.trim() !== "") {
 		query.status = filters.status.trim();
 	}
 
@@ -36,7 +36,7 @@ export const findBySeller = async (sellerId, filters = {}) => {
 	const query = { "items.seller_id": sellerId };
 
 	// Apply status filter if provided
-	if (filters.status && filters.status.trim() !== '') {
+	if (filters.status && filters.status.trim() !== "") {
 		query.status = filters.status.trim();
 	}
 
@@ -90,7 +90,7 @@ export const listAll = async (filters = {}) => {
 	const query = {};
 
 	// Apply status filter if provided
-	if (filters.status && filters.status.trim() !== '') {
+	if (filters.status && filters.status.trim() !== "") {
 		query.status = filters.status.trim();
 	}
 

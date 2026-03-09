@@ -59,22 +59,28 @@ const validateAndFetchCartItems = async (cart) => {
 	// Extract product IDs - handle both populated and unpopulated cart items
 	const productIds = cart.map((entry) => {
 		// If product is populated (an object), extract _id
-		if (entry.product && typeof entry.product === 'object') {
-			console.log('[validateAndFetchCartItems] Populated product detected, extracting _id:', entry.product._id);
+		if (entry.product && typeof entry.product === "object") {
+			console.log(
+				"[validateAndFetchCartItems] Populated product detected, extracting _id:",
+				entry.product._id
+			);
 			return entry.product._id;
 		}
 		// Otherwise it's already an ObjectId
-		console.log('[validateAndFetchCartItems] Product is ObjectId:', entry.product);
+		console.log(
+			"[validateAndFetchCartItems] Product is ObjectId:",
+			entry.product
+		);
 		return entry.product;
 	});
 
-	console.log('[validateAndFetchCartItems] Extracted product IDs:', productIds);
+	console.log("[validateAndFetchCartItems] Extracted product IDs:", productIds);
 
 	const products = await ProductModel.find({
 		_id: { $in: productIds },
 	}).select("_id seller_id title price stock_quantity");
 
-	console.log('[validateAndFetchCartItems] Found products:', products.length);
+	console.log("[validateAndFetchCartItems] Found products:", products.length);
 
 	const productMap = new Map();
 	for (const product of products) {
@@ -86,16 +92,17 @@ const validateAndFetchCartItems = async (cart) => {
 
 	for (const entry of cart) {
 		// Extract product ID consistently
-		const productId = entry.product && typeof entry.product === 'object'
-			? entry.product._id
-			: entry.product;
+		const productId =
+			entry.product && typeof entry.product === "object"
+				? entry.product._id
+				: entry.product;
 		const quantity = entry.quantity ?? 1;
 		const product = productMap.get(String(productId));
 
-		console.log('[validateAndFetchCartItems] Processing entry:', {
+		console.log("[validateAndFetchCartItems] Processing entry:", {
 			productId: String(productId),
 			quantity,
-			foundInMap: !!product
+			foundInMap: !!product,
 		});
 
 		if (!product) {
@@ -176,11 +183,11 @@ export const createOrderFromCart = async (userId, options = {}) => {
 				const addresses = user.addresses || [];
 				const shipping_address = addresses[shippingAddressIndex]
 					? {
-						street: addresses[shippingAddressIndex].street,
-						city: addresses[shippingAddressIndex].city,
-						country: addresses[shippingAddressIndex].country,
-						zip: addresses[shippingAddressIndex].zip,
-					}
+							street: addresses[shippingAddressIndex].street,
+							city: addresses[shippingAddressIndex].city,
+							country: addresses[shippingAddressIndex].country,
+							zip: addresses[shippingAddressIndex].zip,
+						}
 					: undefined;
 
 				const order = await ordersRepo.create({
