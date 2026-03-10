@@ -15,7 +15,7 @@ export const paymentCheckoutSchema = z.object({
 
 export const guestPaymentCheckoutSchema = z.object({
 	orderId: objectId,
-	guestEmail: z.email("Invalid email format"),
+	guestEmail: z.string().email("Invalid email format"),
 	method: z.enum(["stripe", "paypal", "cod"]),
 });
 
