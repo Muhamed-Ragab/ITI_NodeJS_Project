@@ -390,7 +390,10 @@ export const reviewSellerPayoutRequest = async (
 		});
 	}
 
-	const requests = [...(user.seller_profile?.payout_requests || [])];
+	// Convert Mongoose subdocuments to plain objects
+	const requests = (user.seller_profile?.payout_requests || []).map((req) =>
+		req.toObject ? req.toObject() : req
+	);
 	const index = requests.findIndex(
 		(item) => String(item._id) === String(payoutId)
 	);
@@ -401,6 +404,7 @@ export const reviewSellerPayoutRequest = async (
 		});
 	}
 
+	// Update the specific request
 	requests[index] = {
 		...requests[index],
 		status,
