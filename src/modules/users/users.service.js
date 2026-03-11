@@ -382,13 +382,6 @@ export const reviewSellerPayoutRequest = async (
 	status,
 	note
 ) => {
-	console.log("reviewSellerPayoutRequest called with:", {
-		userId,
-		payoutId,
-		status,
-		note,
-	});
-
 	const user = await repo.findById(userId);
 	if (!user) {
 		throw ApiError.notFound({
@@ -397,27 +390,14 @@ export const reviewSellerPayoutRequest = async (
 		});
 	}
 
-	console.log("User found:", {
-		id: user._id,
-		hasSellerProfile: !!user.seller_profile,
-		payoutRequestsCount: user.seller_profile?.payout_requests?.length || 0,
-	});
-
 	// Convert Mongoose subdocuments to plain objects
 	const requests = (user.seller_profile?.payout_requests || []).map((req) =>
 		req.toObject ? req.toObject() : req
 	);
 
-	console.log(
-		"Payout requests:",
-		requests.map((r) => ({ id: r._id, status: r.status }))
-	);
-
 	const index = requests.findIndex(
 		(item) => String(item._id) === String(payoutId)
 	);
-
-	console.log("Found payout request at index:", index);
 
 	if (index === -1) {
 		throw ApiError.notFound({
@@ -435,8 +415,6 @@ export const reviewSellerPayoutRequest = async (
 		reviewed_at: new Date(),
 	};
 
-	console.log("Updated request:", requests[index]);
-
 	let nextWalletBalance = Number(user.wallet_balance || 0);
 	if (status === "paid") {
 		nextWalletBalance = Math.max(
@@ -445,26 +423,11 @@ export const reviewSellerPayoutRequest = async (
 		);
 	}
 
-	console.log("Wallet balance update:", {
-		current: user.wallet_balance,
-		next: nextWalletBalance,
-	});
-
-	const updateData = {
+	const updated = await repo.updateById(userId, {
 		$set: {
 			wallet_balance: nextWalletBalance,
 			"seller_profile.payout_requests": requests,
 		},
-	};
-
-	console.log("Update data:", updateData);
-
-	const updated = await repo.updateById(userId, updateData);
-
-	console.log("Update result:", {
-		success: !!updated,
-		walletBalance: updated?.wallet_balance,
-		payoutRequestsCount: updated?.seller_profile?.payout_requests?.length,
 	});
 
 	if (!updated) {
@@ -474,8 +437,9 @@ export const reviewSellerPayoutRequest = async (
 		});
 	}
 
+	// Ensure we return the correct wallet balance
 	return {
-		wallet_balance: updated.wallet_balance,
+		wallet_balance: nextWalletBalance, // Use the calculated balance instead of the document
 		payout_requests: updated.seller_profile?.payout_requests || [],
 	};
 };
