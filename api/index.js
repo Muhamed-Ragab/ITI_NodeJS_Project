@@ -1,7 +1,7 @@
-import app from "../src/app.js";
-import connectDB from "../src/config/db.js";
-import { registerEmailEventListeners } from "../src/services/notifications/email-events.js";
-import * as emailService from "../src/services/notifications/email-provider.js";
+import app from "../dist/app.js";
+import connectDB from "../dist/config/db.js";
+import { registerEmailEventListeners } from "../dist/services/notifications/email-events.js";
+import * as emailService from "../dist/services/notifications/email-provider.js";
 
 // Initialize database and email listeners
 let initialized = false;
