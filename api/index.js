@@ -42,10 +42,10 @@ export default async (req, res) => {
 
 		// Wrap the app call to catch any errors
 		return new Promise((resolve, reject) => {
-			// Set a timeout to prevent hanging
+			// Set a timeout to prevent hanging (55 seconds to leave buffer for Vercel's 60s limit)
 			const timeout = setTimeout(() => {
 				reject(new Error("Request timeout"));
-			}, 29_000); // Vercel max is 30s
+			}, 55_000);
 
 			// Handle the request with Express app
 			app(req, res);
