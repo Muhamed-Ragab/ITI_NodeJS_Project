@@ -390,6 +390,8 @@ export const reviewSellerPayoutRequest = async (
 		});
 	}
 
+	console.log("Current wallet balance:", user.wallet_balance);
+
 	// Convert Mongoose subdocuments to plain objects
 	const requests = (user.seller_profile?.payout_requests || []).map((req) =>
 		req.toObject ? req.toObject() : req
@@ -423,12 +425,21 @@ export const reviewSellerPayoutRequest = async (
 		);
 	}
 
+	console.log(
+		"Updating wallet balance from",
+		user.wallet_balance,
+		"to",
+		nextWalletBalance
+	);
+
 	const updated = await repo.updateById(userId, {
 		$set: {
 			wallet_balance: nextWalletBalance,
 			"seller_profile.payout_requests": requests,
 		},
 	});
+
+	console.log("Updated wallet balance:", updated?.wallet_balance);
 
 	if (!updated) {
 		throw ApiError.notFound({
