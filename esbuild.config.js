@@ -5,19 +5,14 @@ import path from "path";
 const isWatch = process.argv.includes("--watch");
 const isVercel = process.env.VERCEL === "1";
 
-// For Vercel, we don't need to build server.js since we use api/index.js
-if (isVercel) {
-	console.log("Vercel build detected - skipping server.js build");
-	process.exit(0);
-}
-
+// Build app.js and init.js for use in api/index.js
 const config = {
-	entryPoints: ["src/server.js"],
+	entryPoints: ["src/app.js", "src/init.js"],
 	bundle: true,
 	platform: "node",
 	format: "esm",
 	target: "node20",
-	outfile: "dist/server.js",
+	outdir: "dist",
 	minify: true,
 	external: [
 		"bcryptjs",
@@ -33,6 +28,8 @@ const config = {
 		"slugify",
 		"stripe",
 		"zod",
+		"@emailjs/nodejs",
+		"resend",
 	],
 };
 

@@ -1,10 +1,9 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// For Vercel, we need to use the source files directly
-// The build process will handle transpilation
-import { initializeApp } from "../src/init.js";
-import app from "../src/app.js";
+// Import from built dist files
+import { initializeApp } from "../dist/init.js";
+import app from "../dist/app.js";
 
 // Initialize on first request
 let initialized = false;
