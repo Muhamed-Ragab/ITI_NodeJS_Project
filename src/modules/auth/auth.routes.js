@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { asyncHandler } from "../../middlewares/async-handler.middleware.js";
 import { requireAuth } from "../../middlewares/auth.middleware.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import {
@@ -22,30 +23,34 @@ import {
 
 const authRouter = Router();
 
-authRouter.post("/register", validate({ body: registerSchema }), register);
-authRouter.post("/login", validate({ body: loginSchema }), login);
+authRouter.post(
+	"/register",
+	validate({ body: registerSchema }),
+	asyncHandler(register)
+);
+authRouter.post("/login", validate({ body: loginSchema }), asyncHandler(login));
 authRouter.post(
 	"/email/request-otp",
 	validate({ body: emailRequestOtpSchema }),
-	requestEmailOtp
+	asyncHandler(requestEmailOtp)
 );
 authRouter.post(
 	"/email/login",
 	validate({ body: emailLoginSchema }),
-	loginWithEmailOtp
+	asyncHandler(loginWithEmailOtp)
 );
-authRouter.post("/logout", requireAuth, logout);
+authRouter.post("/logout", requireAuth, asyncHandler(logout));
 authRouter.get(
 	"/verify-email",
 	validate({ query: verifyEmailSchema }),
-	verifyEmail
+	asyncHandler(verifyEmail)
 );
 
-authRouter.get("/google", googleStart);
+authRouter.get("/google", asyncHandler(googleStart));
 authRouter.get(
 	"/google/callback",
 	validate({ query: googleCallbackSchema }),
-	googleCallback
+	asyncHandler(googleCallback)
 );
 
 export default authRouter;

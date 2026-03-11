@@ -34,6 +34,9 @@ const initializeApp = async () => {
 // Vercel serverless handler
 export default async (req, res) => {
 	try {
+		// Log incoming request
+		console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+
 		// Initialize app on first request
 		await initializeApp();
 
@@ -50,25 +53,46 @@ export default async (req, res) => {
 			// Clear timeout on response
 			res.on("finish", () => {
 				clearTimeout(timeout);
+				console.log(
+					`[${new Date().toISOString()}] Response sent with status ${res.statusCode}`
+				);
 				resolve();
 			});
 
 			res.on("error", (err) => {
 				clearTimeout(timeout);
+				console.error(`[${new Date().toISOString()}] Response error:`, err);
 				reject(err);
 			});
 		});
 	} catch (err) {
-		console.error("Error in serverless handler:", err);
+		console.error(
+			`[${new Date().toISOString()}] Error in serverless handler:`,
+			err
+		);
 		console.error("Stack trace:", err.stack);
 
 		// Only send response if headers haven't been sent
 		if (!res.headersSent) {
-			res.status(500).json({
+			const errorResponse = {
 				success: false,
 				message: "Internal server error",
-				error: env.NODE_ENV === "development" ? err.message : undefined,
-			});
+			};
+
+			// Add error details in development
+			if (env.NODE_ENV === "development") {
+				errorResponse.error = {
+					code: err.code || "INTERNAL_SERVER_ERROR",
+					message: err.message,
+					stack: err.stack,
+				};
+			} else {
+				errorResponse.error = {
+					code: "INTERNAL_SERVER_ERROR",
+				};
+			}
+
+			res.status(500).json(errorResponse);
 		}
 	}
 };
