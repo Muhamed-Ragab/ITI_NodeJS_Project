@@ -17,7 +17,7 @@ export const updateById = async (id, category) => {
 		{ _id: id, deletedAt: null },
 		category,
 		{
-			new: true,
+			returnDocument: "after",
 			runValidators: true,
 		}
 	);
@@ -27,7 +27,7 @@ export const deleteById = async (id) => {
 	return await CategoryModel.findOneAndUpdate(
 		{ _id: id, deletedAt: null },
 		{ deletedAt: new Date() },
-		{ new: true }
+		{ returnDocument: "after" }
 	);
 };
 

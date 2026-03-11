@@ -12,7 +12,7 @@ export const list = async () => {
 
 export const updateById = async (id, data) => {
 	return await User.findOneAndUpdate({ _id: id, deletedAt: null }, data, {
-		new: true,
+		returnDocument: "after",
 		runValidators: true,
 	});
 };
@@ -21,7 +21,7 @@ export const addWishlist = async (userId, productId) => {
 	return await User.findOneAndUpdate(
 		{ _id: userId, deletedAt: null },
 		{ $addToSet: { wishlist: productId } },
-		{ new: true }
+		{ returnDocument: "after" }
 	).populate("wishlist");
 };
 
@@ -29,7 +29,7 @@ export const removeWishlist = async (userId, productId) => {
 	return await User.findOneAndUpdate(
 		{ _id: userId, deletedAt: null },
 		{ $pull: { wishlist: productId } },
-		{ new: true }
+		{ returnDocument: "after" }
 	).populate("wishlist");
 };
 
@@ -45,7 +45,7 @@ export const updateCartItem = async (userId, productId, quantity) => {
 	return await User.findOneAndUpdate(
 		{ _id: userId, deletedAt: null, "cart.product": productId },
 		{ $set: { "cart.$.quantity": quantity } },
-		{ new: true }
+		{ returnDocument: "after" }
 	).populate("cart.product");
 };
 
@@ -53,7 +53,7 @@ export const addCartItem = async (userId, productId, quantity) => {
 	return await User.findOneAndUpdate(
 		{ _id: userId, deletedAt: null },
 		{ $push: { cart: { product: productId, quantity } } },
-		{ new: true }
+		{ returnDocument: "after" }
 	).populate("cart.product");
 };
 
@@ -61,7 +61,7 @@ export const removeCartItem = async (userId, productId) => {
 	return await User.findOneAndUpdate(
 		{ _id: userId, deletedAt: null },
 		{ $pull: { cart: { product: productId } } },
-		{ new: true }
+		{ returnDocument: "after" }
 	).populate("cart.product");
 };
 
@@ -69,7 +69,7 @@ export const addAddress = async (userId, address) => {
 	return await User.findOneAndUpdate(
 		{ _id: userId, deletedAt: null },
 		{ $push: { addresses: address } },
-		{ new: true, runValidators: true }
+		{ returnDocument: "after", runValidators: true }
 	);
 };
 
@@ -84,7 +84,7 @@ export const updateAddress = async (userId, addressId, address) => {
 				"addresses.$.zip": address.zip,
 			},
 		},
-		{ new: true, runValidators: true }
+		{ returnDocument: "after", runValidators: true }
 	);
 };
 
@@ -92,7 +92,7 @@ export const removeAddress = async (userId, addressId) => {
 	return await User.findOneAndUpdate(
 		{ _id: userId, deletedAt: null },
 		{ $pull: { addresses: { _id: addressId } } },
-		{ new: true }
+		{ returnDocument: "after" }
 	);
 };
 
@@ -100,7 +100,7 @@ export const updateRole = async (userId, role) => {
 	return await User.findOneAndUpdate(
 		{ _id: userId, deletedAt: null },
 		{ role },
-		{ new: true }
+		{ returnDocument: "after" }
 	);
 };
 
@@ -108,7 +108,7 @@ export const setRestriction = async (userId, isRestricted) => {
 	return await User.findOneAndUpdate(
 		{ _id: userId, deletedAt: null },
 		{ isRestricted },
-		{ new: true }
+		{ returnDocument: "after" }
 	);
 };
 
@@ -120,7 +120,7 @@ export const softDeleteById = async (userId) => {
 			isRestricted: true,
 			$inc: { tokenVersion: 1 },
 		},
-		{ new: true }
+		{ returnDocument: "after" }
 	);
 };
 
@@ -142,7 +142,7 @@ export const addSavedPaymentMethod = async (userId, methodData) => {
 	return await User.findOneAndUpdate(
 		{ _id: userId, deletedAt: null },
 		{ $push: { saved_payment_methods: methodData } },
-		{ new: true }
+		{ returnDocument: "after" }
 	).select("saved_payment_methods");
 };
 
@@ -150,7 +150,7 @@ export const removeSavedPaymentMethod = async (userId, methodId) => {
 	return await User.findOneAndUpdate(
 		{ _id: userId, deletedAt: null },
 		{ $pull: { saved_payment_methods: { _id: methodId } } },
-		{ new: true }
+		{ returnDocument: "after" }
 	).select("saved_payment_methods");
 };
 
@@ -163,7 +163,7 @@ export const setDefaultSavedPaymentMethod = async (userId, methodId) => {
 	return await User.findOneAndUpdate(
 		{ _id: userId, deletedAt: null, "saved_payment_methods._id": methodId },
 		{ $set: { "saved_payment_methods.$.isDefault": true } },
-		{ new: true }
+		{ returnDocument: "after" }
 	).select("saved_payment_methods");
 };
 
@@ -181,7 +181,7 @@ export const requestSellerOnboarding = async (userId, profileData) => {
 				"seller_profile.reviewed_at": null,
 			},
 		},
-		{ new: true, runValidators: true }
+		{ returnDocument: "after", runValidators: true }
 	);
 };
 
@@ -205,7 +205,7 @@ export const reviewSellerOnboarding = async (userId, status, note = "") => {
 				"seller_profile.reviewed_at": new Date(),
 			},
 		},
-		{ new: true, runValidators: true }
+		{ returnDocument: "after", runValidators: true }
 	);
 };
 
@@ -213,7 +213,7 @@ export const updateMarketingPreferences = async (userId, payload) => {
 	return await User.findOneAndUpdate(
 		{ _id: userId, deletedAt: null },
 		{ $set: { marketing_preferences: payload } },
-		{ new: true, runValidators: true }
+		{ returnDocument: "after", runValidators: true }
 	).select("marketing_preferences");
 };
 
@@ -221,7 +221,7 @@ export const updatePreferredLanguage = async (userId, language) => {
 	return await User.findOneAndUpdate(
 		{ _id: userId, deletedAt: null },
 		{ $set: { preferred_language: language } },
-		{ new: true, runValidators: true }
+		{ returnDocument: "after", runValidators: true }
 	).select("preferred_language");
 };
 
@@ -256,12 +256,12 @@ export const applyReferralCode = async (userId, referralCode) => {
 				$set: { referred_by: referrer._id },
 				$inc: { loyalty_points: rewardPoints },
 			},
-			{ new: true, runValidators: true }
+			{ returnDocument: "after", runValidators: true }
 		).select("referred_by loyalty_points"),
 		User.findOneAndUpdate(
 			{ _id: referrer._id, deletedAt: null },
 			{ $inc: { referrals_count: 1, loyalty_points: rewardPoints } },
-			{ new: true, runValidators: true }
+			{ returnDocument: "after", runValidators: true }
 		),
 	]);
 
@@ -276,7 +276,7 @@ export const grantLoyaltyPoints = async (userId, points) => {
 	return await User.findOneAndUpdate(
 		{ _id: userId, deletedAt: null },
 		{ $inc: { loyalty_points: points } },
-		{ new: true, runValidators: true }
+		{ returnDocument: "after", runValidators: true }
 	).select("loyalty_points");
 };
 

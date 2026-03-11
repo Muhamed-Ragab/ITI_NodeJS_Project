@@ -26,7 +26,7 @@ export const updateById = async (couponId, couponData) => {
 	return await CouponModel.findOneAndUpdate(
 		{ _id: couponId, deletedAt: null },
 		couponData,
-		{ new: true, runValidators: true }
+		{ returnDocument: "after", runValidators: true }
 	);
 };
 
@@ -34,7 +34,7 @@ export const softDeleteById = async (couponId) => {
 	return await CouponModel.findOneAndUpdate(
 		{ _id: couponId, deletedAt: null },
 		{ deletedAt: new Date(), is_active: false },
-		{ new: true }
+		{ returnDocument: "after" }
 	);
 };
 

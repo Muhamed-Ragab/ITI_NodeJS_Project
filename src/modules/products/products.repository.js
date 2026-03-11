@@ -26,7 +26,7 @@ export const updateById = async (id, product) => {
 		{ _id: id, deletedAt: null },
 		product,
 		{
-			new: true,
+			returnDocument: "after",
 			runValidators: true,
 		}
 	)
@@ -38,7 +38,7 @@ export const deleteById = async (id) => {
 	return await ProductModel.findOneAndUpdate(
 		{ _id: id, deletedAt: null },
 		{ deletedAt: new Date(), is_active: false },
-		{ new: true }
+		{ returnDocument: "after" }
 	);
 };
 
@@ -144,7 +144,7 @@ export const appendImages = async (id, images) => {
 	return await ProductModel.findOneAndUpdate(
 		{ _id: id, deletedAt: null },
 		{ $push: { images: { $each: images } } },
-		{ new: true, runValidators: true }
+		{ returnDocument: "after", runValidators: true }
 	);
 };
 
@@ -155,7 +155,7 @@ export const updateRatingStats = async (id, stats) => {
 			average_rating: stats.average_rating,
 			ratings_count: stats.ratings_count,
 		},
-		{ new: true, runValidators: true }
+		{ returnDocument: "after", runValidators: true }
 	);
 };
 
