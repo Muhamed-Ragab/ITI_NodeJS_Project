@@ -260,11 +260,13 @@ export const createPaymentIntent = async (
 };
 
 export const handleStripeWebhook = async (stripeSignature, rawBody) => {
+	console.log(`[WEBHOOK] Stripe webhook received`);
 	const stripe = getStripeClient();
 	const webhookSecret =
 		env?.STRIPE_WEBHOOK_SECRET ?? process.env.STRIPE_WEBHOOK_SECRET;
 
 	if (!webhookSecret) {
+		console.log(`[WEBHOOK] ERROR: Webhook secret not configured`);
 		throw ApiError.internal({
 			code: "PAYMENT.WEBHOOK_SECRET_NOT_CONFIGURED",
 			message: "Stripe webhook secret is not configured",
@@ -278,7 +280,9 @@ export const handleStripeWebhook = async (stripeSignature, rawBody) => {
 			stripeSignature,
 			webhookSecret
 		);
+		console.log(`[WEBHOOK] Event constructed successfully: ${event.type}`);
 	} catch (error) {
+		console.log(`[WEBHOOK] ERROR: Invalid signature`, error.message);
 		throw ApiError.badRequest({
 			code: "PAYMENT.INVALID_SIGNATURE",
 			message: "Invalid webhook signature",
@@ -288,21 +292,31 @@ export const handleStripeWebhook = async (stripeSignature, rawBody) => {
 
 	const paymentIntent = event.data.object;
 	const eventType = event.type;
+	console.log(
+		`[WEBHOOK] Processing event type: ${eventType}, payment intent: ${paymentIntent.id}`
+	);
 
 	if (eventType === "payment_intent.succeeded") {
+		console.log(`[WEBHOOK] Payment succeeded for intent: ${paymentIntent.id}`);
 		const orderId = paymentIntent.metadata?.orderId;
 		if (!orderId) {
+			console.log(`[WEBHOOK] ERROR: No order ID in metadata`);
 			throw ApiError.badRequest({
 				code: "PAYMENT.MISSING_ORDER_ID",
 				message: "Order ID not found in payment intent metadata",
 			});
 		}
 
+		console.log(
+			`[WEBHOOK] Processing successful payment for order: ${orderId}`
+		);
 		const currentOrder = await paymentsRepo.findOrderById(orderId);
 		if (currentOrder?.status === "paid") {
+			console.log(`[WEBHOOK] Order ${orderId} already processed as paid`);
 			return { received: true, alreadyProcessed: true };
 		}
 
+		console.log(`[WEBHOOK] Updating order ${orderId} status to paid`);
 		await paymentsRepo.updateOrderPaymentStatus(orderId, {
 			status: "paid",
 			payment_info: {
@@ -312,6 +326,9 @@ export const handleStripeWebhook = async (stripeSignature, rawBody) => {
 			},
 		});
 
+		console.log(
+			`[WEBHOOK] Starting seller wallet and stock updates for order ${orderId}`
+		);
 		// Update seller wallet balances
 		await updateSellerWallets(currentOrder);
 
@@ -321,6 +338,9 @@ export const handleStripeWebhook = async (stripeSignature, rawBody) => {
 		const orderOwner = await usersRepo.findById(currentOrder.user);
 		if (orderOwner?.email) {
 			try {
+				console.log(
+					`[WEBHOOK] Sending payment notification to ${orderOwner.email}`
+				);
 				await sendOrderStatusNotification({
 					orderId: String(orderId),
 					status: "paid",
@@ -328,6 +348,7 @@ export const handleStripeWebhook = async (stripeSignature, rawBody) => {
 					name: orderOwner.name,
 				});
 			} catch (error) {
+				console.log(`[WEBHOOK] ERROR: Failed to send notification`, error);
 				logDevError({
 					scope: "payments.notifications.paid",
 					message: "Failed to send paid notification",
@@ -336,9 +357,16 @@ export const handleStripeWebhook = async (stripeSignature, rawBody) => {
 				});
 			}
 		}
+		console.log(
+			`[WEBHOOK] Successfully processed payment_intent.succeeded for order ${orderId}`
+		);
 	} else if (eventType === "payment_intent.payment_failed") {
+		console.log(`[WEBHOOK] Payment failed for intent: ${paymentIntent.id}`);
 		const orderId = paymentIntent.metadata?.orderId;
 		if (orderId) {
+			console.log(
+				`[WEBHOOK] Updating failed payment status for order: ${orderId}`
+			);
 			await paymentsRepo.updateOrderPaymentStatus(orderId, {
 				payment_info: {
 					stripe_payment_intent_id: paymentIntent.id,
@@ -347,8 +375,11 @@ export const handleStripeWebhook = async (stripeSignature, rawBody) => {
 				},
 			});
 		}
+	} else {
+		console.log(`[WEBHOOK] Unhandled event type: ${eventType}`);
 	}
 
+	console.log(`[WEBHOOK] Webhook processing completed`);
 	return { received: true };
 };
 
