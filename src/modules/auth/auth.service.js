@@ -1,13 +1,12 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { env } from "../../config/env.js";
+import { emailEvents } from "../../services/notifications/email-events.js";
 import {
 	generateEmailOtpToken,
 	generateEmailVerificationToken,
 	hashEmailOtp,
 	hashVerificationToken,
-	sendEmailOtp,
-	sendVerificationEmail,
 } from "../../services/notifications/email-provider.js";
 import { ApiError } from "../../utils/errors/api-error.js";
 import { logDevError } from "../../utils/logger.js";
@@ -100,7 +99,8 @@ export const registerUser = async ({ name, email, password }) => {
 		emailVerificationTokenExpiresAt: verification.expiresAt,
 	});
 
-	await sendVerificationEmail({
+	// Emit verification email event (non-blocking)
+	emailEvents.emitVerificationEmail({
 		email: user.email,
 		name: user.name,
 		token: verification.token,
@@ -160,7 +160,8 @@ export const loginUser = async ({ email, password }) => {
 				verification.expiresAt
 			);
 
-			await sendVerificationEmail({
+			// Emit verification email event (non-blocking)
+			emailEvents.emitVerificationEmail({
 				email: user.email,
 				name: user.name,
 				token: verification.token,
@@ -213,7 +214,13 @@ export const requestEmailOtp = async ({ email }) => {
 		otpData.otpHash,
 		otpData.expiresAt
 	);
-	await sendEmailOtp({ email: user.email, name: user.name, otp: otpData.otp });
+
+	// Emit OTP email event (non-blocking)
+	emailEvents.emitOtpEmail({
+		email: user.email,
+		name: user.name,
+		otp: otpData.otp,
+	});
 
 	return {
 		otpRequested: true,

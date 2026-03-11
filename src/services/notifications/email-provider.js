@@ -1,9 +1,30 @@
 import crypto from "node:crypto";
 import { API_PREFIX } from "../../config/api-config.js";
 import { env } from "../../config/env.js";
-import { sendMail } from "./mailer.js";
+import { logDevError } from "../../utils/logger.js";
+import { createEmailProvider } from "./providers/provider-factory.js";
+import {
+	otpEmailTemplate,
+	passwordResetEmailTemplate,
+	verificationEmailTemplate,
+	welcomeEmailTemplate,
+} from "./templates/email-templates.js";
 
 const TRAILING_SLASH_REGEX = /\/$/;
+
+// Singleton email provider instance
+let emailProvider = null;
+
+/**
+ * Get or create the email provider instance
+ * @returns {EmailProviderStrategy}
+ */
+const getEmailProvider = () => {
+	if (!emailProvider) {
+		emailProvider = createEmailProvider();
+	}
+	return emailProvider;
+};
 
 const buildBackendApiUrl = () =>
 	env.BACKEND_API_URL
@@ -41,18 +62,145 @@ export const hashEmailOtp = (otp) => {
 };
 
 export const sendVerificationEmail = async ({ email, name, token }) => {
-	const verificationLink = `${buildBackendApiUrl()}${API_PREFIX}/auth/verify-email?token=${encodeURIComponent(token)}`;
-	const subject = "Verify your email";
-	const text = `Hi ${name || "there"},\n\nPlease verify your email using this link:\n${verificationLink}\n\nThis link expires in 24 hours.`;
-	const html = `<p>Hi ${name || "there"},</p><p>Please verify your email using this link:</p><p><a href="${verificationLink}">${verificationLink}</a></p><p>This link expires in 24 hours.</p>`;
+	// Test mode simulation
+	if (env.NODE_ENV === "test") {
+		logDevError({
+			scope: "notifications.email",
+			message: "Verification email simulated (test mode)",
+			meta: { email, name, token },
+		});
+		return { sent: true, simulated: true, messageId: "test-verification" };
+	}
 
-	return await sendMail({ to: email, subject, text, html });
+	const provider = getEmailProvider();
+
+	// Check if provider is configured
+	if (!provider.isConfigured()) {
+		logDevError({
+			scope: "notifications.email",
+			message: "Email provider not configured, simulating send",
+			meta: { email, name },
+		});
+		return { sent: true, simulated: true, messageId: "simulated-verification" };
+	}
+
+	try {
+		const verificationLink = `${buildBackendApiUrl()}${API_PREFIX}/auth/verify-email?token=${encodeURIComponent(token)}`;
+		const { html, text } = verificationEmailTemplate({
+			name,
+			verificationLink,
+		});
+		const subject = "Verify your email - ITI E-Commerce";
+
+		return await provider.sendEmail(email, subject, text, html);
+	} catch (error) {
+		console.error("Failed to send verification email:", error);
+		throw new Error(`Email send failed: ${error.message}`);
+	}
 };
 
 export const sendEmailOtp = async ({ email, name, otp }) => {
-	const subject = "Your login OTP code";
-	const text = `Hi ${name || "there"},\n\nYour OTP is: ${otp}\nIt expires in 5 minutes.`;
-	const html = `<p>Hi ${name || "there"},</p><p>Your OTP is: <strong>${otp}</strong></p><p>It expires in 5 minutes.</p>`;
+	// Test mode simulation
+	if (env.NODE_ENV === "test") {
+		logDevError({
+			scope: "notifications.email",
+			message: "OTP email simulated (test mode)",
+			meta: { email, name, otp },
+		});
+		return { sent: true, simulated: true, messageId: "test-otp" };
+	}
 
-	return await sendMail({ to: email, subject, text, html });
+	const provider = getEmailProvider();
+
+	// Check if provider is configured
+	if (!provider.isConfigured()) {
+		logDevError({
+			scope: "notifications.email",
+			message: "Email provider not configured, simulating send",
+			meta: { email, name },
+		});
+		return { sent: true, simulated: true, messageId: "simulated-otp" };
+	}
+
+	try {
+		const { html, text } = otpEmailTemplate({ name, otp });
+		const subject = "Your login code - ITI E-Commerce";
+
+		return await provider.sendEmail(email, subject, text, html);
+	} catch (error) {
+		console.error("Failed to send OTP email:", error);
+		throw new Error(`Email send failed: ${error.message}`);
+	}
+};
+
+export const sendPasswordResetEmail = async ({ email, name, resetLink }) => {
+	// Test mode simulation
+	if (env.NODE_ENV === "test") {
+		logDevError({
+			scope: "notifications.email",
+			message: "Password reset email simulated (test mode)",
+			meta: { email, name },
+		});
+		return { sent: true, simulated: true, messageId: "test-password-reset" };
+	}
+
+	const provider = getEmailProvider();
+
+	// Check if provider is configured
+	if (!provider.isConfigured()) {
+		logDevError({
+			scope: "notifications.email",
+			message: "Email provider not configured, simulating send",
+			meta: { email, name },
+		});
+		return {
+			sent: true,
+			simulated: true,
+			messageId: "simulated-password-reset",
+		};
+	}
+
+	try {
+		const { html, text } = passwordResetEmailTemplate({ name, resetLink });
+		const subject = "Reset your password - ITI E-Commerce";
+
+		return await provider.sendEmail(email, subject, text, html);
+	} catch (error) {
+		console.error("Failed to send password reset email:", error);
+		throw new Error(`Email send failed: ${error.message}`);
+	}
+};
+
+export const sendWelcomeEmail = async ({ email, name }) => {
+	// Test mode simulation
+	if (env.NODE_ENV === "test") {
+		logDevError({
+			scope: "notifications.email",
+			message: "Welcome email simulated (test mode)",
+			meta: { email, name },
+		});
+		return { sent: true, simulated: true, messageId: "test-welcome" };
+	}
+
+	const provider = getEmailProvider();
+
+	// Check if provider is configured
+	if (!provider.isConfigured()) {
+		logDevError({
+			scope: "notifications.email",
+			message: "Email provider not configured, simulating send",
+			meta: { email, name },
+		});
+		return { sent: true, simulated: true, messageId: "simulated-welcome" };
+	}
+
+	try {
+		const { html, text } = welcomeEmailTemplate({ name });
+		const subject = "Welcome to ITI E-Commerce!";
+
+		return await provider.sendEmail(email, subject, text, html);
+	} catch (error) {
+		console.error("Failed to send welcome email:", error);
+		throw new Error(`Email send failed: ${error.message}`);
+	}
 };
