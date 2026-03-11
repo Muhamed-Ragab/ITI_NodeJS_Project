@@ -65,7 +65,22 @@ export const listPaymentsForAdmin = async (filters = {}) => {
  * Update product stock quantity atomically
  */
 export const updateProductStock = async (productId, quantityToReduce) => {
-	return await productsRepo.updateById(productId, {
-		$inc: { stock_quantity: -quantityToReduce },
-	});
+	console.log(
+		`[REPO] Updating stock for product ${productId}, reducing by ${quantityToReduce}`
+	);
+	try {
+		const result = await productsRepo.updateById(productId, {
+			$inc: { stock_quantity: -quantityToReduce },
+		});
+		console.log(
+			`[REPO] Stock update result:`,
+			result
+				? `Success - new stock: ${result.stock_quantity}`
+				: "Product not found"
+		);
+		return result;
+	} catch (error) {
+		console.log(`[REPO] Stock update error:`, error);
+		throw error;
+	}
 };

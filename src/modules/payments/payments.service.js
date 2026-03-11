@@ -87,13 +87,32 @@ const updateSellerWallets = async (order) => {
 /**
  * Update product stock quantities after successful payment
  */
+/**
+ * Update product stock quantities after successful payment
+ */
 const updateProductStock = async (order) => {
 	try {
+		console.log(`[STOCK UPDATE] Starting stock update for order ${order._id}`);
+		console.log(
+			`[STOCK UPDATE] Order items:`,
+			JSON.stringify(order.items, null, 2)
+		);
+
 		const updatePromises = order.items.map(async (item) => {
 			try {
+				console.log(`[STOCK UPDATE] Processing item:`, {
+					product: item.product,
+					quantity: item.quantity,
+					title: item.title,
+				});
+
 				if (item.product && item.quantity > 0) {
 					const productId = String(item.product);
 					const quantityToReduce = Number(item.quantity);
+
+					console.log(
+						`[STOCK UPDATE] Reducing stock for product ${productId} by ${quantityToReduce}`
+					);
 
 					// Use atomic operation to reduce stock quantity
 					const updatedProduct = await paymentsRepo.updateProductStock(
@@ -103,17 +122,27 @@ const updateProductStock = async (order) => {
 
 					if (updatedProduct) {
 						console.log(
-							`Updated product ${productId} stock: -${quantityToReduce} (new stock: ${updatedProduct.stock_quantity})`
+							`[STOCK UPDATE] SUCCESS: Updated product ${productId} stock: -${quantityToReduce} (new stock: ${updatedProduct.stock_quantity})`
 						);
 					} else {
+						console.log(`[STOCK UPDATE] ERROR: Product ${productId} not found`);
 						logDevError({
 							scope: "payments.stock-update",
 							message: "Product not found for stock update",
 							meta: { productId, quantityToReduce },
 						});
 					}
+				} else {
+					console.log(`[STOCK UPDATE] SKIPPED: Invalid item data`, {
+						hasProduct: !!item.product,
+						quantity: item.quantity,
+					});
 				}
 			} catch (error) {
+				console.log(
+					`[STOCK UPDATE] ERROR: Failed to update stock for item`,
+					error
+				);
 				logDevError({
 					scope: "payments.stock-update",
 					message: "Failed to update product stock",
@@ -124,7 +153,9 @@ const updateProductStock = async (order) => {
 		});
 
 		await Promise.all(updatePromises);
+		console.log(`[STOCK UPDATE] Completed stock update for order ${order._id}`);
 	} catch (error) {
+		console.log(`[STOCK UPDATE] FATAL ERROR:`, error);
 		logDevError({
 			scope: "payments.stock-update",
 			message: "Failed to update product stocks",
