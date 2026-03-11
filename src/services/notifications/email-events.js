@@ -89,7 +89,7 @@ export const registerEmailEventListeners = (emailService) => {
 	// OTP email listener
 	emailEvents.on("email:otp", async (data) => {
 		try {
-			const result = await emailService.sendOtpEmail(data);
+			const result = await emailService.sendEmailOtp(data);
 			emailEvents.emitEmailSent({
 				type: "otp",
 				email: data.email,
