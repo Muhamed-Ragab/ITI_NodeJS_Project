@@ -4,6 +4,7 @@ import {
 } from "../../utils/pagination.js";
 import Order from "../orders/orders.model.js";
 import * as ordersRepo from "../orders/orders.repository.js";
+import * as productsRepo from "../products/products.repository.js";
 
 /**
  * Find order by ID. Reuses orders repository.
@@ -59,4 +60,12 @@ export const listPaymentsForAdmin = async (filters = {}) => {
 		payments,
 		pagination: buildPaginationMeta({ page, limit, total }),
 	};
+};
+/**
+ * Update product stock quantity atomically
+ */
+export const updateProductStock = async (productId, quantityToReduce) => {
+	return await productsRepo.updateById(productId, {
+		$inc: { stock_quantity: -quantityToReduce },
+	});
 };

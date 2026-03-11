@@ -84,6 +84,55 @@ const updateSellerWallets = async (order) => {
 		});
 	}
 };
+/**
+ * Update product stock quantities after successful payment
+ */
+const updateProductStock = async (order) => {
+	try {
+		const updatePromises = order.items.map(async (item) => {
+			try {
+				if (item.product && item.quantity > 0) {
+					const productId = String(item.product);
+					const quantityToReduce = Number(item.quantity);
+
+					// Use atomic operation to reduce stock quantity
+					const updatedProduct = await paymentsRepo.updateProductStock(
+						productId,
+						quantityToReduce
+					);
+
+					if (updatedProduct) {
+						console.log(
+							`Updated product ${productId} stock: -${quantityToReduce} (new stock: ${updatedProduct.stock_quantity})`
+						);
+					} else {
+						logDevError({
+							scope: "payments.stock-update",
+							message: "Product not found for stock update",
+							meta: { productId, quantityToReduce },
+						});
+					}
+				}
+			} catch (error) {
+				logDevError({
+					scope: "payments.stock-update",
+					message: "Failed to update product stock",
+					error,
+					meta: { productId: item.product, quantity: item.quantity },
+				});
+			}
+		});
+
+		await Promise.all(updatePromises);
+	} catch (error) {
+		logDevError({
+			scope: "payments.stock-update",
+			message: "Failed to update product stocks",
+			error,
+			meta: { orderId: order._id },
+		});
+	}
+};
 
 function getStripeClient() {
 	if (!stripeClient) {
@@ -235,6 +284,9 @@ export const handleStripeWebhook = async (stripeSignature, rawBody) => {
 		// Update seller wallet balances
 		await updateSellerWallets(currentOrder);
 
+		// Update product stock quantities
+		await updateProductStock(currentOrder);
+
 		const orderOwner = await usersRepo.findById(currentOrder.user);
 		if (orderOwner?.email) {
 			try {
@@ -318,6 +370,9 @@ export const processCheckoutPayment = async (
 
 		// Update seller wallet balances
 		await updateSellerWallets(order);
+
+		// Update product stock quantities
+		await updateProductStock(order);
 
 		const orderOwner = await usersRepo.findById(order.user);
 		if (orderOwner?.email) {
