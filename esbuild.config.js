@@ -1,6 +1,15 @@
 import * as esbuild from "esbuild";
+import fs from "fs";
+import path from "path";
 
 const isWatch = process.argv.includes("--watch");
+const isVercel = process.env.VERCEL === "1";
+
+// For Vercel, we don't need to build server.js since we use api/index.js
+if (isVercel) {
+	console.log("Vercel build detected - skipping server.js build");
+	process.exit(0);
+}
 
 const config = {
 	entryPoints: ["src/server.js"],
