@@ -21,12 +21,24 @@ const createApp = () => {
 
 	// Middleware
 	app.use(morgan(appNodeEnv === "production" ? "combined" : "dev"));
+
+	// Build allowed origins
+	const allowedOrigins =
+		appNodeEnv === "production"
+			? [
+					"http://localhost:3000",
+					"http://localhost:4200",
+					"http://localhost:5173",
+					env.APP_BASE_URL,
+				].filter(Boolean)
+			: "*";
+
 	app.use(
 		cors({
-			origin:
-				appNodeEnv === "production"
-					? ["http://localhost:*", env.APP_BASE_URL]
-					: "*",
+			origin: allowedOrigins,
+			credentials: true,
+			methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+			allowedHeaders: ["Content-Type", "Authorization"],
 		})
 	);
 

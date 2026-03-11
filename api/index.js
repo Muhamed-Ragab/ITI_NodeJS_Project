@@ -37,14 +37,38 @@ export default async (req, res) => {
 		// Initialize app on first request
 		await initializeApp();
 
-		// Handle the request with Express app
-		app(req, res);
+		// Wrap the app call to catch any errors
+		return new Promise((resolve, reject) => {
+			// Set a timeout to prevent hanging
+			const timeout = setTimeout(() => {
+				reject(new Error("Request timeout"));
+			}, 29_000); // Vercel max is 30s
+
+			// Handle the request with Express app
+			app(req, res);
+
+			// Clear timeout on response
+			res.on("finish", () => {
+				clearTimeout(timeout);
+				resolve();
+			});
+
+			res.on("error", (err) => {
+				clearTimeout(timeout);
+				reject(err);
+			});
+		});
 	} catch (err) {
 		console.error("Error in serverless handler:", err);
-		res.status(500).json({
-			success: false,
-			message: "Internal server error",
-			error: env.NODE_ENV === "development" ? err.message : undefined,
-		});
+		console.error("Stack trace:", err.stack);
+
+		// Only send response if headers haven't been sent
+		if (!res.headersSent) {
+			res.status(500).json({
+				success: false,
+				message: "Internal server error",
+				error: env.NODE_ENV === "development" ? err.message : undefined,
+			});
+		}
 	}
 };
