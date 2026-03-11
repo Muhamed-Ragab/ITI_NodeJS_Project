@@ -1,31 +1,28 @@
 /* eslint-disable */
 // @ts-nocheck
+import { initializeApp } from "../dist/init.js";
 import app from "../dist/app.js";
-import connectDB from "../dist/config/db.js";
-import { registerEmailEventListeners } from "../dist/services/notifications/email-events.js";
-import * as emailService from "../dist/services/notifications/email-provider.js";
 
-// Initialize database and email listeners
+// Initialize on first request
 let initialized = false;
 
-const initialize = async () => {
-  if (initialized) {
-    return;
-  }
+const handler = async (req, res) => {
+	if (!initialized) {
+		try {
+			await initializeApp();
+			initialized = true;
+		} catch (err) {
+			console.error("Initialization failed:", err);
+			return res.status(500).json({
+				success: false,
+				message: "Failed to initialize",
+				error: err.message,
+			});
+		}
+	}
 
-  try {
-    await connectDB();
-    registerEmailEventListeners(emailService);
-    initialized = true;
-  } catch (err) {
-    console.error("Initialization error:", err);
-    throw err;
-  }
+	// Pass to Express app
+	app(req, res);
 };
 
-// Initialize on import
-initialize().catch((err) => {
-  console.error("Failed to initialize:", err);
-});
-
-export default app;
+export default handler;
