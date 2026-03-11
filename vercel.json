@@ -3,6 +3,10 @@
   "buildCommand": "npm run build",
   "rewrites": [
     {
+      "source": "/health",
+      "destination": "/api/health.js"
+    },
+    {
       "source": "/(.*)",
       "destination": "/api/index.js"
     }
