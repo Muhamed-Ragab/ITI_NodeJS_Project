@@ -390,8 +390,6 @@ export const reviewSellerPayoutRequest = async (
 		});
 	}
 
-	console.log("Current wallet balance:", user.wallet_balance);
-
 	// Convert Mongoose subdocuments to plain objects
 	const requests = (user.seller_profile?.payout_requests || []).map((req) =>
 		req.toObject ? req.toObject() : req
@@ -418,19 +416,13 @@ export const reviewSellerPayoutRequest = async (
 	};
 
 	let nextWalletBalance = Number(user.wallet_balance || 0);
+	// Only deduct from wallet when status is "paid"
 	if (status === "paid") {
 		nextWalletBalance = Math.max(
 			0,
 			nextWalletBalance - Number(requests[index].amount)
 		);
 	}
-
-	console.log(
-		"Updating wallet balance from",
-		user.wallet_balance,
-		"to",
-		nextWalletBalance
-	);
 
 	const updated = await repo.updateById(userId, {
 		$set: {
@@ -439,8 +431,6 @@ export const reviewSellerPayoutRequest = async (
 		},
 	});
 
-	console.log("Updated wallet balance:", updated?.wallet_balance);
-
 	if (!updated) {
 		throw ApiError.notFound({
 			code: "USER.NOT_FOUND",
@@ -448,9 +438,8 @@ export const reviewSellerPayoutRequest = async (
 		});
 	}
 
-	// Ensure we return the correct wallet balance
 	return {
-		wallet_balance: nextWalletBalance, // Use the calculated balance instead of the document
+		wallet_balance: nextWalletBalance,
 		payout_requests: updated.seller_profile?.payout_requests || [],
 	};
 };
