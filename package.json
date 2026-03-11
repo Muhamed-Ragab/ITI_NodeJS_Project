@@ -12,6 +12,7 @@
     "format:check": "biome check --reporter=summary",
     "build": "node esbuild.config.js",
     "build:watch": "node esbuild.config.js --watch",
+    "vercel-build": "npm run build",
     "test": "vitest",
     "test:coverage": "vitest --coverage",
     "test:watch": "vitest -w",
