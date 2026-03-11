@@ -1,9 +1,7 @@
 import * as esbuild from "esbuild";
-import fs from "fs";
-import path from "path";
 
 const isWatch = process.argv.includes("--watch");
-const isVercel = process.env.VERCEL === "1";
+const _isVercel = process.env.VERCEL === "1";
 
 // Build app.js and init.js for use in api/index.js
 const config = {

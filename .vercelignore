@@ -5,3 +5,16 @@ node_modules
 .env
 .env.local
 .env.*.local
+.gitignore
+.editorconfig
+README.md
+docs/
+plans/
+tasks/
+.agents/
+.claude/
+.gemini/
+.kilocode/
+.swarm/
+.vscode/
+.github/

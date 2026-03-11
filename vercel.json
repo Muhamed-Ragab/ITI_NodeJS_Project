@@ -1,14 +1,18 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "rewrites": [
+  "builds": [
     {
-      "source": "/health",
-      "destination": "/api/health.js"
-    },
+      "src": "api/index.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["dist/**", "src/**", ".env"]
+      }
+    }
+  ],
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/api/index.js"
+      "src": "/(.*)",
+      "dest": "/api/index.js"
     }
   ]
 }

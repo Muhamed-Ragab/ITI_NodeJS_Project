@@ -1,6 +1,6 @@
 import app from "./app.js";
-import { initializeApp } from "./init.js";
 import { env } from "./config/env.js";
+import { initializeApp } from "./init.js";
 
 const PORT = env.PORT || 3000;
 
