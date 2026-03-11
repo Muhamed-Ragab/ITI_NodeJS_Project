@@ -363,15 +363,21 @@ export const processCheckoutPayment = async (
 	savedMethodId,
 	guestEmail
 ) => {
+	console.log(
+		`[CHECKOUT] Processing payment for order ${orderId}, method: ${method}`
+	);
 	const order = await validateOrderForPayment(orderId, userId, guestEmail);
 
 	const normalizedMethod = normalizeMethod(method);
+	console.log(`[CHECKOUT] Normalized method: ${normalizedMethod}`);
 
 	if (normalizedMethod === "stripe") {
+		console.log(`[CHECKOUT] Creating Stripe payment intent`);
 		return await createPaymentIntent(orderId, userId, guestEmail);
 	}
 
 	if (normalizedMethod === "wallet") {
+		console.log(`[CHECKOUT] Processing wallet payment`);
 		const user = await usersRepo.findById(userId);
 		const walletBalance = Number(user?.wallet_balance ?? 0);
 		if (walletBalance < Number(order.total_amount)) {
@@ -399,6 +405,9 @@ export const processCheckoutPayment = async (
 			},
 		});
 
+		console.log(
+			`[CHECKOUT] Wallet payment successful, updating seller wallets and stock`
+		);
 		// Update seller wallet balances
 		await updateSellerWallets(order);
 
@@ -432,6 +441,7 @@ export const processCheckoutPayment = async (
 	}
 
 	if (normalizedMethod === "cod") {
+		console.log(`[CHECKOUT] Processing COD payment - no stock update yet`);
 		await paymentsRepo.updateOrderPaymentStatus(orderId, {
 			payment_info: {
 				method: "cod",
@@ -448,6 +458,7 @@ export const processCheckoutPayment = async (
 	}
 
 	if (normalizedMethod === "paypal") {
+		console.log(`[CHECKOUT] Processing PayPal payment - no stock update yet`);
 		await paymentsRepo.updateOrderPaymentStatus(orderId, {
 			payment_info: {
 				method: "paypal",

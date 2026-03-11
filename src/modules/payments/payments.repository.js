@@ -33,7 +33,7 @@ export const updateOrderPaymentStatus = async (orderId, paymentData) => {
 		};
 	}
 	return await Order.findByIdAndUpdate(orderId, updateData, {
-		new: true,
+		returnDocument: "after",
 		runValidators: true,
 	});
 };
