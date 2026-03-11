@@ -13,7 +13,6 @@ import paymentRouter from "./modules/payments/payments.routes.js";
 import productRouter from "./modules/products/products.routes.js";
 import reviewsRouter from "./modules/reviews/reviews.routes.js";
 import userRouter from "./modules/users/users.routes.js";
-import { emailEvents } from "./services/notifications/email-events.js";
 import { sendSuccess } from "./utils/response.js";
 
 const createApp = () => {
@@ -79,23 +78,6 @@ const createApp = () => {
 
 	// Error Handling
 	app.use(errorHandler);
-
-	// Wait for pending emails before sending response (for serverless environments)
-	app.use((_req, res, next) => {
-		const originalJson = res.json.bind(res);
-		res.json = (data) => {
-			// Only wait for emails in production (Vercel)
-			if (env.NODE_ENV === "production" && emailEvents.pendingEmails.size > 0) {
-				emailEvents.waitForPendingEmails(2000).finally(() => {
-					originalJson(data);
-				});
-			} else {
-				originalJson(data);
-			}
-			return res;
-		};
-		next();
-	});
 
 	return app;
 };
