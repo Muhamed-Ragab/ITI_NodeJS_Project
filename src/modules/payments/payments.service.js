@@ -31,6 +31,60 @@ const normalizeMethod = (method) => {
 	return normalized;
 };
 
+/**
+ * Update seller wallet balances when an order is paid
+ */
+const updateSellerWallets = async (order) => {
+	try {
+		// Group items by seller to calculate total earnings per seller
+		const sellerEarnings = new Map();
+
+		for (const item of order.items) {
+			if (item.seller_id) {
+				const sellerId = String(item.seller_id);
+				const itemTotal = item.price * item.quantity;
+				const currentEarnings = sellerEarnings.get(sellerId) || 0;
+				sellerEarnings.set(sellerId, currentEarnings + itemTotal);
+			}
+		}
+
+		// Update each seller's wallet balance
+		const updatePromises = Array.from(sellerEarnings.entries()).map(
+			async ([sellerId, earnings]) => {
+				try {
+					const seller = await usersRepo.findById(sellerId);
+					if (seller) {
+						const currentBalance = Number(seller.wallet_balance || 0);
+						const newBalance = currentBalance + earnings;
+						await usersRepo.updateById(sellerId, {
+							$set: { wallet_balance: newBalance },
+						});
+						console.log(
+							`Updated seller ${sellerId} wallet: +${earnings} (${currentBalance} -> ${newBalance})`
+						);
+					}
+				} catch (error) {
+					logDevError({
+						scope: "payments.seller-wallet-update",
+						message: "Failed to update seller wallet",
+						error,
+						meta: { sellerId, earnings },
+					});
+				}
+			}
+		);
+
+		await Promise.all(updatePromises);
+	} catch (error) {
+		logDevError({
+			scope: "payments.seller-wallet-update",
+			message: "Failed to update seller wallets",
+			error,
+			meta: { orderId: order._id },
+		});
+	}
+};
+
 function getStripeClient() {
 	if (!stripeClient) {
 		const stripeSecretKey =
@@ -178,6 +232,9 @@ export const handleStripeWebhook = async (stripeSignature, rawBody) => {
 			},
 		});
 
+		// Update seller wallet balances
+		await updateSellerWallets(currentOrder);
+
 		const orderOwner = await usersRepo.findById(currentOrder.user);
 		if (orderOwner?.email) {
 			try {
@@ -258,6 +315,9 @@ export const processCheckoutPayment = async (
 					: null,
 			},
 		});
+
+		// Update seller wallet balances
+		await updateSellerWallets(order);
 
 		const orderOwner = await usersRepo.findById(order.user);
 		if (orderOwner?.email) {
