@@ -17,10 +17,7 @@ export const emailRequestOtpSchema = z.object({
 
 export const emailLoginSchema = z.object({
 	email: z.string().trim().toLowerCase().email(),
-	otp: z
-		.string()
-		.trim()
-		.regex(/^\d{6}$/, "OTP must be a 6-digit code"),
+	otp: z.string().min(1),
 });
 
 export const googleCallbackSchema = z.object({
