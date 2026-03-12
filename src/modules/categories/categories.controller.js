@@ -67,3 +67,29 @@ export const getProductsByCategory = async (req, res) => {
 		message: "Products retrieved successfully",
 	});
 };
+
+export const uploadCategoryImages = async (req, res) => {
+	const category = await categoryService.uploadImages(
+		req.params.id,
+		req.body.images
+	);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: category,
+		message: "Images uploaded successfully",
+	});
+};
+
+export const getCategoryImageUploadPayload = async (req, res) => {
+	const payload = await categoryService.getImageUploadPayload(
+		req.user.id,
+		req.body
+	);
+
+	return sendSuccess(res, {
+		statusCode: StatusCodes.OK,
+		data: payload,
+		message: "Upload payload generated successfully",
+	});
+};

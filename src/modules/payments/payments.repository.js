@@ -73,14 +73,14 @@ export const updateProductStock = async (productId, quantityToReduce) => {
 			$inc: { stock_quantity: -quantityToReduce },
 		});
 		console.log(
-			`[REPO] Stock update result:`,
+			"[REPO] Stock update result:",
 			result
 				? `Success - new stock: ${result.stock_quantity}`
 				: "Product not found"
 		);
 		return result;
 	} catch (error) {
-		console.log(`[REPO] Stock update error:`, error);
+		console.log("[REPO] Stock update error:", error);
 		throw error;
 	}
 };

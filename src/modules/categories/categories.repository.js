@@ -44,3 +44,14 @@ export const list = async (filters = {}) => {
 		pagination: buildPaginationMeta({ page, limit, total }),
 	};
 };
+
+export const updateImage = async (id, imageUrl) => {
+	return await CategoryModel.findOneAndUpdate(
+		{ _id: id, deletedAt: null },
+		{ image: imageUrl },
+		{
+			returnDocument: "after",
+			runValidators: true,
+		}
+	);
+};

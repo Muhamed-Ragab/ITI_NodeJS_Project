@@ -7,6 +7,8 @@ import {
 	categoryCreateSchema,
 	categoryIdSchema,
 	categoryUpdateSchema,
+	imageUploadPayloadSchema,
+	imageUploadSchema,
 } from "./categories.validation.js";
 
 const categoryRouter = Router();
@@ -41,5 +43,21 @@ categoryRouter
 	);
 
 categoryRouter.route("/products").get(categoryController.getProductsByCategory);
+
+categoryRouter
+	.post(
+		"/images/upload-payload",
+		requireAuth,
+		requireRole("admin"),
+		validate({ body: imageUploadPayloadSchema }),
+		categoryController.getCategoryImageUploadPayload
+	)
+	.post(
+		"/:id/images/upload",
+		requireAuth,
+		requireRole("admin"),
+		validate({ params: categoryIdSchema, body: imageUploadSchema }),
+		categoryController.uploadCategoryImages
+	);
 
 export default categoryRouter;
